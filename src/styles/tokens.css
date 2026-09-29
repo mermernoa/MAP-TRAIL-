@@ -1,0 +1,93 @@
+/*
+ * Balise — jetons de design.
+ * Papier lichen, encre sapin, rouge balisage GR réservé à la sélection et aux
+ * actions principales ; rampe de distances ocre → brun (identique à la carte).
+ */
+:root {
+  color-scheme: light;
+  --paper: #eef2ec;
+  --surface: #fbfcfa;
+  --surface-2: #e4eae2;
+  --surface-3: #d5ddd3;
+  --ink: #14261f;
+  --ink-2: #44554e;
+  --ink-3: #5f6d67;
+  --line: rgba(20, 38, 31, 0.13);
+  --line-strong: rgba(20, 38, 31, 0.26);
+  --blaze: #d7322b;
+  --blaze-ink: #ffffff;
+  --blaze-soft: #f9e1dd;
+  --pine: #1e4b3e;
+  --contour: #9c5a22;
+  --contour-wash: rgba(156, 90, 34, 0.13);
+  --focus: #1f6feb;
+  --good: #16713a;
+  --good-soft: #dcefe2;
+  --warn: #8a5300;
+  --warn-soft: #f8ecd4;
+
+  --band-xs: #df8f33;
+  --band-s: #cc6328;
+  --band-m: #b04024;
+  --band-l: #83261f;
+  --band-xl: #4f1915;
+
+  --radius-s: 6px;
+  --radius-m: 9px;
+  --radius-l: 14px;
+  --shadow-float: 0 10px 30px rgba(20, 38, 31, 0.16), 0 1px 3px rgba(20, 38, 31, 0.12);
+  --font: 'Archivo Variable', 'Archivo', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --header-h: 56px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    color-scheme: dark;
+    --paper: #15211d;
+    --surface: #1b2925;
+    --surface-2: #24342e;
+    --surface-3: #2f4139;
+    --ink: #e8eee9;
+    --ink-2: #b9c6bf;
+    --ink-3: #97a69f;
+    --line: rgba(232, 238, 233, 0.12);
+    --line-strong: rgba(232, 238, 233, 0.26);
+    --blaze: #ff6b5f;
+    --blaze-ink: #1f0e0c;
+    --blaze-soft: #4a2521;
+    --pine: #9fd0b9;
+    --contour: #e2a36a;
+    --contour-wash: rgba(226, 163, 106, 0.15);
+    --focus: #6aa7ff;
+    --good: #6fd08f;
+    --good-soft: #1f3a2a;
+    --warn: #f0b85a;
+    --warn-soft: #3b2f18;
+    --shadow-float: 0 10px 30px rgba(0, 0, 0, 0.45), 0 1px 3px rgba(0, 0, 0, 0.4);
+  }
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --paper: #15211d;
+  --surface: #1b2925;
+  --surface-2: #24342e;
+  --surface-3: #2f4139;
+  --ink: #e8eee9;
+  --ink-2: #b9c6bf;
+  --ink-3: #97a69f;
+  --line: rgba(232, 238, 233, 0.12);
+  --line-strong: rgba(232, 238, 233, 0.26);
+  --blaze: #ff6b5f;
+  --blaze-ink: #1f0e0c;
+  --blaze-soft: #4a2521;
+  --pine: #9fd0b9;
+  --contour: #e2a36a;
+  --contour-wash: rgba(226, 163, 106, 0.15);
+  --focus: #6aa7ff;
+  --good: #6fd08f;
+  --good-soft: #1f3a2a;
+  --warn: #f0b85a;
+  --warn-soft: #3b2f18;
+  --shadow-float: 0 10px 30px rgba(0, 0, 0, 0.45), 0 1px 3px rgba(0, 0, 0, 0.4);
+}
