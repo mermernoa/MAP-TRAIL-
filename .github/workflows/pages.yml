@@ -2,7 +2,7 @@ name: Déploiement GitHub Pages
 
 on:
   push:
-    branches: [main]
+    branches: [main, claude/interactive-trails-map-rxpucs]
   workflow_dispatch:
 
 permissions:
