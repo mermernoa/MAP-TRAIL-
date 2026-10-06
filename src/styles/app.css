@@ -1509,10 +1509,14 @@ textarea {
   background: var(--surface-3);
 }
 
-.cal-chip.is-continuation {
+/* Date prévisionnelle (« à confirmer ») : même repère de distance, en pointillés. */
+.cal-chip.is-tentative {
   font-weight: 500;
+  font-style: italic;
   color: var(--ink-2);
   background: transparent;
+  outline: 1px dashed var(--line-strong);
+  outline-offset: -1px;
 }
 
 .band-edge-xs {
@@ -1620,11 +1624,6 @@ textarea {
   opacity: 1;
 }
 
-.year-day.is-ongoing {
-  background: var(--surface-2);
-  color: var(--ink);
-}
-
 .year-day.has-race {
   color: #ffffff;
   font-weight: 700;
@@ -1709,6 +1708,15 @@ textarea {
   padding: 8px 10px;
   font-size: 14px;
   white-space: normal;
+}
+
+.day-regs-title {
+  margin: 0 0 8px;
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--ink-3);
 }
 
 /* ---------- Race page ---------- */
@@ -2886,8 +2894,13 @@ textarea {
     background: var(--band-xl);
   }
 
-  .cal-chip.is-continuation {
+  .cal-chip.is-tentative {
+    outline: 0;
     opacity: 0.45;
+  }
+
+  .month-more-label {
+    display: none;
   }
 
   .cal-chip-reg {

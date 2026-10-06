@@ -1,6 +1,16 @@
 import { describe, expect, it } from 'vitest';
 import { fixtureRaces as builtinRaces } from './fixtures';
-import { applyFilters, countActiveFilters, DEFAULT_FILTERS, normalize, registrationState, sortMatches } from '../lib/filters';
+import {
+  applyFilters,
+  countActiveFilters,
+  DEFAULT_FILTERS,
+  fameScore,
+  matchFit,
+  normalize,
+  rankMatches,
+  registrationState,
+  sortMatches,
+} from '../lib/filters';
 
 const today = '2026-09-29';
 const run = (patch: Partial<typeof DEFAULT_FILTERS>) => applyFilters(builtinRaces, { ...DEFAULT_FILTERS, ...patch }, today);
@@ -66,5 +76,39 @@ describe('filtres', () => {
   it('compte les filtres actifs', () => {
     expect(countActiveFilters(DEFAULT_FILTERS)).toBe(0);
     expect(countActiveFilters({ ...DEFAULT_FILTERS, technicity: [3], countries: ['FR'] })).toBe(2);
+  });
+});
+
+describe('classement dans une journée', () => {
+  const sample = builtinRaces[0];
+  const course = sample.courses[0];
+  const event = (id: string, popularity: 1 | 5, distanceKm: number) => ({
+    ...sample,
+    id,
+    name: id,
+    popularity,
+    circuits: [],
+    dateStatus: 'official' as const,
+    courses: [{ ...course, id: `${id}-1`, distanceKm, start: '2027-06-06', utmbIndex: undefined, utmbCategory: undefined }],
+  });
+  const confidential50 = event('confidentielle-50', 1, 50);
+  const famous41 = event('celebre-41', 5, 41);
+  const matches = (f: typeof DEFAULT_FILTERS) => applyFilters([confidential50, famous41], f, today);
+
+  it('met les plus connues devant sans filtre', () => {
+    expect(fameScore(famous41)).toBeGreaterThan(fameScore(confidential50));
+    expect(matchFit(matches(DEFAULT_FILTERS)[0], DEFAULT_FILTERS)).toBeNull();
+    expect(rankMatches(matches(DEFAULT_FILTERS), DEFAULT_FILTERS).map((m) => m.event.id)).toEqual(['celebre-41', 'confidentielle-50']);
+  });
+
+  it('met celles qui collent le mieux aux filtres devant quand on filtre', () => {
+    const f = { ...DEFAULT_FILTERS, distance: [40, 60] as [number, number] };
+    expect(rankMatches(matches(f), f).map((m) => m.event.id)).toEqual(['confidentielle-50', 'celebre-41']);
+  });
+
+  it('garde la notoriété pour départager les filtres tout-ou-rien', () => {
+    const f = { ...DEFAULT_FILTERS, technicity: [course.technicity ?? 3] };
+    const ranked = rankMatches(matches(f), f);
+    for (let i = 1; i < ranked.length; i++) expect(fameScore(ranked[i].event)).toBeLessThanOrEqual(fameScore(ranked[i - 1].event));
   });
 });

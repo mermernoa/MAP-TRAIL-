@@ -6,7 +6,6 @@ import { RaceListItem } from '../components/RaceListItem';
 import { RacePreview } from '../components/RacePreview';
 import type { RaceEvent } from '../data/types';
 import {
-  addDays,
   daysInMonth,
   formatDate,
   MONTH_NAMES,
@@ -16,7 +15,7 @@ import {
   WEEKDAY_SHORT,
   weekday,
 } from '../lib/dates';
-import { applyFilters, type Match, sortMatches } from '../lib/filters';
+import { applyFilters, type Match, matchFit, rankMatches, sortMatches } from '../lib/filters';
 import { distanceBand } from '../lib/metrics';
 import { useFilterStore } from '../store/filters';
 import { useAllRaces } from '../store/races';
@@ -26,11 +25,16 @@ import { useToday } from '../store/useToday';
 type View = 'month' | 'year' | 'list';
 
 type DayItem =
-  | { kind: 'race'; match: Match; first: boolean }
+  | { kind: 'race'; match: Match }
   | { kind: 'opens' | 'closes' | 'lottery'; event: RaceEvent };
 
 const REG_TEXT = { opens: 'Ouverture inscriptions', closes: 'Clôture inscriptions', lottery: 'Tirage au sort' };
 
+/**
+ * Éléments de chaque jour, dans l'ordre de `matches` (déjà classées). Une course figure le
+ * jour de départ de chacun de ses parcours retenus, pas sur toute la période : certaines
+ * fiches ont une date de fin lointaine (championnats, saisies erronées).
+ */
 function buildDayIndex(matches: Match[], withRegistration: boolean): Map<string, DayItem[]> {
   const index = new Map<string, DayItem[]>();
   const push = (day: string, item: DayItem) => {
@@ -40,9 +44,7 @@ function buildDayIndex(matches: Match[], withRegistration: boolean): Map<string,
   };
   for (const match of matches) {
     const { event } = match;
-    for (let day = event.dateStart; day <= event.dateEnd; day = addDays(day, 1)) {
-      push(day, { kind: 'race', match, first: day === event.dateStart });
-    }
+    for (const day of new Set(match.courses.map((c) => c.start.slice(0, 10)))) push(day, { kind: 'race', match });
     if (withRegistration) {
       const { opens, closes, lotteryDate } = event.registration;
       if (opens) push(opens, { kind: 'opens', event });
@@ -69,7 +71,8 @@ export function CalendarPage() {
     return { y, m };
   });
   const [filtersOpen, setFiltersOpen] = useState(false);
-  const [showRegistration, setShowRegistration] = useState(true);
+  // Les ouvertures et clôtures d'inscription remplissaient des jours sans course : à la demande.
+  const [showRegistration, setShowRegistration] = useState(false);
   const [seasonOnly, setSeasonOnly] = useState(false);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [openDay, setOpenDay] = useState<string | null>(null);
@@ -80,7 +83,10 @@ export function CalendarPage() {
     return sortMatches(seasonOnly ? base.filter((m) => inSeason.has(m.event.id)) : base, 'date');
   }, [races, filters, today, seasonOnly, entries]);
 
-  const index = useMemo(() => buildDayIndex(matches, showRegistration), [matches, showRegistration]);
+  // Dans une journée : les plus proches des filtres d'abord, sinon les plus connues.
+  const ranked = useMemo(() => rankMatches(matches, filters), [matches, filters]);
+  const byFit = ranked.length > 0 && matchFit(ranked[0], filters) != null;
+  const index = useMemo(() => buildDayIndex(ranked, showRegistration), [ranked, showRegistration]);
   const selected = matches.find((m) => m.event.id === selectedId) ?? null;
 
   useEffect(() => {
@@ -192,7 +198,9 @@ export function CalendarPage() {
             {selected ? (
               <RacePreview event={selected.event} matchingIds={selected.courses.map((c) => c.id)} onClose={() => setSelectedId(null)} />
             ) : (
-              openDay && <DayPanel day={openDay} items={index.get(openDay) ?? []} onOpenRace={openRace} onClose={() => setOpenDay(null)} />
+              openDay && (
+                <DayPanel day={openDay} items={index.get(openDay) ?? []} byFit={byFit} onOpenRace={openRace} onClose={() => setOpenDay(null)} />
+              )
             )}
           </div>
         </div>
@@ -206,12 +214,13 @@ export function CalendarPage() {
 function ItemChip({ item, onOpenRace }: { item: DayItem; onOpenRace: (id: string) => void }) {
   if (item.kind === 'race') {
     const { event } = item.match;
+    const tentative = event.dateStatus === 'estimated';
     return (
       <button
         type="button"
-        className={`cal-chip band-edge-${maxBand(item.match)} ${item.first ? '' : 'is-continuation'}`}
+        className={`cal-chip band-edge-${maxBand(item.match)} ${tentative ? 'is-tentative' : ''}`}
         onClick={() => onOpenRace(event.id)}
-        title={event.name}
+        title={tentative ? `${event.name} (date prévisionnelle)` : event.name}
       >
         {event.name}
       </button>
@@ -263,8 +272,12 @@ function MonthGrid({
             const items = index.get(day) ?? [];
             const races = items.filter((it) => it.kind === 'race');
             const regs = items.filter((it) => it.kind !== 'race');
-            const ordered = [...races.filter((r) => r.kind === 'race' && r.first), ...races.filter((r) => r.kind === 'race' && !r.first), ...regs];
-            const shown = ordered.slice(0, MAX);
+            // Les courses passent avant les dates d'inscription, qui prennent les places restantes.
+            const shownRaces = races.slice(0, MAX);
+            const shownRegs = regs.slice(0, MAX - shownRaces.length);
+            const shown = [...shownRaces, ...shownRegs];
+            const hiddenRaces = races.length - shownRaces.length;
+            const hiddenRegs = regs.length - shownRegs.length;
             const d = parseYMD(day).d;
             return (
               <div key={day} role="gridcell" className={`month-cell ${day === today ? 'is-today' : ''} ${day < today ? 'is-past' : ''}`}>
@@ -275,9 +288,14 @@ function MonthGrid({
                   {shown.map((item, k) => (
                     <ItemChip key={k} item={item} onOpenRace={onOpenRace} />
                   ))}
-                  {ordered.length > MAX && (
+                  {hiddenRaces + hiddenRegs > 0 && (
                     <button type="button" className="month-more" onClick={() => onOpenDay(day)}>
-                      +{ordered.length - MAX} autres
+                      +{hiddenRaces || hiddenRegs}
+                      <span className="month-more-label">
+                        {hiddenRaces > 0
+                          ? ` ${hiddenRaces > 1 ? 'autres courses' : 'autre course'}`
+                          : ` ${hiddenRegs > 1 ? 'dates' : 'date'} d’inscription`}
+                      </span>
                     </button>
                   )}
                 </div>
@@ -314,12 +332,11 @@ function YearGrid({
         const days = Array.from({ length: count }, (_, k) => {
           const day = toISODate({ y, m, d: k + 1 });
           const items = index.get(day) ?? [];
-          const starts = items.filter((it): it is Extract<DayItem, { kind: 'race' }> => it.kind === 'race' && it.first);
-          const ongoing = items.some((it) => it.kind === 'race');
+          // Les éléments sont déjà classés : la première course est la plus en vue.
+          const top = items.find((it): it is Extract<DayItem, { kind: 'race' }> => it.kind === 'race');
           const reg = items.some((it) => it.kind !== 'race');
-          if (starts.length) raceDays++;
-          const top = starts.sort((a, b) => b.match.event.popularity - a.match.event.popularity)[0];
-          return { day, d: k + 1, top, ongoing, reg, n: items.length };
+          if (top) raceDays++;
+          return { day, d: k + 1, top, reg, n: items.length };
         });
         return (
           <section key={m} className="year-month">
@@ -333,11 +350,11 @@ function YearGrid({
               {Array.from({ length: lead }, (_, k) => (
                 <span key={`e${k}`} />
               ))}
-              {days.map(({ day, d, top, ongoing, reg, n }) => (
+              {days.map(({ day, d, top, reg, n }) => (
                 <button
                   key={day}
                   type="button"
-                  className={`year-day ${top ? `has-race band-bg-${maxBand(top.match)}` : ongoing ? 'is-ongoing' : ''} ${reg ? 'has-reg' : ''} ${day === today ? 'is-today' : ''}`}
+                  className={`year-day ${top ? `has-race band-bg-${maxBand(top.match)}` : ''} ${reg ? 'has-reg' : ''} ${day === today ? 'is-today' : ''}`}
                   onClick={() => n && onOpenDay(day)}
                   disabled={!n}
                   aria-label={`${formatDate(day)}${n ? `, ${n} éléments` : ''}`}
@@ -394,26 +411,57 @@ function AgendaList({ matches, onOpenRace, selectedId }: { matches: Match[]; onO
   );
 }
 
-function DayPanel({ day, items, onOpenRace, onClose }: { day: string; items: DayItem[]; onOpenRace: (id: string) => void; onClose: () => void }) {
+function DayPanel({
+  day,
+  items,
+  byFit,
+  onOpenRace,
+  onClose,
+}: {
+  day: string;
+  items: DayItem[];
+  byFit: boolean;
+  onOpenRace: (id: string) => void;
+  onClose: () => void;
+}) {
+  const races = items.filter((it): it is Extract<DayItem, { kind: 'race' }> => it.kind === 'race');
+  const regs = items.filter((it) => it.kind !== 'race');
   return (
     <div className="day-panel">
       <header className="preview-head">
-        <h2 className="preview-title">{formatDate(day, { weekday: true })}</h2>
+        <div>
+          <h2 className="preview-title">{formatDate(day, { weekday: true })}</h2>
+          {races.length > 0 && (
+            <p className="muted small">
+              {races.length} {races.length > 1 ? 'courses' : 'course'}
+              {races.length > 1 && (byFit ? ', les plus proches de vos critères d’abord' : ', les plus connues d’abord')}
+            </p>
+          )}
+        </div>
         <button type="button" className="icon-button" onClick={onClose} aria-label="Fermer">
           <CloseIcon />
         </button>
       </header>
-      {items.length ? (
-        <ul className="day-list">
-          {items.map((item, i) => (
-            <li key={i}>
-              <ItemChip item={item} onOpenRace={onOpenRace} />
-            </li>
+      {races.length > 0 && (
+        <ul className="race-list">
+          {races.map(({ match }) => (
+            <RaceListItem key={match.event.id} event={match.event} courses={match.courses} onSelect={() => onOpenRace(match.event.id)} />
           ))}
         </ul>
-      ) : (
-        <p className="muted">Rien ce jour-là avec les filtres actuels.</p>
       )}
+      {regs.length > 0 && (
+        <section className="day-regs">
+          <h3 className="day-regs-title">Inscriptions</h3>
+          <ul className="day-list">
+            {regs.map((item, i) => (
+              <li key={i}>
+                <ItemChip item={item} onOpenRace={onOpenRace} />
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+      {!items.length && <p className="muted">Rien ce jour-là avec les filtres actuels.</p>}
     </div>
   );
 }

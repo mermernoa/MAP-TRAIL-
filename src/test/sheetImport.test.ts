@@ -1,5 +1,15 @@
 import { describe, expect, it } from 'vitest';
-import { convertSheet, fixPrice, parseCsv, parseDate, parseNumber, SHEET_HEADERS, technicityFromSlope } from '../lib/sheetImport';
+import {
+  convertSheet,
+  fixPrice,
+  isTentativeDate,
+  parseCsv,
+  parseDate,
+  parseNumber,
+  SHEET_HEADERS,
+  technicityFromSlope,
+  tentativeDateShift,
+} from '../lib/sheetImport';
 
 /** Construit une ligne de la feuille à partir de quelques colonnes nommées. */
 function row(values: Record<string, string>): string[] {
@@ -52,6 +62,23 @@ describe('lecture des valeurs de la feuille', () => {
     expect(technicityFromSlope(10, 900)).toBe(5);
   });
 
+  it('repère les dates à confirmer', () => {
+    expect(isTentativeDate('Trail au départ de Valderiès (Tarn). Date à confirmer.')).toBe(true);
+    expect(isTentativeDate("Date estimée d'après l'édition précédente, à confirmer.")).toBe(true);
+    expect(isTentativeDate('Inscriptions à confirmer.')).toBe(false);
+  });
+
+  it('ramène une date à confirmer au jour de la semaine de l’édition précédente', () => {
+    // Dimanche 9 novembre 2025 recopié en lundi 9 novembre 2026 → dimanche 8.
+    expect(tentativeDateShift('2026-11-09')).toBe(-1);
+    // Samedi 8 novembre 2025 recopié en dimanche 8 novembre 2026 → samedi 7.
+    expect(tentativeDateShift('2026-11-08')).toBe(-1);
+    // Dimanche 9 février 2025 recopié deux ans plus tard en mardi 9 février 2027 → dimanche 7.
+    expect(tentativeDateShift('2027-02-09')).toBe(-2);
+    // Mercredi 11 novembre (férié) : aucune édition précédente un week-end, date gardée.
+    expect(tentativeDateShift('2026-11-11')).toBe(0);
+  });
+
   it('lit un CSV avec guillemets, virgules et retours à la ligne', () => {
     expect(parseCsv('a,"b, c","d ""e"""\n1,"deux\nlignes",3\n')).toEqual([
       ['a', 'b, c', 'd "e"'],
@@ -101,5 +128,24 @@ describe('conversion de la feuille', () => {
     expect(b.elevationGain).toBeUndefined();
     expect(b.technicity).toBeUndefined();
     expect(stats.pricesInCents).toBe(1);
+  });
+
+  it('affiche les dates à confirmer au jour probable, comme prévisionnelles', () => {
+    const tentative = convertSheet([
+      SHEET_HEADERS,
+      row({ ...base, 'ID course': 'EVT010-A', 'Date début': '09/11/2026', 'Distance (km)': '61', Commentaire: 'Trail vallonné. Date à confirmer.' }),
+      row({ ...base, 'ID course': 'EVT010-B', 'Date début': '09/11/2026', 'Distance (km)': '17', Commentaire: 'Trail vallonné. Date à confirmer.' }),
+    ]);
+    const [e] = tentative.events;
+    expect(e).toMatchObject({ dateStart: '2026-11-08', dateEnd: '2026-11-08', dateStatus: 'estimated' });
+    expect(e.courses.map((c) => c.start)).toEqual(['2026-11-08', '2026-11-08']);
+    expect(tentative.dateShifts).toEqual([{ code: 'EVT010', event: 'Trail des Crêtes', sheetDate: '2026-11-09', shownDate: '2026-11-08' }]);
+    expect(tentative.stats.tentativeDates).toBe(1);
+    expect(events[0].dateStatus).toBe('official');
+  });
+
+  it('signale les dates étalées sur des mois', () => {
+    const spread = convertSheet([SHEET_HEADERS, row({ ...base, 'ID course': 'EVT011-A', 'Distance (km)': '20', 'Date fin': '31/12/2026' })]);
+    expect(spread.issues.some((i) => i.rowId === 'EVT011' && /étalées sur 61 jours/.test(i.message))).toBe(true);
   });
 });

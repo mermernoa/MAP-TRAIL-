@@ -9,6 +9,7 @@
  * (lignes à corriger dans la feuille).
  */
 import { readFileSync, writeFileSync } from 'node:fs';
+import { formatDate } from '../src/lib/dates';
 import { convertSheet, parseCsv, PUBLISHED_STATUSES } from '../src/lib/sheetImport';
 
 const SHEET_ID = '1tlEPRZwGDRcVItYsQ3eiIwBnvq52MbBsoUlq_etARMs';
@@ -36,7 +37,7 @@ async function readRows(argv: string[]): Promise<{ rows: string[][]; origin: str
 
 const { rows, origin } = await readRows(process.argv.slice(2));
 const result = convertSheet(rows);
-const { stats, issues, events } = result;
+const { stats, issues, events, dateShifts } = result;
 
 const json = `{"generatedAt":"${new Date().toISOString()}","source":"Google Sheets ${SHEET_ID}","events":[\n${events
   .map((e) => JSON.stringify(e))
@@ -56,6 +57,7 @@ const lines = [
   `- ${stats.rows} lignes lues, ${stats.published} publiées (statuts ${PUBLISHED_STATUSES.join(', ')})${skipped ? `, non publiées : ${skipped}` : ''}.`,
   `- ${stats.events} événements et ${stats.courses} parcours sur le site.`,
   `- ${stats.pricesInCents} prix saisis en centimes (ex. 1 200,00 € pour 12 €) corrigés à l’import : à rectifier dans la feuille.`,
+  `- ${stats.tentativeDates} événements à date « à confirmer » (affichés « Date prévisionnelle »), dont ${dateShifts.length} ramenés au jour de la semaine de l’édition précédente (liste ci-dessous).`,
   '',
   `## Lignes ignorées (${errors.length})`,
   '',
@@ -64,6 +66,14 @@ const lines = [
   `## À vérifier (${warnings.length})`,
   '',
   ...(warnings.length ? warnings.map((i) => `- **${i.rowId}** ${i.event} : ${i.message}`) : ['Rien à signaler.']),
+  '',
+  `## Dates à confirmer déplacées (${dateShifts.length})`,
+  '',
+  'La feuille reprend le jour et le mois de l’édition précédente avec l’année suivante, ce qui décale le jour de la semaine (dimanche 9 novembre 2025 → lundi 9 novembre 2026). Le site affiche la date au même jour de la semaine que l’édition précédente. Reportez la vraie date dans la feuille dès qu’elle est annoncée.',
+  '',
+  '| Événement | Date dans la feuille | Date affichée |',
+  '| --- | --- | --- |',
+  ...dateShifts.map((d) => `| **${d.code}** ${d.event} | ${formatDate(d.sheetDate, { weekday: true, year: true })} | ${formatDate(d.shownDate, { weekday: true, year: true })} |`),
   '',
 ];
 writeFileSync('data/rapport-import.md', lines.join('\n'));

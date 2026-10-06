@@ -199,6 +199,67 @@ export function sortMatches(matches: Match[], key: SortKey): Match[] {
   }
 }
 
+/**
+ * Notoriété d'un événement : l'indice de popularité de la feuille (1 à 5) d'abord, puis,
+ * pour départager, les circuits (UTMB World Series…), l'UTMB Index, les points ITRA, le
+ * nombre de parcours et une date confirmée. Les bonus réunis restent sous un point d'indice.
+ */
+export function fameScore(event: RaceEvent): number {
+  const itra = Math.max(0, ...event.courses.map((c) => itraPoints(c) ?? 0));
+  const utmb = event.courses.some((c) => c.utmbIndex || c.utmbCategory);
+  return (
+    event.popularity * 10 +
+    (event.circuits.length ? 3 : 0) +
+    (utmb ? 2 : 0) +
+    itra * 0.3 +
+    Math.min(event.courses.length, 6) * 0.25 +
+    (event.dateStatus === 'official' ? 1 : 0)
+  );
+}
+
+/**
+ * Adéquation (0 à 1) d'une course aux critères qui admettent des degrés : parcours au
+ * centre des fourchettes de distance et de D+, nom correspondant à la recherche, départ
+ * proche. null quand aucun de ces critères n'est actif (les autres filtres sont tout ou rien).
+ */
+export function matchFit(match: Match, f: Filters): number | null {
+  const parts: number[] = [];
+  const bounded = ([min, max]: [number, number]) => min > 0 && max !== Infinity;
+  const centred = (value: number | undefined, [min, max]: [number, number]) => {
+    if (value == null) return 0;
+    const half = (max - min) / 2;
+    return half > 0 ? Math.max(0, 1 - Math.abs(value - min - half) / half) : 1;
+  };
+  const ranges = [
+    bounded(f.distance) && ((c: Course) => centred(c.distanceKm, f.distance)),
+    bounded(f.elevation) && ((c: Course) => centred(c.elevationGain, f.elevation)),
+  ].filter((fn): fn is (c: Course) => number => !!fn);
+  if (ranges.length) {
+    parts.push(Math.max(...match.courses.map((c) => ranges.reduce((sum, fn) => sum + fn(c), 0) / ranges.length)));
+  }
+  const query = normalize(f.query.trim());
+  if (query) {
+    const name = normalize(match.event.name);
+    const words = query.split(/\s+/);
+    parts.push(name.includes(query) ? 1 : words.every((w) => name.includes(w)) ? 0.8 : words.some((w) => name.includes(w)) ? 0.5 : 0.3);
+  }
+  if (f.near) {
+    parts.push(Math.max(0, 1 - haversineKm(f.near.lat, f.near.lng, match.event.lat, match.event.lng) / f.near.radiusKm));
+  }
+  return parts.length ? parts.reduce((a, b) => a + b, 0) / parts.length : null;
+}
+
+/** Ordre quand la place manque : les mieux adaptées aux filtres d'abord, puis les plus connues. */
+export function rankMatches(matches: Match[], f: Filters): Match[] {
+  const score = new Map<Match, number>();
+  for (const m of matches) {
+    const fit = matchFit(m, f);
+    // Par paliers, pour qu'un écart de quelques kilomètres ne passe pas devant la notoriété.
+    score.set(m, (fit == null ? 0 : Math.round(fit * 4) * 100) + fameScore(m.event));
+  }
+  return [...matches].sort((a, b) => (score.get(b) ?? 0) - (score.get(a) ?? 0) || a.event.name.localeCompare(b.event.name, 'fr'));
+}
+
 /** Nombre de critères actifs (pour le badge du bouton Filtres). */
 export function countActiveFilters(f: Filters): number {
   let n = 0;

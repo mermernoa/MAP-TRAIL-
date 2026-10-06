@@ -7,6 +7,7 @@
  * d'identifiant (EVT001-A, EVT001-B…).
  */
 import type { Course, FullState, Popularity, RaceEvent, Technicity, UtmbCategory } from '../data/types';
+import { addDays, daysBetween, parseYMD, toISODate, weekday } from './dates';
 import { normalize } from './filters';
 
 /** En-têtes de l'onglet Courses, dans l'ordre de la feuille (ligne 2). */
@@ -91,9 +92,18 @@ export interface ImportIssue {
   message: string;
 }
 
+/** Date « à confirmer » ramenée au jour de la semaine de l'édition précédente. */
+export interface DateShift {
+  code: string;
+  event: string;
+  sheetDate: string;
+  shownDate: string;
+}
+
 export interface ImportResult {
   events: RaceEvent[];
   issues: ImportIssue[];
+  dateShifts: DateShift[];
   stats: {
     rows: number;
     published: number;
@@ -101,6 +111,7 @@ export interface ImportResult {
     events: number;
     courses: number;
     pricesInCents: number;
+    tentativeDates: number;
   };
 }
 
@@ -170,6 +181,36 @@ export function fixPrice(price: number, distanceKm: number): { value: number; fi
   return { value: price, fixed: false };
 }
 
+/** Commentaire signalant une date provisoire (« Date à confirmer », « Date estimée… »). */
+export function isTentativeDate(comment: string): boolean {
+  return /date a confirmer|date estimee/.test(normalize(comment));
+}
+
+/**
+ * Les dates « à confirmer » importées de Miles Republic reprennent le jour et le mois de
+ * l'édition précédente avec l'année suivante : le dimanche 9 novembre 2025 devient le
+ * lundi 9 novembre 2026. On revient au même jour de la semaine que l'édition précédente
+ * (un ou deux ans plus tôt, la première qui tombait un week-end). Renvoie le décalage en
+ * jours, 0 si aucune édition précédente ne tombait un week-end.
+ */
+export function tentativeDateShift(day: string): number {
+  const { y, m, d } = parseYMD(day);
+  if (m === 2 && d === 29) return 0;
+  for (const years of [1, 2]) {
+    const previous = weekday(toISODate({ y: y - years, m, d }));
+    if (previous === 0 || previous === 6) {
+      const after = (weekday(day) - previous + 7) % 7;
+      return after <= 3 ? -after : 7 - after;
+    }
+  }
+  return 0;
+}
+
+function frDate(day: string): string {
+  const { y, m, d } = parseYMD(day);
+  return `${String(d).padStart(2, '0')}/${String(m).padStart(2, '0')}/${y}`;
+}
+
 function isUrl(value: string): boolean {
   return /^https?:\/\/\S+$/i.test(value);
 }
@@ -231,8 +272,10 @@ function sourceLabel(addedBy: string): string | undefined {
 export function convertSheet(input: string[][], publishedStatuses: string[] = PUBLISHED_STATUSES): ImportResult {
   const { headers, data } = splitHeader(input);
   const issues: ImportIssue[] = [];
+  const dateShifts: DateShift[] = [];
   const skippedByStatus: Record<string, number> = {};
   let pricesInCents = 0;
+  let tentativeDates = 0;
   const published = new Set(publishedStatuses.map(normalize));
   const groups = new Map<string, Row[]>();
   let rowCount = 0;
@@ -368,6 +411,20 @@ export function convertSheet(input: string[][], publishedStatuses: string[] = PU
 
     days.sort();
     const pick = (header: string) => mostCommon(rows.map((r) => get(r, header)));
+    const tentative = isTentativeDate(pick('Commentaire'));
+    if (tentative) {
+      tentativeDates++;
+      const shift = tentativeDateShift(days[0]);
+      if (shift) {
+        dateShifts.push({ code, event: name, sheetDate: days[0], shownDate: addDays(days[0], shift) });
+        for (let i = 0; i < days.length; i++) days[i] = addDays(days[i], shift);
+        for (const course of courses) course.start = addDays(course.start, shift) + course.start.slice(10);
+      }
+    }
+    const span = daysBetween(days[0], days[days.length - 1]);
+    if (span > 14) {
+      warn(code, `Dates étalées sur ${span} jours (du ${frDate(days[0])} au ${frDate(days[days.length - 1])}) : date de fin ou dates des parcours à vérifier.`);
+    }
     const country = COUNTRY_CODES[normalize(pick('Pays'))] ?? 'FR';
     const website = pick('Site officiel');
     const photo = pick('Photo (lien)');
@@ -399,7 +456,7 @@ export function convertSheet(input: string[][], publishedStatuses: string[] = PU
       lng: eventLng,
       dateStart: days[0],
       dateEnd: days[days.length - 1],
-      dateStatus: 'official',
+      dateStatus: tentative ? 'estimated' : 'official',
       edition: pick('Édition') || undefined,
       popularity,
       circuits: circuitsOf(rows),
@@ -427,6 +484,7 @@ export function convertSheet(input: string[][], publishedStatuses: string[] = PU
   return {
     events,
     issues,
+    dateShifts,
     stats: {
       rows: rowCount,
       published: [...groups.values()].reduce((n, g) => n + g.length, 0),
@@ -434,6 +492,7 @@ export function convertSheet(input: string[][], publishedStatuses: string[] = PU
       events: events.length,
       courses: events.reduce((n, e) => n + e.courses.length, 0),
       pricesInCents,
+      tentativeDates,
     },
   };
 }
