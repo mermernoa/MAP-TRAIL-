@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { builtinRaces } from '../data';
+import { fixtureRaces as builtinRaces } from './fixtures';
 import { applyFilters, countActiveFilters, DEFAULT_FILTERS, normalize, registrationState, sortMatches } from '../lib/filters';
 
 const today = '2026-09-29';

@@ -1,4 +1,4 @@
-import type { RaceEvent } from './types';
+import type { RaceEvent } from '../../data/types';
 
 /** Courses en Europe (hors France) et au Maghreb. Données indicatives. */
 export const europeRaces: RaceEvent[] = [

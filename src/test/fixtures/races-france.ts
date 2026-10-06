@@ -1,4 +1,4 @@
-import type { RaceEvent } from './types';
+import type { RaceEvent } from '../../data/types';
 
 /**
  * Courses en France (métropole et outre-mer).

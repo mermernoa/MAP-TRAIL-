@@ -2,7 +2,7 @@
  * Petit stockage clé/valeur sur IndexedDB, pour les traces GPX importées
  * (trop volumineuses pour localStorage).
  */
-const DB_NAME = 'balise';
+const DB_NAME = 'take-ton-trail';
 const STORE = 'tracks';
 
 function open(): Promise<IDBDatabase> {

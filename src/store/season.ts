@@ -61,6 +61,6 @@ export const useSeasonStore = create<SeasonState>()(
           return { entries: [...entries.values()], customRaces: [...races.values()] };
         }),
     }),
-    { name: 'balise-saison', version: 1, storage: createJSONStorage(() => localStorage) },
+    { name: 'take-ton-trail-saison', version: 1, storage: createJSONStorage(() => localStorage) },
   ),
 );

@@ -10,13 +10,15 @@ interface Props {
   track: ParsedTrack | null;
   fileName: string | null;
   text: string | null;
+  /** Trace officielle chargée depuis la base (pas de suppression possible). */
+  remote?: boolean;
   error: string | null;
   onFile: (file: File) => void;
   onRemove: () => void;
 }
 
 /** Import d'un GPX (glisser-déposer ou sélection) et téléchargement. */
-export function GpxPanel({ course, track, fileName, text, error, onFile, onRemove }: Props) {
+export function GpxPanel({ course, track, fileName, text, remote = false, error, onFile, onRemove }: Props) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [dragging, setDragging] = useState(false);
 
@@ -48,8 +50,10 @@ export function GpxPanel({ course, track, fileName, text, error, onFile, onRemov
             </div>
           </dl>
           <p className="muted small">
-            Fichier : {fileName}. Enregistré dans ce navigateur uniquement. Le D+ calculé depuis un GPX diffère souvent de quelques
-            pourcents du chiffre officiel.
+            {remote
+              ? `Trace officielle (${fileName}).`
+              : `Fichier : ${fileName}. Enregistré dans ce navigateur uniquement.`}{' '}
+            Le D+ calculé depuis un GPX diffère souvent de quelques pourcents du chiffre officiel.
           </p>
           <div className="button-row">
             {text && (
@@ -62,11 +66,13 @@ export function GpxPanel({ course, track, fileName, text, error, onFile, onRemov
               </button>
             )}
             <button type="button" className="button button-ghost" onClick={() => inputRef.current?.click()}>
-              <UploadIcon size={16} /> Remplacer
+              <UploadIcon size={16} /> {remote ? 'Importer un autre GPX' : 'Remplacer'}
             </button>
-            <button type="button" className="button button-ghost" onClick={onRemove}>
-              <TrashIcon size={16} /> Supprimer
-            </button>
+            {!remote && (
+              <button type="button" className="button button-ghost" onClick={onRemove}>
+                <TrashIcon size={16} /> Supprimer
+              </button>
+            )}
           </div>
         </>
       ) : (

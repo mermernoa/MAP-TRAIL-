@@ -6,6 +6,7 @@ const nfDec = new Intl.NumberFormat('fr-FR', { maximumFractionDigits: 1 });
 // Intl sépare les milliers par une espace fine insécable (U+202F), absente de
 // certaines polices : on la remplace par une espace insécable classique.
 const nf = { format: (n: number) => nfInt.format(n).replace(/\u202f/g, '\u00a0') };
+const nfDec2 = new Intl.NumberFormat('fr-FR', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
 const nf1 = { format: (n: number) => nfDec.format(n).replace(/\u202f/g, '\u00a0') };
 
 export function fmtKm(km: number): string {
@@ -14,6 +15,15 @@ export function fmtKm(km: number): string {
 
 export function fmtM(m: number): string {
   return `${nf.format(Math.round(m))} m`;
+}
+
+/** D+ affiché, ou « n.c. » quand l'organisation ne le communique pas. */
+export function fmtDplus(m: number | undefined): string {
+  return m == null ? 'D+ n.c.' : `${nf.format(Math.round(m))} m D+`;
+}
+
+export function fmtPrice(eur: number): string {
+  return `${nfDec2.format(eur).replace(/\u202f/g, '\u00a0')} €`;
 }
 
 export function fmtNum(n: number): string {
@@ -31,7 +41,19 @@ export function BandSwatch({ km }: { km: number }) {
   return <span className={`band-swatch band-${distanceBand(km)}`} aria-hidden="true" />;
 }
 
-export function TechnicityMeter({ level, showLabel = false }: { level: Technicity; showLabel?: boolean }) {
+export function TechnicityMeter({ level, showLabel = false }: { level?: Technicity; showLabel?: boolean }) {
+  if (level == null) {
+    return (
+      <span className="tech-meter is-unknown" title="Technicité non renseignée">
+        <span className="tech-meter-bars" aria-hidden="true">
+          {[1, 2, 3, 4, 5].map((i) => (
+            <span key={i} />
+          ))}
+        </span>
+        <span className={showLabel ? 'tech-meter-label' : 'sr-only'}>{showLabel ? 'Non renseignée' : 'Technicité non renseignée'}</span>
+      </span>
+    );
+  }
   const { label, hint } = TECHNICITY_LABELS[level];
   return (
     <span className="tech-meter" title={`Technicité ${level}/5 : ${label}. ${hint}`}>

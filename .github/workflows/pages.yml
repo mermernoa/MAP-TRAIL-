@@ -4,6 +4,11 @@ on:
   push:
     branches: [main, claude/interactive-trails-map-rxpucs]
   workflow_dispatch:
+  # Les commits poussés par la synchronisation ne déclenchent pas « push » : on redéploie après elle.
+  workflow_run:
+    workflows: ['Synchronisation de la feuille']
+    types: [completed]
+    branches: [main, claude/interactive-trails-map-rxpucs]
 
 permissions:
   contents: read
@@ -16,9 +21,13 @@ concurrency:
 
 jobs:
   build:
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          # Après une synchronisation, on construit la branche qu'elle vient de mettre à jour.
+          ref: ${{ github.event.workflow_run.head_branch || github.ref }}
       - uses: actions/setup-node@v4
         with:
           node-version: 22

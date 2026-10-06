@@ -38,7 +38,7 @@ function stamp(now: Date): string {
 }
 
 export function buildIcs(items: IcsItem[], now: Date = new Date()): string {
-  const lines = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Balise//Calendrier trail//FR', 'CALSCALE:GREGORIAN'];
+  const lines = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Take Ton Trail//Calendrier trail//FR', 'CALSCALE:GREGORIAN'];
   for (const item of items) {
     lines.push('BEGIN:VEVENT', `UID:${item.uid}`, `DTSTAMP:${stamp(now)}`);
     if (item.start.length > 10 && item.durationH) {
@@ -63,12 +63,12 @@ export function buildIcs(items: IcsItem[], now: Date = new Date()): string {
 export function courseIcsItems(event: RaceEvent, course: Course, withRegistration = true): IcsItem[] {
   const items: IcsItem[] = [
     {
-      uid: `${event.id}-${course.id}@balise`,
+      uid: `${event.id}-${course.id}@taketontrail`,
       title: `${course.name} – ${event.name}`,
       start: course.start,
       durationH: course.timeLimitH ?? 8,
       location: `${course.startPlace ?? event.city}, ${event.region}`,
-      description: `${course.distanceKm} km, ${course.elevationGain} m D+.${
+      description: `${course.distanceKm} km${course.elevationGain != null ? `, ${course.elevationGain} m D+` : ''}.${
         event.dateStatus === 'estimated' ? ' Date prévisionnelle à confirmer.' : ''
       }`,
       url: event.website,
@@ -76,9 +76,9 @@ export function courseIcsItems(event: RaceEvent, course: Course, withRegistratio
   ];
   if (withRegistration) {
     const { opens, closes, lotteryDate } = event.registration;
-    if (opens) items.push({ uid: `${event.id}-opens@balise`, title: `Ouverture des inscriptions – ${event.name}`, start: opens, url: event.website });
-    if (closes) items.push({ uid: `${event.id}-closes@balise`, title: `Clôture des inscriptions – ${event.name}`, start: closes, url: event.website });
-    if (lotteryDate) items.push({ uid: `${event.id}-lottery@balise`, title: `Tirage au sort – ${event.name}`, start: lotteryDate, url: event.website });
+    if (opens) items.push({ uid: `${event.id}-opens@taketontrail`, title: `Ouverture des inscriptions – ${event.name}`, start: opens, url: event.website });
+    if (closes) items.push({ uid: `${event.id}-closes@taketontrail`, title: `Clôture des inscriptions – ${event.name}`, start: closes, url: event.website });
+    if (lotteryDate) items.push({ uid: `${event.id}-lottery@taketontrail`, title: `Tirage au sort – ${event.name}`, start: lotteryDate, url: event.website });
   }
   return items;
 }

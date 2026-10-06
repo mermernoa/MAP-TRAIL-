@@ -75,7 +75,7 @@ export function CustomRaceForm({ onClose, onCreated }: Props) {
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !pos) return;
-    markerRef.current ??= new maplibregl.Marker({ color: '#d7322b' });
+    markerRef.current ??= new maplibregl.Marker({ color: '#fe66c4' });
     markerRef.current.setLngLat([pos.lng, pos.lat]).addTo(map);
   }, [pos]);
 

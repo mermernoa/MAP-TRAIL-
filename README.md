@@ -1,47 +1,60 @@
-# Balise
+# Take Ton Trail
 
 La carte et le calendrier des trails, du plus confidentiel au plus mythique.
 
-Balise permet de :
-
-- **explorer une carte interactive** des courses (zoom, regroupement des repères, survol, sélection, aperçu), avec trois fonds de carte (plan ombré, topo, satellite) et un mode relief 3D ;
-- **filtrer** par distance, dénivelé, technicité, points ITRA, catégorie UTMB Index, circuit (UTMB World Series, Golden Trail Series…), pays, rayon autour de soi, période, notoriété et inscriptions ouvertes ;
-- **parcourir le même catalogue en calendrier** (mois, année ou liste), avec les dates d'ouverture et de clôture des inscriptions et les tirages au sort ;
-- **ouvrir la fiche d'une course** : en-tête en relief 3D du lieu réel, tous les parcours, statistiques et index, profil altimétrique interactif, carte du tracé, points de passage, dates importantes (export `.ics`) et liens utiles ;
-- **importer le GPX** d'un parcours (glisser-déposer) : tracé sur la carte et dans l'en-tête, profil détaillé, distance et D+ recalculés, re-téléchargement du fichier ;
-- **construire sa saison** dans l'onglet « Ma saison » : statut (envie, inscription prévue, inscrit, terminée), priorité A/B/C, objectif ou temps réalisé, notes, frise de l'année, cumul km / D+ / points ITRA / Running Stones, alertes d'inscription et d'enchaînement trop serré, export vers l'agenda, sauvegarde et restauration JSON, ajout de courses hors catalogue.
+- **Carte interactive** : zoom, regroupement des repères, survol, sélection, aperçu ; fonds plan ombré, topo et satellite ; relief 3D.
+- **Filtres** communs à la carte et au calendrier : distance, dénivelé, technicité, type de course (court, long, ultra, nocturne, urbain, KV), format (solo, duo, relais), massif, région, rayon autour de soi, période, notoriété, points ITRA, catégorie UTMB Index, circuits, prix maximum, inscriptions ouvertes, courses complètes masquées.
+- **Calendrier** en vues mois, année et liste, avec les ouvertures et clôtures d'inscription.
+- **Fiche course** : photo de la base (ou relief 3D du lieu), chaque parcours avec ses chiffres, son prix, son lien d'inscription et le document demandé, profil altimétrique, carte du tracé, import et export GPX, dates importantes (export agenda) et liens utiles.
+- **Ma saison** : statut, priorité A/B/C, objectif ou temps réalisé, notes, frise des 12 prochains mois, cumuls, alertes d'inscription et de récupération, export agenda, sauvegarde JSON et courses hors catalogue.
 
 ## Démarrer
 
 ```bash
 npm install
 npm run dev        # http://localhost:5173
-npm test           # tests unitaires (Vitest)
-npm run build      # build statique dans dist/
+npm test           # tests (Vitest)
+npm run build      # site statique dans dist/
 ```
 
-Ajoutez `?today=2026-09-29` à l'URL pour figer la date du jour (démonstrations, captures).
+Ajoutez `?today=2026-10-06` à l'URL pour figer la date du jour (démonstrations, captures).
+
+## Base des courses
+
+La source de vérité est la feuille Google **« Maps Trail - Base des courses »**, onglet **Courses** (une ligne par parcours, voir l'onglet Guide). Le site lit `public/data/races.json`, généré depuis cette feuille :
+
+```bash
+npm run import:sheet                         # export CSV de la feuille (partage par lien requis)
+npm run import:sheet -- --csv courses.csv    # fichier CSV téléchargé depuis Google Sheets
+SHEET_CSV_URL=<lien CSV> npm run import:sheet
+```
+
+Règles d'import (`src/lib/sheetImport.ts`) :
+
+- seules les lignes aux statuts **Validé**, **Prêt** ou **En ligne** sont publiées ;
+- les lignes d'un même événement (EVT001-A, EVT001-B…) forment une fiche ; son identifiant (`evt001-nom-de-la-course`) reste valable si le nom change ;
+- une technicité vide est estimée depuis le D+ par km (barème du Guide) ; un D+ vide reste « non communiqué » ;
+- les prix saisis en centimes (1 200,00 € pour 12 €) sont corrigés et listés dans le rapport ;
+- les liens photo qui ne pointent pas vers une image (pages web, vignettes Google) sont ignorés.
+
+Chaque import écrit **`data/rapport-import.md`** : lignes ignorées et points à corriger dans la feuille.
+
+### Synchronisation automatique
+
+Le workflow **Synchronisation de la feuille** (`.github/workflows/sync-sheet.yml`) relance l'import, les tests, puis publie la base mise à jour et redéploie le site.
+
+1. Rendez la feuille lisible par lien (Partager → Toute personne disposant du lien → Lecteur), ou publiez l'onglet Courses au format CSV (Fichier → Partager → Publier sur le Web) et enregistrez ce lien dans le secret de dépôt `SHEET_CSV_URL`.
+2. Lancez-le à la main depuis l'onglet Actions, ou créez la variable de dépôt `SHEET_SYNC` = `on` pour une synchronisation chaque matin.
+
+## Identité visuelle
+
+Charte Take Ton Trail : polices **Chewy** (titres, embarquée via `@fontsource/chewy`) et **Tahoma** (texte, police système avec repli Verdana), couleurs `#ffffff`, `#fe66c4`, `#071c3f`, `#c554a5`, `#854183`, `#472f61` (`src/styles/tokens.css`).
+Les fichiers d'origine sont dans `brand-sources/` ; les versions détourées utilisées par le site sont dans `public/brand/` (logo, TTT, 3T, médaille, boussole, barre de progression).
 
 ## Déploiement
 
-Le workflow `.github/workflows/pages.yml` publie le site sur GitHub Pages à chaque push sur `main`.
+Le workflow `.github/workflows/pages.yml` publie le site sur GitHub Pages à chaque push sur `main` ou sur la branche de travail `claude/interactive-trails-map-rxpucs`, et après chaque synchronisation de la feuille.
 Activez-le une fois dans **Settings → Pages → Build and deployment → Source : GitHub Actions**.
-Le build utilise des chemins relatifs et un routage par fragment (`#/course/...`) : il fonctionne sur n'importe quel hébergement statique.
-
-## Données
-
-Le catalogue (`src/data/races-*.ts`) contient une soixantaine d'événements réels en France, en Europe et dans le monde, de la course locale au 100 miles mythique.
-**Ces données sont indicatives** : distances, dénivelés et horaires viennent des éditions précédentes, les dates des prochaines éditions sont prévisionnelles (`dateStatus: 'estimated'`) et les dates d'inscription sont estimées. L'interface le signale et renvoie vers les sites officiels.
-
-- Les points ITRA et la catégorie UTMB Index sont calculés depuis les km-effort (distance + D+/100) quand la valeur officielle n'est pas renseignée.
-- Les Running Stones sont calculées pour les événements UTMB World Series (hors finales).
-- Les profils « simplifiés » sont reconstitués à partir des principaux points de passage ; importez le GPX officiel pour un profil exact.
-
-### Ajouter une course au catalogue
-
-Ajoutez un objet `RaceEvent` (voir `src/data/types.ts`) dans le fichier de la bonne zone, puis lancez `npm test` : les tests vérifient l'unicité des identifiants, la cohérence des dates (chaque départ dans les dates de l'événement, inscriptions avant la course) et des points de passage.
-
-Les courses ajoutées depuis l'interface (« Course hors catalogue ») sont stockées dans le navigateur et incluses dans la sauvegarde JSON.
 
 ## Fonds de carte
 
@@ -49,18 +62,18 @@ Aucune clé d'API n'est nécessaire par défaut :
 
 | Fond | Source | Variable pour le remplacer |
 | --- | --- | --- |
-| Plan | OpenFreeMap (Positron) + ombrage | `VITE_STYLE_PLAN` (URL d'un style MapLibre) |
-| Topo | OpenTopoMap | `VITE_TOPO_TILES` (URLs de tuiles séparées par des virgules) |
+| Plan | OpenFreeMap (Positron) + ombrage | `VITE_STYLE_PLAN` |
+| Topo | OpenTopoMap | `VITE_TOPO_TILES` (URLs séparées par des virgules) |
 | Satellite | Esri World Imagery | `VITE_SATELLITE_TILES` |
-| Relief | Terrain Tiles (AWS Open Data, Terrarium) | `VITE_DEM_TILES` |
+| Relief | Terrain Tiles (AWS Open Data) | `VITE_DEM_TILES` |
 | Polices des étiquettes | OpenFreeMap | `VITE_GLYPHS_URL` |
 
-Pour un usage commercial ou à fort trafic, passez sur un fournisseur avec clé (MapTiler, Stadia, IGN Géoplateforme…) en renseignant ces variables au build, et respectez les conditions d'utilisation de chaque source.
+Pour un usage commercial ou à fort trafic, passez sur un fournisseur avec clé (MapTiler, Stadia, IGN Géoplateforme…) et respectez les conditions de chaque source.
 
 ## Stockage
 
-Tout reste dans le navigateur : la saison et les courses personnelles dans `localStorage`, les GPX importés dans IndexedDB. Rien n'est envoyé à un serveur.
+La saison et les courses personnelles restent dans le navigateur (`localStorage`), les GPX importés dans IndexedDB. Rien n'est envoyé à un serveur.
 
 ## Pile technique
 
-Vite, React 19, TypeScript, MapLibre GL JS 6, Zustand, Vitest. Police : Archivo (variable, largeur 62–125 %).
+Vite, React 19, TypeScript, MapLibre GL JS 6, Zustand, Vitest, tsx (script d'import).

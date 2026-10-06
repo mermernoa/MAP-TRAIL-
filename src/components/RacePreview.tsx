@@ -2,9 +2,9 @@ import { Link } from 'react-router-dom';
 import type { RaceEvent } from '../data/types';
 import { formatRange, formatShortDate, relativeDays } from '../lib/dates';
 import { registrationState } from '../lib/filters';
-import { countryFlag, countryName, itraPoints, kmEffort, utmbCategory } from '../lib/metrics';
+import { countryFlag, countryName, courseUtmbCategory, itraPoints } from '../lib/metrics';
 import { useToday } from '../store/useToday';
-import { BandSwatch, fmtKm, fmtM, PopularityLabel, TechnicityMeter } from './bits';
+import { BandSwatch, fmtDplus, fmtKm, fmtPrice, PopularityLabel, TechnicityMeter } from './bits';
 import { CloseIcon } from './Icons';
 import { SeasonToggle } from './SeasonToggle';
 
@@ -27,12 +27,13 @@ export function RacePreview({ event, matchingIds, onClose }: Props) {
   const today = useToday();
   const reg = registrationState(event, today);
   const courses = [...event.courses].sort((a, b) => b.distanceKm - a.distanceKm);
+  const registrationUrl = event.courses.find((c) => c.registrationUrl && c.full !== 'yes')?.registrationUrl;
   return (
     <article className="preview" aria-labelledby={`preview-${event.id}`}>
       <header className="preview-head">
         <div>
           <p className="preview-place">
-            <span aria-hidden="true">{countryFlag(event.country)}</span> {event.city}, {countryName(event.country)}
+            <span aria-hidden="true">{countryFlag(event.country)}</span> {event.city}, {event.department ?? countryName(event.country)}
           </p>
           <h2 id={`preview-${event.id}`} className="preview-title">
             <Link to={`/course/${event.id}`}>{event.name}</Link>
@@ -65,7 +66,8 @@ export function RacePreview({ event, matchingIds, onClose }: Props) {
       <ul className="preview-courses">
         {courses.map((c) => {
           const dim = matchingIds && !matchingIds.includes(c.id);
-          const cat = utmbCategory(kmEffort(c));
+          const cat = courseUtmbCategory(c);
+          const points = itraPoints(c);
           return (
             <li key={c.id} className={dim ? 'is-dim' : ''}>
               <div className="preview-course-main">
@@ -74,11 +76,16 @@ export function RacePreview({ event, matchingIds, onClose }: Props) {
               </div>
               <div className="preview-course-stats">
                 <span className="num">{fmtKm(c.distanceKm)}</span>
-                <span className="num">{fmtM(c.elevationGain)} D+</span>
+                <span className="num">{fmtDplus(c.elevationGain)}</span>
                 <TechnicityMeter level={c.technicity} />
-                <span className="muted small" title="Points ITRA estimés, catégorie UTMB Index">
-                  {itraPoints(c)} pts{cat ? `, ${cat}` : ''}
-                </span>
+                {c.priceEur != null && <span className="num">{fmtPrice(c.priceEur)}</span>}
+                {(points != null || cat) && (
+                  <span className="muted small" title="Points ITRA et catégorie UTMB Index">
+                    {[points != null ? `${points} pts ITRA` : null, cat].filter(Boolean).join(', ')}
+                  </span>
+                )}
+                {c.full === 'yes' && <span className="tag tag-full">Complet</span>}
+                {c.full === 'waitlist' && <span className="tag tag-soft">Liste d’attente</span>}
               </div>
               <SeasonToggle eventId={event.id} courseId={c.id} courseName={c.name} compact />
             </li>
@@ -88,8 +95,13 @@ export function RacePreview({ event, matchingIds, onClose }: Props) {
 
       <footer className="preview-foot">
         <Link to={`/course/${event.id}`} className="button button-primary">
-          Voir la fiche complète
+          Voir la fiche
         </Link>
+        {registrationUrl && (
+          <a className="button" href={registrationUrl} target="_blank" rel="noreferrer">
+            S’inscrire
+          </a>
+        )}
       </footer>
     </article>
   );

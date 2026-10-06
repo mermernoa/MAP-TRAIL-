@@ -1,93 +1,98 @@
 /*
- * Balise — jetons de design.
- * Papier lichen, encre sapin, rouge balisage GR réservé à la sélection et aux
- * actions principales ; rampe de distances ocre → brun (identique à la carte).
+ * Take Ton Trail — jetons de design, d'après la charte : blanc, rose #fe66c4,
+ * marine #071c3f et trois violets (#c554a5, #854183, #472f61).
+ * Le rose sert aux actions principales et à la sélection ; le marine porte le texte.
  */
 :root {
   color-scheme: light;
-  --paper: #eef2ec;
-  --surface: #fbfcfa;
-  --surface-2: #e4eae2;
-  --surface-3: #d5ddd3;
-  --ink: #14261f;
-  --ink-2: #44554e;
-  --ink-3: #5f6d67;
-  --line: rgba(20, 38, 31, 0.13);
-  --line-strong: rgba(20, 38, 31, 0.26);
-  --blaze: #d7322b;
-  --blaze-ink: #ffffff;
-  --blaze-soft: #f9e1dd;
-  --pine: #1e4b3e;
-  --contour: #9c5a22;
-  --contour-wash: rgba(156, 90, 34, 0.13);
-  --focus: #1f6feb;
-  --good: #16713a;
-  --good-soft: #dcefe2;
-  --warn: #8a5300;
-  --warn-soft: #f8ecd4;
+  --paper: #faf6fb;
+  --surface: #ffffff;
+  --surface-2: #f3eaf4;
+  --surface-3: #e3d5e6;
+  --ink: #071c3f;
+  --ink-2: #3f3c5c;
+  --ink-3: #635c7d;
+  --line: rgba(7, 28, 63, 0.12);
+  --line-strong: rgba(7, 28, 63, 0.26);
+  --accent: #fe66c4;
+  --accent-ink: #071c3f;
+  --accent-soft: #ffe1f3;
+  --plum-light: #c554a5;
+  --plum: #854183;
+  --plum-dark: #472f61;
+  --contour: #854183;
+  --contour-wash: rgba(133, 65, 131, 0.14);
+  --focus: #c554a5;
+  --good: #15803d;
+  --good-soft: #dcf5e4;
+  --warn: #92510a;
+  --warn-soft: #fbefd6;
 
-  --band-xs: #df8f33;
-  --band-s: #cc6328;
-  --band-m: #b04024;
-  --band-l: #83261f;
-  --band-xl: #4f1915;
+  /* Tranches de distance : du rose au marine (même rampe que les repères de la carte). */
+  --band-xs: #fe66c4;
+  --band-s: #c554a5;
+  --band-m: #854183;
+  --band-l: #472f61;
+  --band-xl: #071c3f;
 
   --radius-s: 6px;
-  --radius-m: 9px;
-  --radius-l: 14px;
-  --shadow-float: 0 10px 30px rgba(20, 38, 31, 0.16), 0 1px 3px rgba(20, 38, 31, 0.12);
-  --font: 'Archivo Variable', 'Archivo', system-ui, -apple-system, 'Segoe UI', sans-serif;
-  --header-h: 56px;
+  --radius-m: 10px;
+  --radius-l: 16px;
+  --shadow-float: 0 10px 30px rgba(7, 28, 63, 0.16), 0 1px 3px rgba(7, 28, 63, 0.12);
+  --shadow-sticker: 2px 3px 0 #071c3f;
+  --font: Tahoma, Verdana, 'Segoe UI', Geneva, sans-serif;
+  --font-display: 'Chewy', Tahoma, Verdana, sans-serif;
+  --header-h: 60px;
 }
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme='light']) {
     color-scheme: dark;
-    --paper: #15211d;
-    --surface: #1b2925;
-    --surface-2: #24342e;
-    --surface-3: #2f4139;
-    --ink: #e8eee9;
-    --ink-2: #b9c6bf;
-    --ink-3: #97a69f;
-    --line: rgba(232, 238, 233, 0.12);
-    --line-strong: rgba(232, 238, 233, 0.26);
-    --blaze: #ff6b5f;
-    --blaze-ink: #1f0e0c;
-    --blaze-soft: #4a2521;
-    --pine: #9fd0b9;
-    --contour: #e2a36a;
-    --contour-wash: rgba(226, 163, 106, 0.15);
-    --focus: #6aa7ff;
-    --good: #6fd08f;
-    --good-soft: #1f3a2a;
-    --warn: #f0b85a;
-    --warn-soft: #3b2f18;
+    --paper: #051530;
+    --surface: #0b2347;
+    --surface-2: #14305a;
+    --surface-3: #22406e;
+    --ink: #ffffff;
+    --ink-2: #dcd5ea;
+    --ink-3: #b0a6c8;
+    --line: rgba(255, 255, 255, 0.12);
+    --line-strong: rgba(255, 255, 255, 0.26);
+    --accent: #fe66c4;
+    --accent-ink: #071c3f;
+    --accent-soft: #4a1d4a;
+    --contour: #ff8fd3;
+    --contour-wash: rgba(254, 102, 196, 0.16);
+    --focus: #fe66c4;
+    --good: #5ad88a;
+    --good-soft: #12382a;
+    --warn: #f5c15c;
+    --warn-soft: #3a2c12;
     --shadow-float: 0 10px 30px rgba(0, 0, 0, 0.45), 0 1px 3px rgba(0, 0, 0, 0.4);
+    --shadow-sticker: 2px 3px 0 #000814;
   }
 }
 
 :root[data-theme='dark'] {
   color-scheme: dark;
-  --paper: #15211d;
-  --surface: #1b2925;
-  --surface-2: #24342e;
-  --surface-3: #2f4139;
-  --ink: #e8eee9;
-  --ink-2: #b9c6bf;
-  --ink-3: #97a69f;
-  --line: rgba(232, 238, 233, 0.12);
-  --line-strong: rgba(232, 238, 233, 0.26);
-  --blaze: #ff6b5f;
-  --blaze-ink: #1f0e0c;
-  --blaze-soft: #4a2521;
-  --pine: #9fd0b9;
-  --contour: #e2a36a;
-  --contour-wash: rgba(226, 163, 106, 0.15);
-  --focus: #6aa7ff;
-  --good: #6fd08f;
-  --good-soft: #1f3a2a;
-  --warn: #f0b85a;
-  --warn-soft: #3b2f18;
+  --paper: #051530;
+  --surface: #0b2347;
+  --surface-2: #14305a;
+  --surface-3: #22406e;
+  --ink: #ffffff;
+  --ink-2: #dcd5ea;
+  --ink-3: #b0a6c8;
+  --line: rgba(255, 255, 255, 0.12);
+  --line-strong: rgba(255, 255, 255, 0.26);
+  --accent: #fe66c4;
+  --accent-ink: #071c3f;
+  --accent-soft: #4a1d4a;
+  --contour: #ff8fd3;
+  --contour-wash: rgba(254, 102, 196, 0.16);
+  --focus: #fe66c4;
+  --good: #5ad88a;
+  --good-soft: #12382a;
+  --warn: #f5c15c;
+  --warn-soft: #3a2c12;
   --shadow-float: 0 10px 30px rgba(0, 0, 0, 0.45), 0 1px 3px rgba(0, 0, 0, 0.4);
+  --shadow-sticker: 2px 3px 0 #000814;
 }

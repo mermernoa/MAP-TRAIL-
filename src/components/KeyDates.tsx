@@ -58,7 +58,11 @@ export function KeyDates({ event }: { event: RaceEvent }) {
           );
         })}
       </ol>
+      {event.registration.mode && <p className="small">Inscription : {event.registration.mode.toLowerCase()}.</p>}
       {event.registration.note && <p className="muted small">{event.registration.note}</p>}
+      {!event.registration.opens && !event.registration.closes && !event.registration.lotteryDate && (
+        <p className="muted small">Dates d’inscription pas encore publiées.</p>
+      )}
       <button type="button" className="button" onClick={exportIcs}>
         <CalendarIcon size={16} /> Ajouter à mon agenda (.ics)
       </button>

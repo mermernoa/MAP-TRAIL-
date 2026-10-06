@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { ALL_CIRCUITS } from '../data';
+import { distinctValues } from '../data';
 import type { Popularity, RaceEvent, Technicity, UtmbCategory } from '../data/types';
 import { addDays, parseYMD } from '../lib/dates';
 import { DISTANCE_STOPS, ELEVATION_STOPS, type Filters } from '../lib/filters';
@@ -56,10 +56,16 @@ export function FilterPanel({ open, onClose, races, resultCount }: Props) {
     return () => window.removeEventListener('keydown', onKey);
   }, [open, onClose]);
 
-  const countries = useMemo(() => {
-    const counts = new Map<string, number>();
-    for (const r of races) counts.set(r.country, (counts.get(r.country) ?? 0) + 1);
-    return [...counts.entries()].sort((a, b) => b[1] - a[1] || countryName(a[0]).localeCompare(countryName(b[0])));
+  const options = useMemo(() => {
+    const courses = races.flatMap((r) => r.courses);
+    return {
+      countries: distinctValues(races.map((r) => r.country)),
+      regions: distinctValues(races.map((r) => r.region)),
+      massifs: distinctValues(races.map((r) => r.massif)),
+      types: distinctValues(courses.map((c) => c.type)),
+      formats: distinctValues(courses.map((c) => c.format)),
+      circuits: distinctValues(races.flatMap((r) => r.circuits)),
+    };
   }, [races]);
 
   const set = (patch: Partial<Filters>) => setFilters(patch);
@@ -141,6 +147,26 @@ export function FilterPanel({ open, onClose, races, resultCount }: Props) {
           </section>
 
           <section className="filter-section">
+            <h3 className="filter-title">Type de course</h3>
+            <div className="chips">
+              {options.types.map(({ value, count }) => (
+                <Chip key={value} on={filters.types.includes(value)} onClick={() => set({ types: toggle(filters.types, value) })}>
+                  {value} <span className="chip-count">{count}</span>
+                </Chip>
+              ))}
+            </div>
+            {options.formats.length > 1 && (
+              <div className="chips">
+                {options.formats.map(({ value, count }) => (
+                  <Chip key={value} on={filters.formats.includes(value)} onClick={() => set({ formats: toggle(filters.formats, value) })}>
+                    {value} <span className="chip-count">{count}</span>
+                  </Chip>
+                ))}
+              </div>
+            )}
+          </section>
+
+          <section className="filter-section">
             <RangeSlider
               label="Dénivelé positif"
               stops={ELEVATION_STOPS}
@@ -148,6 +174,7 @@ export function FilterPanel({ open, onClose, races, resultCount }: Props) {
               onChange={(elevation) => set({ elevation })}
               format={(v) => `${fmtNum(v)} m`}
             />
+            <p className="filter-hint">Les parcours dont le D+ n’est pas communiqué sont masqués dès que ce critère est utilisé.</p>
           </section>
 
           <section className="filter-section">
@@ -195,11 +222,11 @@ export function FilterPanel({ open, onClose, races, resultCount }: Props) {
                 </Chip>
               ))}
             </div>
-            <p className="filter-hint">Circuits</p>
+            {options.circuits.length > 0 && <p className="filter-hint">Circuits</p>}
             <div className="chips">
-              {ALL_CIRCUITS.map((c) => (
+              {options.circuits.map(({ value: c, count }) => (
                 <Chip key={c} on={filters.circuits.includes(c)} onClick={() => set({ circuits: toggle(filters.circuits, c) })}>
-                  {c}
+                  {c} <span className="chip-count">{count}</span>
                 </Chip>
               ))}
             </div>
@@ -232,11 +259,31 @@ export function FilterPanel({ open, onClose, races, resultCount }: Props) {
               )}
             </div>
             {geoError && <p className="form-error">{geoError}</p>}
-            <p className="filter-hint">Pays</p>
+            {options.countries.length > 1 && (
+              <>
+                <p className="filter-hint">Pays</p>
+                <div className="chips">
+                  {options.countries.map(({ value: code, count }) => (
+                    <Chip key={code} on={filters.countries.includes(code)} onClick={() => set({ countries: toggle(filters.countries, code) })}>
+                      <span aria-hidden="true">{countryFlag(code)}</span> {countryName(code)} <span className="chip-count">{count}</span>
+                    </Chip>
+                  ))}
+                </div>
+              </>
+            )}
+            <p className="filter-hint">Massif</p>
             <div className="chips">
-              {countries.map(([code, count]) => (
-                <Chip key={code} on={filters.countries.includes(code)} onClick={() => set({ countries: toggle(filters.countries, code) })}>
-                  <span aria-hidden="true">{countryFlag(code)}</span> {countryName(code)} <span className="chip-count">{count}</span>
+              {options.massifs.map(({ value, count }) => (
+                <Chip key={value} on={filters.massifs.includes(value)} onClick={() => set({ massifs: toggle(filters.massifs, value) })}>
+                  {value} <span className="chip-count">{count}</span>
+                </Chip>
+              ))}
+            </div>
+            <p className="filter-hint">Région</p>
+            <div className="chips">
+              {options.regions.map(({ value, count }) => (
+                <Chip key={value} on={filters.regions.includes(value)} onClick={() => set({ regions: toggle(filters.regions, value) })}>
+                  {value} <span className="chip-count">{count}</span>
                 </Chip>
               ))}
             </div>
@@ -297,6 +344,25 @@ export function FilterPanel({ open, onClose, races, resultCount }: Props) {
               />
               <span>Seulement les inscriptions ouvertes aujourd’hui</span>
             </label>
+            <label className="switch">
+              <input type="checkbox" checked={filters.hideFull} onChange={(e) => set({ hideFull: e.target.checked })} />
+              <span>Masquer les courses complètes</span>
+            </label>
+            <p className="filter-hint">Prix maximum</p>
+            <div className="segmented" role="radiogroup" aria-label="Prix maximum">
+              {[null, 15, 25, 40, 60, 100].map((p) => (
+                <button
+                  key={String(p)}
+                  type="button"
+                  role="radio"
+                  aria-checked={filters.priceMax === p}
+                  className={filters.priceMax === p ? 'is-on' : ''}
+                  onClick={() => set({ priceMax: p })}
+                >
+                  {p == null ? 'Tous' : `${p} €`}
+                </button>
+              ))}
+            </div>
           </section>
         </div>
 

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { builtinRaces } from '../data';
+import { fixtureRaces as builtinRaces } from './fixtures';
 import { formatRange, weekday } from '../lib/dates';
 import { elevationDelta, parseGpx } from '../lib/gpx';
 import { buildIcs, courseIcsItems } from '../lib/ical';

@@ -34,7 +34,7 @@ export function RaceListItem({ event, courses, selected, onSelect, onHover }: Pr
         <span className="race-item-body">
           <span className="race-item-name">{event.name}</span>
           <span className="race-item-place">
-            <span aria-hidden="true">{countryFlag(event.country)}</span> {event.city}, {event.region}
+            <span aria-hidden="true">{countryFlag(event.country)}</span> {event.city}, {event.department ?? event.region}
             <span className="sr-only">, {formatRange(event.dateStart, event.dateEnd)}</span>
           </span>
           <span className="race-item-courses">
@@ -46,13 +46,15 @@ export function RaceListItem({ event, courses, selected, onSelect, onHover }: Pr
                   aria-hidden="true"
                 />
                 <span className="course-pill-km">{fmtKm(c.distanceKm)}</span>
-                <span className="course-pill-dplus">{fmtM(c.elevationGain)}</span>
+                {c.elevationGain != null && <span className="course-pill-dplus">{fmtM(c.elevationGain)}</span>}
               </span>
             ))}
           </span>
         </span>
         <span className="race-item-meta">
           <PopularityLabel level={event.popularity} />
+          {event.massif && event.massif !== 'Plaine / campagne' && <span className="tag">{event.massif}</span>}
+          {courses.every((c) => c.full === 'yes') && <span className="tag tag-full">Complet</span>}
           {event.custom && <span className="tag">Ajoutée par vous</span>}
         </span>
       </button>

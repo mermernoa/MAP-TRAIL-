@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import type { RaceEvent } from '../data/types';
 import type { ParsedTrack } from '../lib/gpx';
 import maplibregl, { supportsWebGL, type GeoJSONSource, type MapLibreMap } from '../lib/maplibre';
-import { BLAZE, INK } from '../lib/colors';
+import { ACCENT, INK } from '../lib/colors';
 import { basemapStyle, BASEMAPS, LABEL_FONT, type BasemapId } from '../lib/mapStyles';
 
 interface Props {
@@ -85,7 +85,7 @@ export function CourseMap({ event, track, hoverKm }: Props) {
         id: 'cm-point',
         type: 'circle',
         source: 'cm-point',
-        paint: { 'circle-radius': 9, 'circle-color': BLAZE, 'circle-stroke-color': '#ffffff', 'circle-stroke-width': 3 },
+        paint: { 'circle-radius': 9, 'circle-color': ACCENT, 'circle-stroke-color': '#ffffff', 'circle-stroke-width': 3 },
       });
       map.jumpTo({ center: [event.lng, event.lat], zoom: 10 });
       return;
@@ -107,7 +107,7 @@ export function CourseMap({ event, track, hoverKm }: Props) {
       type: 'line',
       source: 'cm-track',
       layout: { 'line-join': 'round', 'line-cap': 'round' },
-      paint: { 'line-color': BLAZE, 'line-width': 3 },
+      paint: { 'line-color': ACCENT, 'line-width': 3 },
     });
     const first = track.points[0];
     const last = track.points[track.points.length - 1];

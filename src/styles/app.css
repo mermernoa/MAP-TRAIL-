@@ -16,7 +16,6 @@ body {
   font-family: var(--font);
   font-size: 15px;
   line-height: 1.5;
-  font-stretch: 100%;
   -webkit-font-smoothing: antialiased;
 }
 
@@ -144,13 +143,12 @@ img {
 }
 
 .brand-mark span + span {
-  background: #d7322b;
+  background: #fe66c4;
 }
 
 .brand-name {
   font-size: 22px;
   font-weight: 800;
-  font-stretch: 72%;
   letter-spacing: -0.01em;
 }
 
@@ -169,7 +167,6 @@ img {
   text-decoration: none;
   color: var(--ink-2);
   font-weight: 600;
-  font-stretch: 92%;
 }
 
 .app-nav a:hover {
@@ -188,7 +185,7 @@ img {
   bottom: 0;
   height: 3px;
   border-radius: 3px 3px 0 0;
-  background: var(--blaze);
+  background: var(--accent);
 }
 
 .badge {
@@ -236,13 +233,13 @@ img {
 }
 
 .button-primary {
-  background: var(--blaze);
-  border-color: var(--blaze);
-  color: var(--blaze-ink);
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-ink);
 }
 
 .button-primary:hover:not(:disabled) {
-  background: var(--blaze);
+  background: var(--accent);
   filter: brightness(0.94);
 }
 
@@ -315,7 +312,6 @@ img {
 
 .chip-num {
   font-weight: 800;
-  font-stretch: 75%;
 }
 
 .chip-count {
@@ -353,7 +349,7 @@ img {
 .segmented button.is-on {
   background: var(--surface);
   color: var(--ink);
-  box-shadow: 0 1px 2px rgba(20, 38, 31, 0.16);
+  box-shadow: 0 1px 2px rgba(7, 28, 63, 0.16);
 }
 
 .segmented-small button {
@@ -461,7 +457,7 @@ textarea {
 }
 
 .form-error {
-  color: var(--blaze);
+  color: var(--accent);
   font-size: 13.5px;
   font-weight: 600;
 }
@@ -656,7 +652,6 @@ textarea {
 .empty-large h2 {
   font-size: 28px;
   font-weight: 800;
-  font-stretch: 75%;
   margin-bottom: 10px;
 }
 
@@ -685,7 +680,6 @@ textarea {
 .page-message h1 {
   font-size: 40px;
   font-weight: 800;
-  font-stretch: 72%;
 }
 
 /* ---------- Filter bar & drawer ---------- */
@@ -751,7 +745,7 @@ textarea {
   position: fixed;
   inset: 0;
   z-index: 50;
-  background: rgba(10, 20, 16, 0.42);
+  background: rgba(4, 14, 32, 0.42);
   display: flex;
   animation: fade-in 0.15s ease-out;
 }
@@ -799,7 +793,6 @@ textarea {
 .drawer-head h2 {
   font-size: 22px;
   font-weight: 800;
-  font-stretch: 75%;
 }
 
 .drawer-body {
@@ -981,7 +974,6 @@ textarea {
 .results-count strong {
   font-size: 20px;
   font-weight: 800;
-  font-stretch: 75%;
   color: var(--ink);
 }
 
@@ -1009,7 +1001,7 @@ textarea {
 
 .race-item.is-selected {
   background: var(--surface-2);
-  box-shadow: inset 3px 0 0 var(--blaze);
+  box-shadow: inset 3px 0 0 var(--accent);
 }
 
 .race-item-date {
@@ -1024,7 +1016,6 @@ textarea {
 .race-item-day {
   font-size: 26px;
   font-weight: 800;
-  font-stretch: 70%;
   font-variant-numeric: tabular-nums;
 }
 
@@ -1044,7 +1035,6 @@ textarea {
 .race-item-name {
   font-size: 17px;
   font-weight: 750;
-  font-stretch: 82%;
   line-height: 1.2;
 }
 
@@ -1147,14 +1137,14 @@ textarea {
   border: 0;
   border-radius: var(--radius-m);
   background: #ffffff;
-  color: #14261f;
+  color: #071c3f;
   font-size: 13.5px;
   font-weight: 650;
-  box-shadow: 0 1px 4px rgba(20, 38, 31, 0.25);
+  box-shadow: 0 1px 4px rgba(7, 28, 63, 0.25);
 }
 
 .map-tool.is-on {
-  background: #14261f;
+  background: #071c3f;
   color: #ffffff;
 }
 
@@ -1175,18 +1165,18 @@ textarea {
   border: 0;
   border-radius: 6px;
   background: transparent;
-  color: #14261f;
+  color: #071c3f;
   text-align: left;
   font-size: 14px;
 }
 
 .map-menu button:hover {
-  background: #eef2ec;
+  background: #f3eaf4;
 }
 
 .map-menu button.is-on {
   font-weight: 700;
-  box-shadow: inset 3px 0 0 #d7322b;
+  box-shadow: inset 3px 0 0 #fe66c4;
 }
 
 .map-legend {
@@ -1201,10 +1191,10 @@ textarea {
   padding: 7px 11px;
   border-radius: var(--radius-m);
   background: rgba(255, 255, 255, 0.94);
-  color: #14261f;
+  color: #071c3f;
   font-size: 12.5px;
   font-weight: 600;
-  box-shadow: 0 1px 4px rgba(20, 38, 31, 0.2);
+  box-shadow: 0 1px 4px rgba(7, 28, 63, 0.2);
 }
 
 .map-legend-item {
@@ -1241,7 +1231,7 @@ textarea {
   gap: 1px;
   padding: 8px 11px;
   border-radius: 8px;
-  background: #14261f;
+  background: #071c3f;
   color: #ffffff;
   font-family: var(--font);
   font-size: 12.5px;
@@ -1252,12 +1242,11 @@ textarea {
 .maplibregl-popup.map-tooltip strong {
   font-size: 14px;
   font-weight: 750;
-  font-stretch: 85%;
 }
 
 .maplibregl-popup.map-tooltip .maplibregl-popup-tip {
-  border-top-color: #14261f;
-  border-bottom-color: #14261f;
+  border-top-color: #071c3f;
+  border-bottom-color: #071c3f;
 }
 
 .maplibregl-ctrl-attrib {
@@ -1287,7 +1276,6 @@ textarea {
   margin-top: 2px;
   font-size: 28px;
   font-weight: 800;
-  font-stretch: 72%;
   line-height: 1.02;
   letter-spacing: -0.01em;
 }
@@ -1353,7 +1341,6 @@ textarea {
 
 .preview-course-name {
   font-weight: 700;
-  font-stretch: 88%;
 }
 
 .preview-course-stats {
@@ -1403,7 +1390,6 @@ textarea {
   margin: 0 8px;
   font-size: 36px;
   font-weight: 800;
-  font-stretch: 70%;
   line-height: 1;
   letter-spacing: -0.01em;
 }
@@ -1492,8 +1478,8 @@ textarea {
 }
 
 .month-cell.is-today .month-daynum {
-  background: var(--blaze);
-  color: var(--blaze-ink);
+  background: var(--accent);
+  color: var(--accent-ink);
 }
 
 .month-items {
@@ -1599,7 +1585,6 @@ textarea {
 .year-month-title span:first-child {
   font-size: 21px;
   font-weight: 800;
-  font-stretch: 75%;
 }
 
 .year-month-title span:first-child::first-letter {
@@ -1666,7 +1651,7 @@ textarea {
 }
 
 .year-day.is-today {
-  outline: 2px solid var(--blaze);
+  outline: 2px solid var(--accent);
   outline-offset: 1px;
 }
 
@@ -1679,7 +1664,6 @@ textarea {
 .agenda-month-title {
   font-size: 24px;
   font-weight: 800;
-  font-stretch: 72%;
   padding-bottom: 6px;
   border-bottom: 1px solid var(--line);
   margin-bottom: 4px;
@@ -1734,7 +1718,7 @@ textarea {
   display: flex;
   align-items: flex-end;
   overflow: hidden;
-  background: #14261f;
+  background: #071c3f;
   color: #ffffff;
 }
 
@@ -1764,7 +1748,7 @@ textarea {
   opacity: 1;
   background:
     radial-gradient(120% 90% at 70% 10%, rgba(159, 195, 216, 0.35), transparent 60%),
-    linear-gradient(160deg, #2c5a4b, #14261f 70%);
+    linear-gradient(160deg, #854183, #071c3f 70%);
 }
 
 .terrain-hero .maplibregl-ctrl-attrib {
@@ -1778,10 +1762,10 @@ textarea {
   pointer-events: none;
   background: linear-gradient(
     to top,
-    rgba(8, 18, 14, 0.82) 0%,
-    rgba(8, 18, 14, 0.45) 38%,
-    rgba(8, 18, 14, 0.05) 68%,
-    rgba(8, 18, 14, 0.3) 100%
+    rgba(4, 14, 32, 0.82) 0%,
+    rgba(4, 14, 32, 0.45) 38%,
+    rgba(4, 14, 32, 0.05) 68%,
+    rgba(4, 14, 32, 0.3) 100%
   );
 }
 
@@ -1818,7 +1802,6 @@ textarea {
   max-width: 14ch;
   font-size: clamp(44px, 8.4vw, 112px);
   font-weight: 850;
-  font-stretch: 64%;
   line-height: 0.9;
   letter-spacing: -0.02em;
   text-wrap: balance;
@@ -1837,7 +1820,6 @@ textarea {
   gap: 4px 14px;
   font-size: 21px;
   font-weight: 700;
-  font-stretch: 85%;
 }
 
 .race-hero-countdown {
@@ -1916,7 +1898,7 @@ textarea {
 
 .course-tab.is-on {
   border-color: var(--ink);
-  box-shadow: inset 0 -3px 0 var(--blaze);
+  box-shadow: inset 0 -3px 0 var(--accent);
 }
 
 .course-tab-bar {
@@ -1930,7 +1912,6 @@ textarea {
 .course-tab-name {
   font-size: 16px;
   font-weight: 750;
-  font-stretch: 80%;
 }
 
 .course-tab-stats {
@@ -1978,7 +1959,6 @@ textarea {
 .panel-head h2 {
   font-size: 24px;
   font-weight: 800;
-  font-stretch: 74%;
   letter-spacing: -0.005em;
 }
 
@@ -2012,7 +1992,6 @@ textarea {
 .stat-hero dd {
   font-size: 44px;
   font-weight: 850;
-  font-stretch: 68%;
   line-height: 1;
   letter-spacing: -0.01em;
 }
@@ -2118,15 +2097,15 @@ textarea {
   left: 10px;
   z-index: 2;
   background: rgba(255, 255, 255, 0.95);
-  box-shadow: 0 1px 4px rgba(20, 38, 31, 0.25);
+  box-shadow: 0 1px 4px rgba(7, 28, 63, 0.25);
 }
 
 .course-map-tools button {
-  color: #44554e;
+  color: #3f3c5c;
 }
 
 .course-map-tools button.is-on {
-  background: #14261f;
+  background: #071c3f;
   color: #ffffff;
 }
 
@@ -2154,7 +2133,6 @@ textarea {
   margin: 0;
   font-size: 22px;
   font-weight: 800;
-  font-stretch: 75%;
 }
 
 .dropzone {
@@ -2263,8 +2241,8 @@ textarea {
 }
 
 .timeline-item.is-next .timeline-dot {
-  border-color: var(--blaze);
-  background: var(--blaze);
+  border-color: var(--accent);
+  background: var(--accent);
 }
 
 .timeline-item.is-past {
@@ -2288,7 +2266,6 @@ textarea {
 .timeline-label {
   font-size: 15.5px;
   font-weight: 750;
-  font-stretch: 88%;
 }
 
 .link-list {
@@ -2350,7 +2327,6 @@ textarea {
 .season-title {
   font-size: clamp(40px, 6vw, 64px);
   font-weight: 850;
-  font-stretch: 64%;
   line-height: 0.95;
   letter-spacing: -0.015em;
 }
@@ -2399,7 +2375,6 @@ textarea {
   margin: 4px 0 0;
   font-size: 34px;
   font-weight: 850;
-  font-stretch: 68%;
   line-height: 1;
 }
 
@@ -2481,7 +2456,7 @@ textarea {
   top: 8px;
   width: 2px;
   height: 38px;
-  background: var(--blaze);
+  background: var(--accent);
   transform: translateX(-1px);
 }
 
@@ -2579,7 +2554,7 @@ textarea {
 
 .entry.prio-A .entry-card {
   border-color: var(--ink);
-  box-shadow: inset 4px 0 0 var(--blaze);
+  box-shadow: inset 4px 0 0 var(--accent);
 }
 
 .entry.is-past .entry-card {
@@ -2596,7 +2571,6 @@ textarea {
 .entry-day {
   font-size: 38px;
   font-weight: 850;
-  font-stretch: 64%;
   font-variant-numeric: tabular-nums;
 }
 
@@ -2617,7 +2591,6 @@ textarea {
 .entry-title {
   font-size: 22px;
   font-weight: 800;
-  font-stretch: 74%;
   line-height: 1.1;
 }
 
@@ -3005,4 +2978,216 @@ textarea {
   .drawer-foot .button-primary {
     flex: 1;
   }
+}
+
+/* ---------- Identité Take Ton Trail ---------- */
+
+/* Chewy pour les titres et les chiffres phares, Tahoma pour le reste. */
+.race-title,
+.preview-title,
+.calendar-title,
+.season-title,
+.panel-head h2,
+.drawer-head h2,
+.empty-large h2,
+.page-message h1,
+.year-month-title span:first-child,
+.agenda-month-title,
+.results-count strong,
+.race-item-day,
+.entry-day,
+.entry-title,
+.stat-hero dd,
+.season-totals dd,
+.gpx-stats dd {
+  font-family: var(--font-display);
+  font-weight: 400;
+  letter-spacing: 0.01em;
+}
+
+.brand {
+  gap: 0;
+}
+
+.brand-wordmark {
+  display: block;
+  height: 46px;
+  width: auto;
+}
+
+.brand-name {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.app-nav a {
+  font-weight: 700;
+}
+
+/* Bouton principal façon autocollant, comme le logo : rose, contour et ombre marine. */
+.button-primary {
+  border: 2px solid #071c3f;
+  box-shadow: var(--shadow-sticker);
+  font-weight: 700;
+}
+
+.button-primary:hover:not(:disabled) {
+  filter: none;
+  transform: translate(-1px, -1px);
+  box-shadow: 3px 4px 0 #071c3f;
+}
+
+.button-primary:active:not(:disabled) {
+  transform: translate(1px, 1px);
+  box-shadow: 1px 1px 0 #071c3f;
+}
+
+/* Le nom de la course reprend le lettrage du logo. */
+.race-title {
+  color: #fe66c4;
+  -webkit-text-stroke: 0.07em #071c3f;
+  paint-order: stroke fill;
+  text-shadow: 0.045em 0.065em 0 #071c3f;
+  line-height: 0.95;
+  max-width: 16ch;
+}
+
+.preview-title a,
+.entry-title a {
+  color: var(--ink);
+}
+
+.loading-screen {
+  display: grid;
+  justify-items: center;
+  align-content: center;
+  gap: 14px;
+  min-height: calc(100dvh - var(--header-h));
+  padding: 24px;
+  color: var(--ink-2);
+}
+
+.loading-screen img {
+  width: min(280px, 70vw);
+  height: auto;
+  animation: loading-bob 1.6s ease-in-out infinite;
+}
+
+@keyframes loading-bob {
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+.page-message img,
+.empty img {
+  height: auto;
+  max-width: 100%;
+}
+
+.empty .empty-illustration {
+  width: 110px;
+  margin: 0 auto 12px;
+  display: block;
+}
+
+.empty-large .empty-illustration {
+  width: 150px;
+}
+
+.tag-full {
+  border-color: transparent;
+  background: #071c3f;
+  color: #ffffff;
+}
+
+.notice-full,
+.notice-wait {
+  margin-bottom: 14px;
+}
+
+.notice-full {
+  background: var(--accent-soft);
+  color: var(--ink);
+}
+
+.notice-wait {
+  background: var(--warn-soft);
+  color: var(--warn);
+}
+
+.course-facts {
+  margin-top: 4px;
+  font-size: 13.5px;
+  color: var(--ink-2);
+}
+
+.stat-missing {
+  font-family: var(--font);
+  font-size: 15px;
+  color: var(--ink-3);
+}
+
+.tech-meter.is-unknown .tech-meter-bars span {
+  background: transparent;
+  box-shadow: inset 0 0 0 1px var(--line-strong);
+}
+
+.race-hero-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 14px;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.race-hero-switch {
+  position: absolute;
+  right: 16px;
+  bottom: 140px;
+  z-index: 2;
+}
+
+.race-hero-switch .map-tool {
+  box-shadow: var(--shadow-sticker);
+}
+
+.race-extra {
+  display: grid;
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.race-extra h3 {
+  font-size: 15px;
+}
+
+.data-source {
+  font-size: 13px;
+  color: var(--ink-3);
+}
+
+.preview-foot {
+  display: flex;
+  gap: 8px;
+}
+
+.preview-foot .button {
+  flex: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .loading-screen img {
+    animation: none;
+  }
+}
+
+.list-more {
+  display: flex;
+  justify-content: center;
+  padding: 12px 8px 4px;
 }

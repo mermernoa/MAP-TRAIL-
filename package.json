@@ -1,18 +1,19 @@
 {
-  "name": "balise-trail-map",
+  "name": "take-ton-trail",
   "private": true,
   "version": "0.1.0",
   "type": "module",
-  "description": "Carte et calendrier interactifs des trails, du plus confidentiel au plus mythique.",
+  "description": "Take Ton Trail : carte et calendrier interactifs des trails, du plus confidentiel au plus mythique.",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
     "preview": "vite preview",
     "typecheck": "tsc -b --noEmit",
-    "test": "vitest run"
+    "test": "vitest run",
+    "import:sheet": "tsx scripts/import-sheet.ts"
   },
   "dependencies": {
-    "@fontsource-variable/archivo": "^5.3.0",
+    "@fontsource/chewy": "^5.3.0",
     "maplibre-gl": "^6.11.2",
     "react": "^19.3.0",
     "react-dom": "^19.3.0",
@@ -24,6 +25,7 @@
     "@types/react-dom": "^19.3.0",
     "@vitejs/plugin-react": "^6.1.1",
     "happy-dom": "^20.14.5",
+    "tsx": "^4.23.15",
     "typescript": "^7.0.2",
     "vite": "^8.3.1",
     "vitest": "^5.0.2"

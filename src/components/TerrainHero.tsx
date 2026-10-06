@@ -93,7 +93,7 @@ export function TerrainHero({ lat, lng, track }: Props) {
       id: `${id}-line`,
       type: 'line',
       source: id,
-      paint: { 'line-color': '#d7322b', 'line-width': 2.5 },
+      paint: { 'line-color': '#fe66c4', 'line-width': 2.5 },
       layout: { 'line-join': 'round', 'line-cap': 'round' },
     });
     map.fitBounds(track.bounds, { padding: 60, pitch: 58, bearing: -20, duration: 0 });

@@ -209,8 +209,8 @@ export function RaceMap({ matches, selectedId, hoveredId, focusNonce, onSelect, 
     const map = new maplibregl.Map({
       container: containerRef.current,
       style: basemapStyle('plan'),
-      center: [6.5, 45.8],
-      zoom: window.innerWidth < 700 ? 3.6 : 4.4,
+      center: [2.6, 46.6],
+      zoom: window.innerWidth < 700 ? 4.3 : 5,
       maxPitch: 75,
       attributionControl: { compact: true },
     });

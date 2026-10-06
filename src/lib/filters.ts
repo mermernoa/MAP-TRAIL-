@@ -1,5 +1,5 @@
 import type { Course, Popularity, RaceEvent, Technicity, UtmbCategory } from '../data/types';
-import { countryName, haversineKm, itraPoints, kmEffort, utmbCategory } from './metrics';
+import { countryName, courseUtmbCategory, haversineKm, itraPoints } from './metrics';
 
 /** Crans des curseurs (non linéaires : plus fins sur les petites distances). */
 export const DISTANCE_STOPS = [0, 10, 20, 30, 42, 50, 60, 80, 100, 130, 160, 200, 300, Infinity];
@@ -21,6 +21,16 @@ export interface Filters {
   utmbCategories: UtmbCategory[];
   circuits: string[];
   countries: string[];
+  regions: string[];
+  massifs: string[];
+  /** Type de course (Trail court, Trail long, Ultra-trail, Trail nocturne…). */
+  types: string[];
+  /** Solo, Duo, Relais… */
+  formats: string[];
+  /** Prix maximal en euros (null : pas de limite). */
+  priceMax: number | null;
+  /** Masquer les courses complètes. */
+  hideFull: boolean;
   near: NearFilter | null;
   dateFrom: string | null;
   dateTo: string | null;
@@ -38,6 +48,12 @@ export const DEFAULT_FILTERS: Filters = {
   utmbCategories: [],
   circuits: [],
   countries: [],
+  regions: [],
+  massifs: [],
+  types: [],
+  formats: [],
+  priceMax: null,
+  hideFull: false,
   near: null,
   dateFrom: null,
   dateTo: null,
@@ -98,13 +114,20 @@ function inRange(value: number, [min, max]: [number, number]): boolean {
 
 export function courseMatches(course: Course, f: Filters, today: string): boolean {
   if (!inRange(course.distanceKm, f.distance)) return false;
-  if (!inRange(course.elevationGain, f.elevation)) return false;
-  if (f.technicity.length && !f.technicity.includes(course.technicity)) return false;
-  if (f.itraMin > 0 && itraPoints(course) < f.itraMin) return false;
+  // Un critère de D+, de technicité ou d'index écarte les parcours dont la valeur n'est pas connue.
+  if (f.elevation[0] > 0 || f.elevation[1] !== Infinity) {
+    if (course.elevationGain == null || !inRange(course.elevationGain, f.elevation)) return false;
+  }
+  if (f.technicity.length && (course.technicity == null || !f.technicity.includes(course.technicity))) return false;
+  if (f.itraMin > 0 && (itraPoints(course) ?? -1) < f.itraMin) return false;
   if (f.utmbCategories.length) {
-    const cat = utmbCategory(kmEffort(course));
+    const cat = courseUtmbCategory(course);
     if (!cat || !f.utmbCategories.includes(cat)) return false;
   }
+  if (f.types.length && (!course.type || !f.types.includes(course.type))) return false;
+  if (f.formats.length && (!course.format || !f.formats.includes(course.format))) return false;
+  if (f.priceMax != null && (course.priceEur == null || course.priceEur > f.priceMax)) return false;
+  if (f.hideFull && course.full === 'yes') return false;
   const day = course.start.slice(0, 10);
   if (!f.includePast && day < today) return false;
   if (f.dateFrom && day < f.dateFrom) return false;
@@ -115,14 +138,22 @@ export function courseMatches(course: Course, f: Filters, today: string): boolea
 export function eventMatches(event: RaceEvent, f: Filters, today: string): boolean {
   if (f.query.trim()) {
     const haystack = normalize(
-      [event.name, event.city, event.region, countryName(event.country), ...event.courses.map((c) => c.name)].join(
-        ' ',
-      ),
+      [
+        event.name,
+        event.city,
+        event.region,
+        event.department ?? '',
+        event.massif ?? '',
+        countryName(event.country),
+        ...event.courses.map((c) => `${c.name} ${c.startPlace ?? ''}`),
+      ].join(' '),
     );
     const words = normalize(f.query).split(/\s+/).filter(Boolean);
     if (!words.every((w) => haystack.includes(w))) return false;
   }
   if (f.countries.length && !f.countries.includes(event.country)) return false;
+  if (f.regions.length && !f.regions.includes(event.region)) return false;
+  if (f.massifs.length && (!event.massif || !f.massifs.includes(event.massif))) return false;
   if (f.circuits.length && !f.circuits.some((c) => event.circuits.includes(c))) return false;
   if (f.popularity.length && !f.popularity.includes(event.popularity)) return false;
   if (f.near && haversineKm(f.near.lat, f.near.lng, event.lat, event.lng) > f.near.radiusKm) return false;
@@ -147,7 +178,7 @@ export function applyFilters(events: RaceEvent[], f: Filters, today: string): Ma
 export function sortMatches(matches: Match[], key: SortKey): Match[] {
   const maxDist = (m: Match) => Math.max(...m.courses.map((c) => c.distanceKm));
   const minDist = (m: Match) => Math.min(...m.courses.map((c) => c.distanceKm));
-  const maxElev = (m: Match) => Math.max(...m.courses.map((c) => c.elevationGain));
+  const maxElev = (m: Match) => Math.max(...m.courses.map((c) => c.elevationGain ?? -1));
   const byDate = (a: Match, b: Match) => a.firstDate.localeCompare(b.firstDate);
   const sorted = [...matches];
   switch (key) {
@@ -178,6 +209,12 @@ export function countActiveFilters(f: Filters): number {
   if (f.utmbCategories.length) n++;
   if (f.circuits.length) n++;
   if (f.countries.length) n++;
+  if (f.regions.length) n++;
+  if (f.massifs.length) n++;
+  if (f.types.length) n++;
+  if (f.formats.length) n++;
+  if (f.priceMax != null) n++;
+  if (f.hideFull) n++;
   if (f.near) n++;
   if (f.dateFrom || f.dateTo) n++;
   if (f.popularity.length) n++;

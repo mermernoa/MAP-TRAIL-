@@ -118,8 +118,8 @@ export function seasonTotals(resolved: ResolvedEntry[]): SeasonTotals {
   return {
     races: counted.length,
     distanceKm: Math.round(counted.reduce((s, r) => s + r.course.distanceKm, 0)),
-    elevationGain: counted.reduce((s, r) => s + r.course.elevationGain, 0),
-    itraPoints: counted.reduce((s, r) => s + itraPoints(r.course), 0),
+    elevationGain: counted.reduce((s, r) => s + (r.course.elevationGain ?? 0), 0),
+    itraPoints: counted.reduce((s, r) => s + (itraPoints(r.course) ?? 0), 0),
     runningStones: counted.reduce((s, r) => s + runningStones(r.event, r.course), 0),
   };
 }

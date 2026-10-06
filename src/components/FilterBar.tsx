@@ -35,6 +35,12 @@ function describe(f: Filters): Removable[] {
     out.push({ key: `circuit-${c}`, label: c, clear: { circuits: f.circuits.filter((x) => x !== c) } });
   for (const c of f.countries)
     out.push({ key: `country-${c}`, label: countryName(c), clear: { countries: f.countries.filter((x) => x !== c) } });
+  for (const r of f.regions) out.push({ key: `region-${r}`, label: r, clear: { regions: f.regions.filter((x) => x !== r) } });
+  for (const m of f.massifs) out.push({ key: `massif-${m}`, label: m, clear: { massifs: f.massifs.filter((x) => x !== m) } });
+  for (const t of f.types) out.push({ key: `type-${t}`, label: t, clear: { types: f.types.filter((x) => x !== t) } });
+  for (const t of f.formats) out.push({ key: `format-${t}`, label: t, clear: { formats: f.formats.filter((x) => x !== t) } });
+  if (f.priceMax != null) out.push({ key: 'price', label: `${f.priceMax} € max`, clear: { priceMax: null } });
+  if (f.hideFull) out.push({ key: 'full', label: 'Sans les complètes', clear: { hideFull: false } });
   if (f.near) out.push({ key: 'near', label: `${f.near.label} (${f.near.radiusKm} km)`, clear: { near: null } });
   if (f.dateFrom || f.dateTo)
     out.push({

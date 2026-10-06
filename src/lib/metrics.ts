@@ -2,7 +2,7 @@ import type { Course, Popularity, RaceEvent, Technicity, UtmbCategory } from '..
 
 /** Km-effort : distance + D+ / 100 (convention ITRA / UTMB). */
 export function kmEffort(course: Pick<Course, 'distanceKm' | 'elevationGain'>): number {
-  return course.distanceKm + course.elevationGain / 100;
+  return course.distanceKm + (course.elevationGain ?? 0) / 100;
 }
 
 /**
@@ -34,16 +34,26 @@ export function isUtmbSeries(event: Pick<RaceEvent, 'circuits'>): boolean {
   return event.circuits.includes('UTMB World Series');
 }
 
+/** Catégorie publiée dans la base, sinon calculée depuis les km-effort (D+ connu). */
+export function courseUtmbCategory(course: Course): UtmbCategory | null {
+  if (course.utmbCategory) return course.utmbCategory;
+  if (course.elevationGain == null) return null;
+  return utmbCategory(kmEffort(course));
+}
+
 /** Running Stones gagnées en finissant une course UTMB World Series (hors finales). */
 export function runningStones(event: RaceEvent, course: Course): number {
   if (course.runningStones != null) return course.runningStones;
   if (!isUtmbSeries(event) || event.circuits.includes('Finale UTMB World Series')) return 0;
-  const cat = utmbCategory(kmEffort(course));
+  const cat = courseUtmbCategory(course);
   return cat ? STONES[cat] : 0;
 }
 
-export function itraPoints(course: Course): number {
-  return course.itraPoints ?? estimateItraPoints(kmEffort(course));
+/** Points ITRA publiés, sinon estimés ; inconnus si le D+ n'est pas communiqué. */
+export function itraPoints(course: Course): number | null {
+  if (course.itraPoints != null) return course.itraPoints;
+  if (course.elevationGain == null) return null;
+  return estimateItraPoints(kmEffort(course));
 }
 
 /** Tranches de distance utilisées pour la couleur des repères de la carte. */
@@ -63,19 +73,19 @@ export function distanceBand(km: number): DistanceBandId {
 }
 
 export const TECHNICITY_LABELS: Record<Technicity, { label: string; hint: string }> = {
-  1: { label: 'Roulant', hint: 'Chemins larges, peu de pierres, accessible aux coureurs sur route.' },
-  2: { label: 'Peu technique', hint: 'Sentiers faciles, quelques passages caillouteux ou racineux.' },
-  3: { label: 'Modérément technique', hint: 'Sentiers de montagne, descentes raides et pierriers ponctuels.' },
-  4: { label: 'Technique', hint: 'Pierriers, dalles, passages équipés ; pied montagnard requis.' },
-  5: { label: 'Très technique', hint: 'Hors sentier, blocs, crêtes exposées, orientation parfois nécessaire.' },
+  1: { label: 'Roulant', hint: 'Chemins larges et roulants, accessible à un débutant.' },
+  2: { label: 'Facile', hint: 'Sentiers faciles, quelques passages caillouteux.' },
+  3: { label: 'Montagne', hint: 'Sentiers de montagne, racines et cailloux, descentes soutenues.' },
+  4: { label: 'Technique', hint: 'Passages très techniques : pierriers, dalles, mains parfois nécessaires.' },
+  5: { label: 'Alpin', hint: 'Terrain alpin : crêtes aériennes, passages équipés, hors sentier.' },
 };
 
 export const POPULARITY_LABELS: Record<Popularity, { label: string; hint: string }> = {
-  1: { label: 'Confidentielle', hint: 'Quelques dizaines de coureurs, souvent sur invitation ou candidature.' },
-  2: { label: 'Locale', hint: 'Connue dans sa région, ambiance village.' },
-  3: { label: 'Réputée', hint: 'Attire des coureurs de tout le pays.' },
-  4: { label: 'Internationale', hint: 'Plateau international, dossards très demandés.' },
-  5: { label: 'Mythique', hint: 'Une course dont tout traileur a entendu parler.' },
+  1: { label: 'Confidentielle', hint: 'Course locale confidentielle, moins de 200 coureurs.' },
+  2: { label: 'Régionale', hint: 'Course régionale connue, jamais complète.' },
+  3: { label: 'Réputée', hint: 'Belle réputation, complète quelques semaines avant.' },
+  4: { label: 'Très demandée', hint: 'Complète en quelques jours ou tirage au sort.' },
+  5: { label: 'Mythique', hint: 'Référence nationale ou internationale.' },
 };
 
 const COUNTRY_NAMES: Record<string, string> = {

@@ -1,6 +1,6 @@
 import { useMemo, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { fmtKm, fmtM, fmtNum, TechnicityMeter } from '../components/bits';
+import { fmtDplus, fmtKm, fmtM, fmtNum, TechnicityMeter } from '../components/bits';
 import { CustomRaceForm } from '../components/CustomRaceForm';
 import { AlertIcon, CalendarIcon, ClockIcon, DownloadIcon, PlusIcon, TrashIcon, UploadIcon } from '../components/Icons';
 import type { RaceEvent } from '../data/types';
@@ -57,12 +57,12 @@ export function SeasonPage() {
 
   const exportIcs = () => {
     const items = shown.flatMap((r) => courseIcsItems(r.event, r.course, r.entry.status === 'envie' || r.entry.status === 'prevue'));
-    downloadFile(`ma-saison-${typeof range === 'number' ? range : 'balise'}.ics`, buildIcs(items), 'text/calendar');
+    downloadFile(`ma-saison-${typeof range === 'number' ? range : 'take-ton-trail'}.ics`, buildIcs(items), 'text/calendar');
   };
   const exportJson = () => {
     downloadFile(
-      'balise-ma-saison.json',
-      JSON.stringify({ app: 'balise', version: 1, exportedAt: new Date().toISOString(), entries, customRaces }, null, 2),
+      'take-ton-trail-ma-saison.json',
+      JSON.stringify({ app: 'take-ton-trail', version: 1, exportedAt: new Date().toISOString(), entries, customRaces }, null, 2),
       'application/json',
     );
   };
@@ -143,6 +143,7 @@ export function SeasonPage() {
 
       {!resolved.length ? (
         <div className="empty empty-large">
+          <img className="empty-illustration" src="brand/medaille.webp" alt="" width={150} height={219} />
           <h2>Votre saison est vide</h2>
           <p>Ajoutez des courses depuis la carte ou le calendrier avec le bouton « Ma saison », ou saisissez une course locale absente du catalogue.</p>
           <div className="button-row">
@@ -312,7 +313,7 @@ function EntryCard({ item, gapDays, today }: { item: ResolvedEntry; gapDays: num
           </p>
           <p className="entry-stats">
             <span className="num">{fmtKm(course.distanceKm)}</span>
-            <span className="num">{fmtM(course.elevationGain)} D+</span>
+            <span className="num">{fmtDplus(course.elevationGain)}</span>
             <TechnicityMeter level={course.technicity} />
             {event.dateStatus === 'estimated' && <span className="tag tag-soft">Date prévisionnelle</span>}
           </p>

@@ -1,10 +1,10 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useParams, useSearchParams } from 'react-router-dom';
-import { fmtHours, fmtKm, fmtM, fmtNum, PopularityLabel, TechnicityMeter } from '../components/bits';
+import { fmtDplus, fmtHours, fmtKm, fmtM, fmtNum, fmtPrice, PopularityLabel, TechnicityMeter } from '../components/bits';
 import { CourseMap } from '../components/CourseMap';
 import { ElevationProfile, ProfileHorizon } from '../components/ElevationProfile';
 import { GpxPanel } from '../components/GpxPanel';
-import { ExternalIcon } from '../components/Icons';
+import { ExternalIcon, MountainIcon } from '../components/Icons';
 import { KeyDates } from '../components/KeyDates';
 import { SeasonToggle } from '../components/SeasonToggle';
 import { TerrainHero } from '../components/TerrainHero';
@@ -14,13 +14,12 @@ import { formatDate, formatRange, formatTime, relativeDays } from '../lib/dates'
 import { altitudeAt, profileFromCheckpoints, profileFromTrack, type ProfilePoint } from '../lib/gpx';
 import {
   countryFlag,
-  countryName,
+  courseUtmbCategory,
   distanceBand,
   itraPoints,
   kmEffort,
   runningStones,
   TECHNICITY_LABELS,
-  utmbCategory,
 } from '../lib/metrics';
 import { useRace } from '../store/races';
 import { useCourseTrack } from '../store/useCourseTrack';
@@ -40,21 +39,25 @@ export function RacePage() {
       </div>
     );
   }
-  return <RaceDetail event={event} />;
+  return <RaceDetail key={event.id} event={event} />;
 }
 
 function RaceDetail({ event }: { event: RaceEvent }) {
   const [params, setParams] = useSearchParams();
   const today = useToday();
   const course = event.courses.find((c) => c.id === params.get('parcours')) ?? event.courses[0];
-  const trackState = useCourseTrack(`${event.id}/${course.id}`);
+  const trackState = useCourseTrack(`${event.id}/${course.id}`, course.gpxUrl);
   const [hoverKm, setHoverKm] = useState<number | null>(null);
   const [allCheckpoints, setAllCheckpoints] = useState(false);
+  // Photo de la base si elle existe et se charge, sinon relief 3D du lieu.
+  const [heroMode, setHeroMode] = useState<'photo' | 'relief'>(event.image ? 'photo' : 'relief');
+  const [photoFailed, setPhotoFailed] = useState(false);
+  const showPhoto = !!event.image && heroMode === 'photo' && !photoFailed;
 
   useEffect(() => {
-    document.title = `${event.name} – Balise`;
+    document.title = `${event.name} – Take Ton Trail`;
     return () => {
-      document.title = 'Balise — carte des trails';
+      document.title = 'Take Ton Trail';
     };
   }, [event.name]);
 
@@ -84,23 +87,48 @@ function RaceDetail({ event }: { event: RaceEvent }) {
 
   return (
     <article className="race-page">
-      <header className={`race-hero ${event.image ? 'has-photo' : ''}`}>
-        {event.image ? (
-          <img className="race-hero-photo" src={event.image} alt="" />
+      <header className={`race-hero ${showPhoto ? 'has-photo' : ''}`}>
+        {showPhoto ? (
+          <img
+            className="race-hero-photo"
+            src={event.image}
+            alt=""
+            referrerPolicy="no-referrer"
+            onError={() => setPhotoFailed(true)}
+          />
         ) : (
           <TerrainHero lat={event.lat} lng={event.lng} track={trackState.track} />
+        )}
+        {event.image && !photoFailed && (
+          <div className="race-hero-switch">
+            <button
+              type="button"
+              className="map-tool"
+              onClick={() => setHeroMode((m) => (m === 'photo' ? 'relief' : 'photo'))}
+            >
+              <MountainIcon size={16} />
+              {heroMode === 'photo' ? 'Voir le relief 3D' : 'Voir la photo'}
+            </button>
+          </div>
         )}
         <div className="race-hero-shade" aria-hidden="true" />
         <div className="race-hero-content">
           <nav className="breadcrumb" aria-label="Fil d’Ariane">
             <Link to="/">Carte</Link>
             <span aria-hidden="true">/</span>
-            <span>{countryName(event.country)}</span>
+            <span>{event.region}</span>
           </nav>
           <h1 className="race-title">{event.name}</h1>
           <p className="race-hero-place">
-            <span aria-hidden="true">{countryFlag(event.country)}</span> {event.city}, {event.region}
+            <span aria-hidden="true">{countryFlag(event.country)}</span> {event.city}
+            {event.department ? `, ${event.department}` : `, ${event.region}`}
           </p>
+          {(event.massif || event.edition) && (
+            <p className="race-hero-meta">
+              {event.massif && <span>Massif : {event.massif}</span>}
+              {event.edition && <span>Édition {event.edition}</span>}
+            </p>
+          )}
           <p className="race-hero-date">
             <span>{formatRange(event.dateStart, event.dateEnd)}</span>
             <span className="race-hero-countdown">{relativeDays(event.dateStart, today)}</span>
@@ -116,7 +144,7 @@ function RaceDetail({ event }: { event: RaceEvent }) {
           </div>
         </div>
         {profile && <ProfileHorizon points={profile.points} />}
-        {event.imageCredit && <p className="race-hero-credit">{event.imageCredit}</p>}
+        {showPhoto && event.imageCredit && <p className="race-hero-credit">Photo : {event.imageCredit}</p>}
       </header>
 
       <div className="race-body">
@@ -133,7 +161,7 @@ function RaceDetail({ event }: { event: RaceEvent }) {
               <span className={`course-tab-bar band-${distanceBand(c.distanceKm)}`} aria-hidden="true" />
               <span className="course-tab-name">{c.name}</span>
               <span className="course-tab-stats">
-                {fmtKm(c.distanceKm)}, {fmtM(c.elevationGain)} D+
+                {fmtKm(c.distanceKm)}, {fmtDplus(c.elevationGain)}
               </span>
             </button>
           ))}
@@ -159,7 +187,7 @@ function RaceDetail({ event }: { event: RaceEvent }) {
                   points={profile.points}
                   markers={profile.markers}
                   onHoverKm={setHoverKm}
-                  ariaLabel={`Profil altimétrique de ${course.name} : ${fmtKm(course.distanceKm)} pour ${fmtM(course.elevationGain)} de dénivelé positif. Flèches gauche et droite pour parcourir.`}
+                  ariaLabel={`Profil altimétrique de ${course.name} : ${fmtKm(course.distanceKm)}${course.elevationGain != null ? ` pour ${fmtM(course.elevationGain)} de dénivelé positif` : ''}. Flèches gauche et droite pour parcourir.`}
                 />
               ) : (
                 <p className="empty-inline">
@@ -186,6 +214,7 @@ function RaceDetail({ event }: { event: RaceEvent }) {
                   track={trackState.track}
                   fileName={trackState.fileName}
                   text={trackState.text}
+                  remote={trackState.remote}
                   error={trackState.error}
                   onFile={trackState.save}
                   onRemove={trackState.remove}
@@ -238,6 +267,22 @@ function RaceDetail({ event }: { event: RaceEvent }) {
                 <h2 id="about-title">La course</h2>
               </div>
               <p className="prose">{event.description}</p>
+              {(event.highlights || event.access) && (
+                <div className="race-extra">
+                  {event.highlights && (
+                    <div>
+                      <h3>Points forts</h3>
+                      <p className="prose">{event.highlights}</p>
+                    </div>
+                  )}
+                  {event.access && (
+                    <div>
+                      <h3>Accès et navettes</h3>
+                      <p className="prose">{event.access}</p>
+                    </div>
+                  )}
+                </div>
+              )}
             </section>
           </div>
 
@@ -266,9 +311,13 @@ function RaceDetail({ event }: { event: RaceEvent }) {
             </section>
 
             <p className="data-note">
-              Données indicatives compilées à partir des éditions précédentes.
-              {event.dateStatus === 'estimated' && ' Les dates sont prévisionnelles.'} Vérifiez toujours distances, dates et
-              conditions d’inscription sur le site officiel avant de vous engager.
+              {event.custom
+                ? 'Course ajoutée par vous, enregistrée dans ce navigateur.'
+                : `Fiche issue de la base Take Ton Trail${event.source ? ` (source : ${event.source})` : ''}${
+                    event.updatedAt ? `, mise à jour le ${formatDate(event.updatedAt)}` : ''
+                  }.`}
+              {event.dateStatus === 'estimated' && ' Les dates sont prévisionnelles.'} Vérifiez les conditions d’inscription
+              sur le site de l’organisation avant de vous engager.
             </p>
           </aside>
         </div>
@@ -279,15 +328,30 @@ function RaceDetail({ event }: { event: RaceEvent }) {
 
 function CourseOverview({ event, course }: { event: RaceEvent; course: Course }) {
   const effort = kmEffort(course);
-  const cat = utmbCategory(effort);
+  const cat = courseUtmbCategory(course);
+  const points = itraPoints(course);
   const stones = runningStones(event, course);
   const time = formatTime(course.start);
+  const facts = [course.type, course.format, course.courseShape, course.terrain].filter(Boolean);
   return (
     <section className="panel course-overview" aria-labelledby="overview-title">
       <div className="panel-head">
-        <h2 id="overview-title">{course.name}</h2>
-        <SeasonToggle eventId={event.id} courseId={course.id} courseName={course.name} />
+        <div>
+          <h2 id="overview-title">{course.name}</h2>
+          {facts.length > 0 && <p className="course-facts">{facts.join(', ')}</p>}
+        </div>
+        <div className="button-row">
+          {course.registrationUrl && course.full !== 'yes' && (
+            <a className="button button-primary" href={course.registrationUrl} target="_blank" rel="noreferrer">
+              S’inscrire
+              <ExternalIcon size={14} />
+            </a>
+          )}
+          <SeasonToggle eventId={event.id} courseId={course.id} courseName={course.name} />
+        </div>
       </div>
+      {course.full === 'yes' && <p className="notice notice-full">Cette course est complète.</p>}
+      {course.full === 'waitlist' && <p className="notice notice-wait">Inscriptions sur liste d’attente.</p>}
       <dl className="stat-grid">
         <div className="stat stat-hero">
           <dt>Distance</dt>
@@ -295,15 +359,7 @@ function CourseOverview({ event, course }: { event: RaceEvent; course: Course })
         </div>
         <div className="stat stat-hero">
           <dt>Dénivelé positif</dt>
-          <dd>{fmtM(course.elevationGain)}</dd>
-        </div>
-        <div className="stat">
-          <dt>Dénivelé négatif</dt>
-          <dd>{fmtM(course.elevationLoss ?? course.elevationGain)}</dd>
-        </div>
-        <div className="stat">
-          <dt>Km-effort</dt>
-          <dd>{fmtNum(Math.round(effort))}</dd>
+          <dd>{course.elevationGain != null ? fmtM(course.elevationGain) : <span className="stat-missing">Non communiqué</span>}</dd>
         </div>
         <div className="stat">
           <dt>Départ</dt>
@@ -313,8 +369,11 @@ function CourseOverview({ event, course }: { event: RaceEvent; course: Course })
           </dd>
         </div>
         <div className="stat">
-          <dt>Barrière horaire</dt>
-          <dd>{course.timeLimitH ? fmtHours(course.timeLimitH) : '—'}</dd>
+          <dt>Lieu de départ</dt>
+          <dd>
+            {course.startPlace ?? event.city}
+            {course.finishPlace && course.finishPlace !== (course.startPlace ?? event.city) ? `, arrivée ${course.finishPlace}` : ''}
+          </dd>
         </div>
         <div className="stat">
           <dt>Technicité</dt>
@@ -322,34 +381,79 @@ function CourseOverview({ event, course }: { event: RaceEvent; course: Course })
             <TechnicityMeter level={course.technicity} showLabel />
           </dd>
         </div>
-        <div className="stat">
-          <dt>Points ITRA</dt>
-          <dd title={course.itraPoints == null ? 'Estimés d’après les km-effort' : undefined}>
-            {itraPoints(course)}
-            {course.itraPoints == null && <span className="muted small"> (estimés)</span>}
-          </dd>
-        </div>
-        <div className="stat">
-          <dt>Catégorie UTMB Index</dt>
-          <dd>{cat ?? '—'}</dd>
-        </div>
-        <div className="stat">
-          <dt>Running Stones</dt>
-          <dd>{stones ? stones : '—'}</dd>
-        </div>
-        <div className="stat">
-          <dt>Départ et arrivée</dt>
-          <dd>
-            {course.startPlace ?? event.city}
-            {course.finishPlace && course.finishPlace !== (course.startPlace ?? event.city) ? `, arrivée ${course.finishPlace}` : ''}
-          </dd>
-        </div>
-        <div className="stat">
-          <dt>Places</dt>
-          <dd>{course.maxRunners ? fmtNum(course.maxRunners) : '—'}</dd>
-        </div>
+        {course.priceEur != null && (
+          <div className="stat">
+            <dt>Prix</dt>
+            <dd>{fmtPrice(course.priceEur)}</dd>
+          </div>
+        )}
+        {course.elevationGain != null && (
+          <div className="stat">
+            <dt>Km-effort</dt>
+            <dd>{fmtNum(Math.round(effort))}</dd>
+          </div>
+        )}
+        {course.elevationLoss != null && (
+          <div className="stat">
+            <dt>Dénivelé négatif</dt>
+            <dd>{fmtM(course.elevationLoss)}</dd>
+          </div>
+        )}
+        {course.timeLimitH != null && (
+          <div className="stat">
+            <dt>Barrière horaire</dt>
+            <dd>{fmtHours(course.timeLimitH)}</dd>
+          </div>
+        )}
+        {points != null && (
+          <div className="stat">
+            <dt>Points ITRA</dt>
+            <dd title={course.itraPoints == null ? 'Estimés d’après les km-effort' : undefined}>
+              {points}
+              {course.itraPoints == null && <span className="muted small"> (estimés)</span>}
+            </dd>
+          </div>
+        )}
+        {cat && (
+          <div className="stat">
+            <dt>{course.utmbIndex ? 'Catégorie UTMB Index' : 'Catégorie (estimée)'}</dt>
+            <dd>{cat}</dd>
+          </div>
+        )}
+        {stones > 0 && (
+          <div className="stat">
+            <dt>Running Stones</dt>
+            <dd>{stones}</dd>
+          </div>
+        )}
+        {course.maxRunners != null && (
+          <div className="stat">
+            <dt>Places</dt>
+            <dd>{fmtNum(course.maxRunners)}</dd>
+          </div>
+        )}
+        {course.participantsLastEdition != null && (
+          <div className="stat">
+            <dt>Participants l’an dernier</dt>
+            <dd>{fmtNum(course.participantsLastEdition)}</dd>
+          </div>
+        )}
+        {course.aidStations != null && (
+          <div className="stat">
+            <dt>Ravitaillements</dt>
+            <dd>{course.aidStations}</dd>
+          </div>
+        )}
+        {course.requiredDocument && (
+          <div className="stat">
+            <dt>Document requis</dt>
+            <dd>{course.requiredDocument}</dd>
+          </div>
+        )}
       </dl>
-      <p className="muted small">{TECHNICITY_LABELS[course.technicity].hint}</p>
+      {course.technicity != null && <p className="muted small">{TECHNICITY_LABELS[course.technicity].hint}</p>}
+      {course.qualifierFor && <p className="small">Qualificative pour : {course.qualifierFor}</p>}
+      {course.mandatoryGear && <p className="small">Matériel obligatoire : {course.mandatoryGear}</p>}
     </section>
   );
 }

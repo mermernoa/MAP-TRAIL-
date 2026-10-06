@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { FilterBar } from '../components/FilterBar';
 import { FilterPanel } from '../components/FilterPanel';
 import { ListIcon, MapIcon } from '../components/Icons';
@@ -9,6 +9,8 @@ import { applyFilters, SORT_LABELS, sortMatches, type SortKey } from '../lib/fil
 import { useFilterStore } from '../store/filters';
 import { useAllRaces } from '../store/races';
 import { useToday } from '../store/useToday';
+
+const PAGE = 60;
 
 function inBounds(lat: number, lng: number, b: MapBounds): boolean {
   const inLng = b.west <= b.east ? lng >= b.west && lng <= b.east : lng >= b.west || lng <= b.east;
@@ -28,6 +30,8 @@ export function MapPage() {
   const [bounds, setBounds] = useState<MapBounds | null>(null);
   const [onlyVisible, setOnlyVisible] = useState(false);
   const [mobileView, setMobileView] = useState<'map' | 'list'>('map');
+  // La liste s'affiche par pages : la base compte plusieurs centaines d'événements.
+  const [visibleCount, setVisibleCount] = useState(PAGE);
 
   const matches = useMemo(() => sortMatches(applyFilters(races, filters, today), sort), [races, filters, today, sort]);
   const listed = useMemo(
@@ -35,6 +39,7 @@ export function MapPage() {
     [matches, onlyVisible, bounds],
   );
   const selected = matches.find((m) => m.event.id === selectedId) ?? null;
+  useEffect(() => setVisibleCount(PAGE), [filters, sort, onlyVisible]);
 
   const selectFromList = (id: string) => {
     setSelectedId(id);
@@ -70,7 +75,7 @@ export function MapPage() {
         </label>
         {listed.length ? (
           <ul className="race-list">
-            {listed.map((m) => (
+            {listed.slice(0, visibleCount).map((m) => (
               <RaceListItem
                 key={m.event.id}
                 event={m.event}
@@ -80,9 +85,17 @@ export function MapPage() {
                 onHover={(h) => setHoveredId(h ? m.event.id : null)}
               />
             ))}
+            {listed.length > visibleCount && (
+              <li className="list-more">
+                <button type="button" className="button" onClick={() => setVisibleCount((n) => n + PAGE)}>
+                  Afficher {Math.min(PAGE, listed.length - visibleCount)} courses de plus
+                </button>
+              </li>
+            )}
           </ul>
         ) : (
           <div className="empty">
+            <img className="empty-illustration" src="brand/boussole.webp" alt="" width={110} height={139} />
             <p>Aucune course ne correspond à ces critères.</p>
             <p className="muted">Élargissez la distance ou la période, ou retirez un filtre ci-dessus.</p>
           </div>
