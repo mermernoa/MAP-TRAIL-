@@ -1,10 +1,10 @@
 # Rapport d’import de la base des courses
 
-Import du 06/10/2026 09:44:00 depuis 4 fichier(s) JSON de l'API Sheets.
+Import du 06/10/2026 11:35:41 depuis 4 fichier(s) JSON de l'API Sheets.
 
 - 2248 lignes lues, 2248 publiées (statuts Validé, Prêt, En ligne).
 - 906 événements et 2245 parcours sur le site.
-- 328 prix saisis en centimes (ex. 1 200,00 € pour 12 €) corrigés à l’import : à rectifier dans la feuille.
+- 0 prix saisis en centimes (ex. 1 200,00 € pour 12 €) corrigés à l’import : à rectifier dans la feuille.
 
 ## Lignes ignorées (2)
 
