@@ -39,7 +39,9 @@ export function MapPage() {
     [matches, onlyVisible, bounds],
   );
   const selected = matches.find((m) => m.event.id === selectedId) ?? null;
-  useEffect(() => setVisibleCount(PAGE), [filters, sort, onlyVisible]);
+  useEffect(() => {
+    setVisibleCount(PAGE);
+  }, [filters, sort, onlyVisible]);
 
   const selectFromList = (id: string) => {
     setSelectedId(id);

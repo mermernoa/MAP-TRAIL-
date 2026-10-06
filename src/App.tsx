@@ -67,7 +67,11 @@ function CatalogGate({ children }: { children: React.ReactNode }) {
 
 function ScrollToTop() {
   const { pathname } = useLocation();
-  useEffect(() => window.scrollTo(0, 0), [pathname]);
+  // Accolades obligatoires : Chrome récent renvoie une promesse depuis scrollTo, que React
+  // prendrait pour une fonction de nettoyage et appellerait au changement de page (écran vide).
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
   return null;
 }
 
