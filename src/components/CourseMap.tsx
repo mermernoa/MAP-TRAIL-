@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import type { RaceEvent } from '../data/types';
 import type { ParsedTrack } from '../lib/gpx';
-import maplibregl, { supportsWebGL, type GeoJSONSource, type MapLibreMap } from '../lib/maplibre';
+import maplibregl, { initMapAfterPaint, supportsWebGL, type GeoJSONSource, type MapLibreMap } from '../lib/maplibre';
 import { ACCENT, INK } from '../lib/colors';
 import { basemapStyle, BASEMAPS, LABEL_FONT, type BasemapId } from '../lib/mapStyles';
 
@@ -38,9 +38,11 @@ export function CourseMap({ event, track, hoverKm }: Props) {
       setFailed(true);
       return;
     }
+    const container = ref.current;
+    return initMapAfterPaint(() => {
     const map = new maplibregl.Map({
-      container: ref.current,
-      style: basemapStyle('topo'),
+      container,
+      style: basemapStyle((appliedStyle.current = basemapRef.current)),
       center: [event.lng, event.lat],
       zoom: 10,
       cooperativeGestures: true,
@@ -52,18 +54,21 @@ export function CourseMap({ event, track, hoverKm }: Props) {
     map.on('style.load', () => setStyleVersion((v) => v + 1));
     mapRef.current = map;
     return () => {
+      if (mapRef.current === map) mapRef.current = null;
       map.remove();
-      mapRef.current = null;
     };
+    });
   }, [event.lng, event.lat]);
 
-  const firstStyle = useRef(true);
+  // Fond choisi, lu à la création de la carte (qui peut suivre un changement de fond).
+  const basemapRef = useRef(basemap);
+  basemapRef.current = basemap;
+  const appliedStyle = useRef<BasemapId>(basemap);
   useEffect(() => {
-    if (firstStyle.current) {
-      firstStyle.current = false;
-      return;
-    }
-    mapRef.current?.setStyle(basemapStyle(basemap));
+    const map = mapRef.current;
+    if (!map || appliedStyle.current === basemap) return;
+    appliedStyle.current = basemap;
+    map.setStyle(basemapStyle(basemap));
   }, [basemap]);
 
   // (Re)dessine la trace ou le repère à chaque changement de fond ou de trace.

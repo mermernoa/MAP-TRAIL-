@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import type { FeatureCollection, Point } from 'geojson';
 import type { Match } from '../lib/filters';
-import maplibregl, { supportsWebGL, type GeoJSONSource, type MapLibreMap } from '../lib/maplibre';
+import maplibregl, { hasFastWebGL, initMapAfterPaint, supportsWebGL, type GeoJSONSource, type MapLibreMap } from '../lib/maplibre';
 import { BAND_COLORS, INK } from '../lib/colors';
 import { formatRange } from '../lib/dates';
 import { DISTANCE_BANDS, distanceBand } from '../lib/metrics';
@@ -195,6 +195,8 @@ export function RaceMap({ matches, selectedId, hoveredId, focusNonce, onSelect, 
   const [terrain, setTerrain] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [failed, setFailed] = useState(false);
+  // Le relief 3D n'est proposé qu'avec une carte graphique : en rendu logiciel il fige la page.
+  const [fastGpu] = useState(() => supportsWebGL() && hasFastWebGL());
 
   // Dernières valeurs des props, lues depuis les gestionnaires MapLibre.
   const latest = useRef({ matches, selectedId, hoveredId, onSelect, onHover, onBoundsChange, basemap, terrain });
@@ -206,9 +208,11 @@ export function RaceMap({ matches, selectedId, hoveredId, focusNonce, onSelect, 
       setFailed(true);
       return;
     }
+    const container = containerRef.current;
+    return initMapAfterPaint(() => {
     const map = new maplibregl.Map({
-      container: containerRef.current,
-      style: basemapStyle('plan'),
+      container,
+      style: basemapStyle(latest.current.basemap),
       center: [2.6, 46.6],
       zoom: window.innerWidth < 700 ? 4.3 : 5,
       maxPitch: 75,
@@ -277,9 +281,11 @@ export function RaceMap({ matches, selectedId, hoveredId, focusNonce, onSelect, 
 
     return () => {
       popupRef.current?.remove();
+      popupRef.current = null;
+      if (mapRef.current === map) mapRef.current = null;
       map.remove();
-      mapRef.current = null;
     };
+    });
   }, []);
 
   function syncFocus(map: MapLibreMap) {
@@ -391,10 +397,12 @@ export function RaceMap({ matches, selectedId, hoveredId, focusNonce, onSelect, 
             </div>
           )}
         </div>
-        <button type="button" className={`map-tool ${terrain ? 'is-on' : ''}`} aria-pressed={terrain} onClick={() => setTerrain((v) => !v)}>
-          <MountainIcon size={16} />
-          Relief 3D
-        </button>
+        {fastGpu && (
+          <button type="button" className={`map-tool ${terrain ? 'is-on' : ''}`} aria-pressed={terrain} onClick={() => setTerrain((v) => !v)}>
+            <MountainIcon size={16} />
+            Relief 3D
+          </button>
+        )}
       </div>
       <div className="map-legend" aria-label="Légende : distance du plus long parcours">
         {DISTANCE_BANDS.map((b) => (

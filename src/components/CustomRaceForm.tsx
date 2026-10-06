@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import type { Course, RaceEvent, Technicity } from '../data/types';
-import maplibregl, { supportsWebGL, type MapLibreMap } from '../lib/maplibre';
+import maplibregl, { initMapAfterPaint, supportsWebGL, type MapLibreMap } from '../lib/maplibre';
 import { basemapStyle } from '../lib/mapStyles';
 import { countryName, TECHNICITY_LABELS } from '../lib/metrics';
 import { normalize } from '../lib/filters';
@@ -59,8 +59,10 @@ export function CustomRaceForm({ onClose, onCreated }: Props) {
 
   useEffect(() => {
     if (!mapEl.current || !supportsWebGL()) return;
+    const container = mapEl.current;
+    return initMapAfterPaint(() => {
     const map = new maplibregl.Map({
-      container: mapEl.current,
+      container,
       style: basemapStyle('plan'),
       center: [2.5, 46.5],
       zoom: 4.3,
@@ -69,7 +71,12 @@ export function CustomRaceForm({ onClose, onCreated }: Props) {
     map.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-right');
     map.on('click', (e) => setPos({ lat: Number(e.lngLat.lat.toFixed(5)), lng: Number(e.lngLat.lng.toFixed(5)) }));
     mapRef.current = map;
-    return () => map.remove();
+    return () => {
+      markerRef.current = null;
+      if (mapRef.current === map) mapRef.current = null;
+      map.remove();
+    };
+    });
   }, []);
 
   useEffect(() => {

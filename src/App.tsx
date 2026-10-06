@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { HashRouter, Link, NavLink, Route, Routes, useLocation } from 'react-router-dom';
+import { ErrorBoundary } from './components/ErrorBoundary';
 import { CalendarPage } from './pages/CalendarPage';
 import { MapPage } from './pages/MapPage';
 import { RacePage } from './pages/RacePage';
@@ -70,6 +71,21 @@ function ScrollToTop() {
   return null;
 }
 
+function PageRoutes() {
+  const { pathname } = useLocation();
+  return (
+    <ErrorBoundary key={pathname}>
+      <Routes>
+        <Route path="/" element={<MapPage />} />
+        <Route path="/calendrier" element={<CalendarPage />} />
+        <Route path="/course/:id" element={<RacePage />} />
+        <Route path="/ma-saison" element={<SeasonPage />} />
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+    </ErrorBoundary>
+  );
+}
+
 function NotFound() {
   return (
     <div className="page-message">
@@ -85,7 +101,9 @@ function NotFound() {
 
 export function App() {
   return (
-    <HashRouter>
+    // Changements de page immédiats : en mode « transition », React attendait que le
+    // navigateur soit libre, ce que les cartes WebGL retardaient parfois de plusieurs secondes.
+    <HashRouter useTransitions={false}>
       <ScrollToTop />
       <a
         className="skip-link"
@@ -101,13 +119,7 @@ export function App() {
       <Header />
       <main id="main" className="app-main" tabIndex={-1}>
         <CatalogGate>
-          <Routes>
-            <Route path="/" element={<MapPage />} />
-            <Route path="/calendrier" element={<CalendarPage />} />
-            <Route path="/course/:id" element={<RacePage />} />
-            <Route path="/ma-saison" element={<SeasonPage />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
+          <PageRoutes />
         </CatalogGate>
       </main>
     </HashRouter>
