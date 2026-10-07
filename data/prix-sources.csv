@@ -16,6 +16,9 @@ EVT019-A,"Topo Athletic Bibracte Ultra-Trail®","L'ultra des druides",160,2026,h
 EVT019-B,"Topo Athletic Bibracte Ultra-Trail®","Le grand trail des vergobrets",90,2026,https://www.bibracteultratrail.fr/infos-pratiques-courses
 EVT019-C,"Topo Athletic Bibracte Ultra-Trail®","La balade de Dumnorix",50,2026,https://www.bibracteultratrail.fr/infos-pratiques-courses
 EVT019-D,"Topo Athletic Bibracte Ultra-Trail®","La Gran'Canche",25,2026,https://www.bibracteultratrail.fr/infos-pratiques-courses
+EVT023-A,"Royat Trail Tour","LE TECTONIQUE TRAIL",42,2026,https://altichrono.fr/royat-trail-tour/
+EVT023-B,"Royat Trail Tour","La Roca Neyra",27,2026,https://altichrono.fr/royat-trail-tour/
+EVT023-C,"Royat Trail Tour","LA ROYADAISE",15,2026,https://altichrono.fr/royat-trail-tour/
 EVT024-B,"Trail du lac d'Éguzon","La fileuse",35,2026,https://traildulacdeguzon.fr/lescourses
 EVT024-C,"Trail du lac d'Éguzon","La Châtaigne",20,2026,https://traildulacdeguzon.fr/lescourses
 EVT025-A,"THP winter","W100",120,2026,https://mythp.fr/reglement-winter/
@@ -24,6 +27,8 @@ EVT025-C,"THP winter","W70 relai",50,2026,https://mythp.fr/reglement-winter/
 EVT025-D,"THP winter","W45",65,2026,https://mythp.fr/reglement-winter/
 EVT025-E,"THP winter","W30",50,2026,https://mythp.fr/reglement-winter/
 EVT025-F,"THP winter","W15",25,2026,https://mythp.fr/reglement-winter/
+EVT027-A,"Ultra Trail Troupes de Marine","UTTDM 128km",150,2026,https://sportips.fr/inscription/UTTDM26
+EVT027-B,"Ultra Trail Troupes de Marine","UTTDM 58km",75,2026,https://sportips.fr/inscription/UTTDM26
 EVT029-A,"Madeloc Skytrail","Défi XL de Madeloc",60,2026,https://oleno.fr/courses/madeloc-skytrail
 EVT029-B,"Madeloc Skytrail","Trail des Crêtes",45,2026,https://oleno.fr/courses/madeloc-skytrail
 EVT029-D,"Madeloc Skytrail","Trail de Madeloc",30,2026,https://oleno.fr/courses/madeloc-skytrail
@@ -302,19 +307,76 @@ EVT277-B,"Trail la chambérienne","Trail 10,5 km",24,2026,https://lachamberienne
 EVT281-A,"La traversée des vallées","Trail 28 km",20,2025,https://www.le-sportif.com/calendrier/224862/la-traversee-des-vallees-2026-longueville-sur-scie/trail-course-nature/
 EVT281-B,"La traversée des vallées","Trail 22 km",16,2025,https://www.le-sportif.com/calendrier/224862/la-traversee-des-vallees-2026-longueville-sur-scie/trail-course-nature/
 EVT281-C,"La traversée des vallées","Trail 11 km",13,2025,https://www.le-sportif.com/calendrier/224862/la-traversee-des-vallees-2026-longueville-sur-scie/trail-course-nature/
+EVT282-A,"Marathon Trail Pays de Brive","Trail 42 km",52,2,2026,https://www.klikego.com/inscription/marathon-trail-pays-de-brive-2026/running-course-a-pied/1725587953930-7
 EVT283-A,"Kalla Nescafé","Trail 26 km",30,2026,https://www.sportpro.re/courses/epreuves/06926--26km-kalla-nescafe/
+EVT286-B,"Trail de Châteauneuf","Trail 14 km",14,2026,https://www.kms.fr/v5/public/course/5385
+EVT286-C,"Trail de Châteauneuf","Trail 9 km",9,2026,https://www.kms.fr/v5/public/course/5385
+EVT289-A,"Trail du Télethon","Trail 16 km",14,2025,https://www.chronometrage.com/events/traildegrignon
+EVT289-B,"Trail du Télethon","Trail 9 km",8,2025,https://www.chronometrage.com/events/traildegrignon
+EVT289-C,"Trail du Télethon","Trail 8 km",10,2025,https://www.chronometrage.com/events/traildegrignon
 EVT290-A,"Course nature du bioparc","Trail 23 km",23,2026,https://rcdathletisme.jimdofree.com/course-du-bioparc/inscriptions-retrait-des-dossards/
 EVT290-B,"Course nature du bioparc","Trail 14,78 km",18,2026,https://rcdathletisme.jimdofree.com/course-du-bioparc/inscriptions-retrait-des-dossards/
 EVT290-C,"Course nature du bioparc","Trail 10 km",15,2026,https://rcdathletisme.jimdofree.com/course-du-bioparc/inscriptions-retrait-des-dossards/
 EVT291-A,"Trail de la Vallée de l'Airon","Trail 28 km",24,2026,https://nextrun.fr/events/trail-de-la-vallee-de-l-airon
 EVT291-B,"Trail de la Vallée de l'Airon","Trail 19 km",18,2026,https://nextrun.fr/events/trail-de-la-vallee-de-l-airon
 EVT291-E,"Trail de la Vallée de l'Airon","Trail 9 km",11,2026,https://nextrun.fr/events/trail-de-la-vallee-de-l-airon
+EVT292-A,"Trail de la Guyonnière","Trail 23 km",15,2025,https://www.espace-competition.com/index.php?module=inscription&comp=3012
+EVT292-B,"Trail de la Guyonnière","Trail 11 km",12,2025,https://www.espace-competition.com/index.php?module=inscription&comp=3012
+EVT294-A,"Trail des collines de Giono","Trail 26 km",25,2025,https://traildescollinesdegiono.fr/trailgiono/inscriptions/
+EVT294-B,"Trail des collines de Giono","Trail 15 km",15,2025,https://traildescollinesdegiono.fr/trailgiono/inscriptions/
+EVT294-C,"Trail des collines de Giono","Trail 7 km",10,2025,https://traildescollinesdegiono.fr/trailgiono/inscriptions/
+EVT295-A,"Trail de Saint-Nolff","Trail 30 km",13,5,2026,https://www.klikego.com/inscription/trail-de-st-nolff-24eme-edition-2026/running-marche-nordique/1568958907683-7
+EVT295-B,"Trail de Saint-Nolff","Trail 15 km",10,2026,https://www.klikego.com/inscription/trail-de-st-nolff-24eme-edition-2026/running-marche-nordique/1568958907683-7
+EVT295-D,"Trail de Saint-Nolff","Trail 8 km",8,2026,https://www.klikego.com/inscription/trail-de-st-nolff-24eme-edition-2026/running-marche-nordique/1568958907683-7
+EVT301-B,"Trail non urbain de Châlucet","Trail 12 km",10,2025,https://www.esprit-trail.com/calendrier_courses/trail-non-urbain-de-chalucet/
+EVT303-A,"Trail de la vallée des moulins","Trail 20 km",14,2,2026,https://gotrail.run/fr/evenement/trail-de-la-vallee-des-moulins-lanhouarneau
+EVT303-B,"Trail de la vallée des moulins","Trail 12 km",12,2026,https://gotrail.run/fr/evenement/trail-de-la-vallee-des-moulins-lanhouarneau
+EVT310-A,"Trail La Charolaise","Trail 21 km",19,2025,http://www.trail-la-charolaise.fr/les-inscriptions/
+EVT310-B,"Trail La Charolaise","Trail 10 km",12,2025,http://www.trail-la-charolaise.fr/les-inscriptions/
+EVT314-A,"Trail de roucassiero","Trail 17,2 km",20,2026,https://sportips.fr/inscription/ROUCASS25
+EVT314-B,"Trail de roucassiero","Trail 9,5 km",13,2026,https://sportips.fr/inscription/ROUCASS25
+EVT316-A,"Trail des grands vallons","Trail 36 km",24,7,2025,https://www.klikego.com/inscription/trail-des-grands-vallons-2025/running-course-a-pied/1620761583765-8
+EVT316-B,"Trail des grands vallons","Trail 24 km",18,2,2025,https://www.klikego.com/inscription/trail-des-grands-vallons-2025/running-course-a-pied/1620761583765-8
+EVT316-C,"Trail des grands vallons","Trail 12 km",13,2025,https://www.klikego.com/inscription/trail-des-grands-vallons-2025/running-course-a-pied/1620761583765-8
 EVT317-A,"La Foetadenn","Trail 22 km",16,2026,https://sport.ikinoa.com/fr/evt/lafoetadenn2026
 EVT317-C,"La Foetadenn","Trail 13 km",12,2026,https://sport.ikinoa.com/fr/evt/lafoetadenn2026
 EVT317-F,"La Foetadenn","Trail 7 km",9,2026,https://sport.ikinoa.com/fr/evt/lafoetadenn2026
+EVT318-A,"Trail des caboués","Trail 23 km",24,2026,https://isere.planetekiosque.com/57-1142639-5-trail-des-caboues.html
 EVT320-A,"Course du balli","Trail 21 km",20,2026,https://fr.milesrepublic.com/event/course-du-balli-8766
+EVT321-A,"Trail des amis","Trail 31 km",30,2024,https://www.sportpro.re/courses/epreuves/03558-le-trail-des-amis/
+EVT325-A,"Les foulées de l'Éolienne","Trail 14 km",15,2026,https://coureursdeleolienn.wixsite.com/coureursdeleolienne/home
+EVT326-A,"Les Foulées De La Crete","Trail 32 km",32,2026,https://chronorun974.re/les-foulees-de-la-crete/
+EVT329-A,"Trail des grenouilles","Trail 20,3 km",20,2026,https://in.njuko.com/trail-des-grenouilles-de-poisy-2026
+EVT329-B,"Trail des grenouilles","Trail 11 km",13,2026,https://in.njuko.com/trail-des-grenouilles-de-poisy-2026
 EVT331-A,"Henantrail","Trail 26 km",20,2026,https://www.klikego.com/inscription/henantrail-2026/running-course-a-pied/1473379875401-9
 EVT331-B,"Henantrail","Trail 16 km",15,2026,https://www.klikego.com/inscription/henantrail-2026/running-course-a-pied/1473379875401-9
+EVT332-A,"Trail nocturne de Bonnieux","Trail 43 km",35,2025,https://www.jf-chronotrail.fr/pages/bonnieux_2025.html
+EVT332-B,"Trail nocturne de Bonnieux","Trail 25 km",25,2025,https://www.jf-chronotrail.fr/pages/bonnieux_2025.html
+EVT332-C,"Trail nocturne de Bonnieux","Trail 12 km",15,2025,https://www.jf-chronotrail.fr/pages/bonnieux_2025.html
+EVT334-A,"Trail La Pontoise","Trail 25 km",19,2025,https://pontsaintemaxence.fr/trail-la-pontoise/
+EVT334-B,"Trail La Pontoise","Trail 15 km",15,2025,https://pontsaintemaxence.fr/trail-la-pontoise/
+EVT334-C,"Trail La Pontoise","Trail 8 km",10,2025,https://pontsaintemaxence.fr/trail-la-pontoise/
+EVT335-B,"Trail Des Lutins","Trail 18,5 km",15,2026,https://traildeslutins.fr/
+EVT335-C,"Trail Des Lutins","Trail 12 km",10,2026,https://traildeslutins.fr/
+EVT341-B,"Trail des forges","Trail 14 km",15,2026,https://www.chronometrage.com/events/traildesforges
+EVT341-C,"Trail des forges","Trail 9 km",10,2026,https://www.chronometrage.com/events/traildesforges
+EVT342-B,"Trail de la côte de jade","Noz Trail",15,2025,https://www.timepulse.fr/evenements/voir/3158/trail-de-la-cote-de-jade-noz-trail-2025-et-defis-saint-michel-chef-chef
+EVT343-A,"Les foulées de Coursac","Trail 23 km",20,2,2025,https://www.klikego.com/inscription/trail-des-foulees-de-coursac-2025/running-course-a-pied/1661465658087-4
+EVT343-B,"Les foulées de Coursac","Trail 15 km",15,2,2025,https://www.klikego.com/inscription/trail-des-foulees-de-coursac-2025/running-course-a-pied/1661465658087-4
+EVT345-A,"Trail de la Brionne","Trail 30 km",25,2026,https://unidivers.fr/event/trail-de-la-brionne-la-brionne-creuse-2026-11-21/
+EVT345-B,"Trail de la Brionne","Trail 18 km",15,2026,https://unidivers.fr/event/trail-de-la-brionne-la-brionne-creuse-2026-11-21/
+EVT345-C,"Trail de la Brionne","Trail 11 km",10,2026,https://unidivers.fr/event/trail-de-la-brionne-la-brionne-creuse-2026-11-21/
+EVT345-D,"Trail de la Brionne","Trail 10 km",10,2026,https://unidivers.fr/event/trail-de-la-brionne-la-brionne-creuse-2026-11-21/
+EVT351-A,"Bacchus Trails Marathon International Beaujolais","Trail 42 km",45,2025,https://www.marathondubeaujolais.org/en/trails/
+EVT351-B,"Bacchus Trails Marathon International Beaujolais","Trail 21 km",30,2025,https://www.marathondubeaujolais.org/en/trails/
+EVT351-C,"Bacchus Trails Marathon International Beaujolais","Trail 13 km",20,2025,https://www.marathondubeaujolais.org/en/trails/
+EVT359-A,"BLR trail entre risle et forêt","Trail 27 km",29,2026,https://www.normandiecourseapied.com/course/blr-trail-2026
+EVT359-B,"BLR trail entre risle et forêt","Trail 11 km",15,2026,https://www.normandiecourseapied.com/course/blr-trail-2026
+EVT359-C,"BLR trail entre risle et forêt","Trail 9 km",8,2026,https://www.normandiecourseapied.com/course/blr-trail-2026
+EVT367-A,"Trail de la vallée des seigneurs","Trail 45 km",26,2026,https://www.betrail.run/en/race/trail.de.la.vallee.des.seigneurs/2026/overview
+EVT370-A,"La pont'oise","Trail 25 km",19,2025,https://pontsaintemaxence.fr/trail-la-pontoise/
+EVT370-B,"La pont'oise","Trail 15 km",15,2025,https://pontsaintemaxence.fr/trail-la-pontoise/
+EVT370-D,"La pont'oise","Trail 8 km",10,2025,https://pontsaintemaxence.fr/trail-la-pontoise/
 EVT378-A,"SaintéLyon","Trail 164 km",235,2026,https://reference-trail.fr/saintelyon-2026-quel-prix-pour-participer/
 EVT378-B,"SaintéLyon","Trail 82 km",125,2026,https://reference-trail.fr/saintelyon-2026-quel-prix-pour-participer/
 EVT378-C,"SaintéLyon","Trail 45 km",78,2026,https://reference-trail.fr/saintelyon-2026-quel-prix-pour-participer/
