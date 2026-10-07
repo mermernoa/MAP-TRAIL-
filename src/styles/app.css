@@ -3619,6 +3619,16 @@ textarea {
   display: none;
 }
 
+/* Exploration 3D au doigt : le glisser revient à la carte, pas au défilement. */
+.maplibregl-canvas-container.explore-touch,
+.maplibregl-canvas-container.explore-touch .maplibregl-canvas,
+.course-map:fullscreen .explore-contained,
+.course-map:fullscreen .explore-contained .maplibregl-canvas,
+.course-map.maplibregl-pseudo-fullscreen .explore-contained,
+.course-map.maplibregl-pseudo-fullscreen .explore-contained .maplibregl-canvas {
+  touch-action: none !important;
+}
+
 /* Aide adaptée : souris et trackpad, ou écran tactile. */
 .explore-help .for-touch {
   display: none;

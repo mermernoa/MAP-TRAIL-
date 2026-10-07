@@ -142,6 +142,9 @@ export class MapExplorer {
     map.keyboard.disable();
     map.doubleClickZoom.disable();
     const container = map.getCanvasContainer();
+    // Glisser d'un doigt pour regarder autour : le navigateur ne doit pas s'en emparer
+    // (dans une page qui défile, seulement en plein écran, voir le CSS).
+    container.classList.add(this.options.contained ? 'explore-contained' : 'explore-touch');
     const on = <K extends keyof HTMLElementEventMap>(el: HTMLElement | Window, type: K, fn: (e: HTMLElementEventMap[K]) => void, opts?: AddEventListenerOptions) => {
       el.addEventListener(type, fn as EventListener, opts);
       this.cleanup.push(() => el.removeEventListener(type, fn as EventListener, opts));
@@ -192,6 +195,7 @@ export class MapExplorer {
     this.engaged = false;
     this.pointers.clear();
     const map = this.map;
+    map.getCanvasContainer().classList.remove('explore-touch', 'explore-contained');
     map.dragPan.enable();
     map.dragRotate.enable();
     map.scrollZoom.enable();
