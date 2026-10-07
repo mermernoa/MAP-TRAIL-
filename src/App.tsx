@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react';
 import { HashRouter, Link, NavLink, Route, Routes, useLocation } from 'react-router-dom';
 import { ErrorBoundary } from './components/ErrorBoundary';
+import { LoadingGauge } from './components/LoadingGauge';
 import { CalendarPage } from './pages/CalendarPage';
 import { MapPage } from './pages/MapPage';
 import { RacePage } from './pages/RacePage';
 import { SeasonPage } from './pages/SeasonPage';
-import { holdForIntro, prefersReducedMotion, useTilt } from './lib/motion';
+import { useTilt } from './lib/motion';
 import { useCatalog } from './store/catalog';
 import { useSeasonStore } from './store/season';
 
@@ -35,32 +36,11 @@ function Header() {
 function CatalogGate({ children }: { children: React.ReactNode }) {
   const status = useCatalog((s) => s.status);
   const load = useCatalog((s) => s.load);
-  // Rideau d'ouverture aux couleurs des distances, seulement après un vrai chargement.
-  const [curtain, setCurtain] = useState(() => status !== 'ready' && !prefersReducedMotion());
+  // Jauge de chargement : affichée tant que les courses arrivent, puis le temps de se remplir.
+  const [gauge, setGauge] = useState(() => status !== 'ready');
   useEffect(() => {
     load();
   }, [load]);
-  useEffect(() => {
-    if (status !== 'ready' || !curtain) return;
-    // Dernière lame levée vers 1 s : chiffres et apparitions démarrent ensuite.
-    holdForIntro(850);
-    const timer = window.setTimeout(() => setCurtain(false), 1400);
-    return () => clearTimeout(timer);
-  }, [status, curtain]);
-  if (status === 'ready') {
-    return (
-      <>
-        {children}
-        {curtain && (
-          <div className="curtain" aria-hidden="true">
-            {[0, 1, 2, 3, 4].map((i) => (
-              <span key={i} style={{ '--i': i } as React.CSSProperties} />
-            ))}
-          </div>
-        )}
-      </>
-    );
-  }
   if (status === 'error') {
     return (
       <div className="page-message">
@@ -81,10 +61,10 @@ function CatalogGate({ children }: { children: React.ReactNode }) {
     );
   }
   return (
-    <div className="loading-screen" role="status">
-      <img src="brand/progression.webp" alt="" width={280} height={92} />
-      <p>Chargement des courses…</p>
-    </div>
+    <>
+      {status === 'ready' && children}
+      {(gauge || status !== 'ready') && <LoadingGauge done={status === 'ready'} onFinish={() => setGauge(false)} />}
+    </>
   );
 }
 

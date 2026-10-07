@@ -3244,26 +3244,42 @@ textarea {
   color: var(--ink);
 }
 
-.loading-screen {
+/* Écran de chargement : la jauge de la marque se remplit. */
+.gauge-loader {
+  position: fixed;
+  inset: var(--header-h) 0 0;
+  z-index: 60;
   display: grid;
   justify-items: center;
   align-content: center;
   gap: 14px;
-  min-height: calc(100dvh - var(--header-h));
   padding: 24px;
+  background: var(--paper);
   color: var(--ink-2);
+  transition: opacity 0.3s ease;
 }
 
-.loading-screen img {
-  width: min(280px, 70vw);
+.gauge-loader.is-leaving {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.gauge {
+  position: relative;
+  width: min(320px, 74vw);
+}
+
+.gauge img {
+  display: block;
+  width: 100%;
   height: auto;
-  animation: loading-bob 1.6s ease-in-out infinite;
 }
 
-@keyframes loading-bob {
-  50% {
-    transform: translateY(-6px);
-  }
+/* Le remplissage couvre l'intérieur de la jauge, de 37 % à 96 % de la largeur de l'image. */
+.gauge-fill {
+  position: absolute;
+  inset: 0;
+  clip-path: inset(0 calc(62.86% - var(--p, 0) * 58.57%) 0 0);
 }
 
 .page-message img,
@@ -3361,12 +3377,6 @@ textarea {
 
 .preview-foot .button {
   flex: 1;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .loading-screen img {
-    animation: none;
-  }
 }
 
 .list-more {
@@ -3714,7 +3724,7 @@ textarea {
   }
 }
 
-/* ---------- Mouvements : apparitions, inclinaison, entrée des pages, rideau ---------- */
+/* ---------- Mouvements : apparitions, inclinaison, entrée des pages ---------- */
 .reveal-armed {
   opacity: 0;
   transform: translate3d(0, 18px, 0);
@@ -3774,47 +3784,6 @@ textarea {
   }
 }
 
-.curtain {
-  position: fixed;
-  inset: var(--header-h) 0 0;
-  z-index: 60;
-  display: flex;
-  overflow: hidden;
-  pointer-events: none;
-}
-
-.curtain span {
-  flex: 1;
-  margin-right: -1px;
-  animation: blade-up 0.62s cubic-bezier(0.7, 0, 0.2, 1) calc(0.12s + var(--i) * 0.07s) forwards;
-}
-
-.curtain span:nth-child(1) {
-  background: #fe66c4;
-}
-
-.curtain span:nth-child(2) {
-  background: #c554a5;
-}
-
-.curtain span:nth-child(3) {
-  background: #854183;
-}
-
-.curtain span:nth-child(4) {
-  background: #472f61;
-}
-
-.curtain span:nth-child(5) {
-  background: #071c3f;
-}
-
-@keyframes blade-up {
-  to {
-    transform: translate3d(0, -101%, 0);
-  }
-}
-
 @media (prefers-reduced-motion: reduce) {
   .reveal-armed {
     opacity: 1;
@@ -3827,8 +3796,8 @@ textarea {
     animation: none;
   }
 
-  .curtain {
-    display: none;
+  .gauge-loader {
+    transition: none;
   }
 
   .race-hero > .terrain-hero,
@@ -3841,9 +3810,5 @@ textarea {
   .reveal-armed {
     opacity: 1 !important;
     transform: none !important;
-  }
-
-  .curtain {
-    display: none;
   }
 }

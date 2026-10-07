@@ -8,7 +8,7 @@ La carte et le calendrier des trails, du plus confidentiel au plus mythique.
 - **Fiche course** : photo de la base (ou relief 3D du lieu en lente rotation), chaque parcours avec ses chiffres, son prix, son lien d'inscription et le document demandé, profil altimétrique, carte du tracé avec relief 3D et **survol du parcours** (la caméra suit la trace GPX, le profil avance en même temps), import et export GPX, dates importantes (export agenda) et liens utiles.
 - **Ma saison** : statut, priorité A/B/C, objectif ou temps réalisé, notes, frise des 12 prochains mois, cumuls, alertes d'inscription et de récupération, export agenda, sauvegarde JSON et courses hors catalogue.
 
-Le site reste lisible sans carte graphique : relief, globe et survol 3D ne s'activent qu'avec une accélération matérielle, et toutes les animations (rideau d'ouverture, chiffres qui défilent, apparitions au défilement, parallaxe) s'effacent si le système demande de réduire les animations.
+Le site reste lisible sans carte graphique : relief, globe et survol 3D ne s'activent qu'avec une accélération matérielle, et toutes les animations (chiffres qui défilent, apparitions au défilement, parallaxe) s'effacent si le système demande de réduire les animations.
 
 ## Démarrer
 
