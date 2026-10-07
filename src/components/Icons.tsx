@@ -161,3 +161,16 @@ export const OrbitIcon = (p: IconProps) => (
     <path d="M18 3v4h-4" />
   </Icon>
 );
+
+export const UserIcon = (p: IconProps) => (
+  <Icon {...p}>
+    <circle cx="12" cy="8" r="4" />
+    <path d="M4.5 20.5c1.2-3.6 4-5.5 7.5-5.5s6.3 1.9 7.5 5.5" />
+  </Icon>
+);
+
+export const SparkIcon = (p: IconProps) => (
+  <Icon {...p}>
+    <path d="M12 3.5 13.9 10l6.6 2-6.6 2L12 20.5 10.1 14l-6.6-2 6.6-2z" />
+  </Icon>
+);

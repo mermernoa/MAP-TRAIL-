@@ -6,6 +6,7 @@ La carte et le calendrier des trails, du plus confidentiel au plus mythique.
 - **Filtres** communs à la carte et au calendrier : distance, dénivelé, technicité, type de course (court, long, ultra, nocturne, urbain, KV), format (solo, duo, relais), massif, région, rayon autour de soi, période, notoriété, points ITRA, catégorie UTMB Index, circuits, prix maximum, inscriptions ouvertes, courses complètes masquées.
 - **Calendrier** en vues mois, année et liste, avec les ouvertures et clôtures d'inscription.
 - **Fiche course** : photo de la base (ou relief 3D du lieu en lente rotation), chaque parcours avec ses chiffres, son prix, son lien d'inscription et le document demandé, profil altimétrique, carte du tracé avec relief 3D et **survol du parcours** (la caméra suit la trace GPX, le profil avance en même temps), import et export GPX, dates importantes (export agenda) et liens utiles.
+- **Mon compte** : saison synchronisée entre appareils et courses proposées d'après celles déjà choisies.
 - **Ma saison** : statut, priorité A/B/C, objectif ou temps réalisé, notes, frise des 12 prochains mois, cumuls, alertes d'inscription et de récupération, export agenda, sauvegarde JSON et courses hors catalogue.
 
 Le site reste lisible sans carte graphique : relief, globe et survol 3D ne s'activent qu'avec une accélération matérielle, et toutes les animations (chiffres qui défilent, apparitions au défilement, parallaxe) s'effacent si le système demande de réduire les animations.
@@ -74,10 +75,23 @@ Aucune clé d'API n'est nécessaire par défaut :
 
 Pour un usage commercial ou à fort trafic, passez sur un fournisseur avec clé (MapTiler, Stadia, IGN Géoplateforme…) et respectez les conditions de chaque source.
 
+## Comptes
+
+La page **Mon compte** (`#/compte`) permet de créer un compte Take Ton Trail : la saison est alors enregistrée en ligne et synchronisée entre ordinateur et téléphone (la version modifiée le plus récemment l'emporte, les suppressions sont propagées). La page propose aussi des courses d'après celles déjà choisies (`src/lib/suggestions.ts` : distance et dénivelé voisins, un cran au-dessus de la plus longue course, mêmes massifs et circuits, assez de récupération entre deux courses) ; ces propositions fonctionnent aussi sans compte.
+
+Les comptes reposent sur [Supabase](https://supabase.com) (offre gratuite). Pour les activer :
+
+1. Créez un projet Supabase, puis exécutez `supabase/schema.sql` dans son éditeur SQL (table `seasons` protégée par des règles d'accès par utilisateur, fonction de suppression de compte).
+2. Dans **Authentication → URL Configuration**, indiquez l'adresse du site (`https://mermernoa.github.io/map-trail-/`) comme Site URL et ajoutez-la aux Redirect URLs.
+3. Renseignez l'URL du projet et sa clé publiable (`sb_publishable_…`, faite pour être publique) dans `.env.production` : `VITE_SUPABASE_URL=…` et `VITE_SUPABASE_PUBLISHABLE_KEY=…`. Ne mettez jamais la clé secrète dans le site.
+4. Pour envoyer les e-mails de confirmation à grande échelle, configurez un serveur SMTP (Authentication → Emails) : l'envoi intégré de Supabase est limité à quelques messages par heure.
+
+Sans ces réglages, la page indique que les comptes arrivent bientôt et la saison reste enregistrée dans le navigateur.
+
 ## Stockage
 
-La saison et les courses personnelles restent dans le navigateur (`localStorage`), les GPX importés dans IndexedDB. Rien n'est envoyé à un serveur.
+Sans compte, la saison et les courses personnelles restent dans le navigateur (`localStorage`), les GPX importés dans IndexedDB. Avec un compte, la saison (pas les GPX) est aussi enregistrée dans Supabase.
 
 ## Pile technique
 
-Vite, React 19, TypeScript, MapLibre GL JS 6, Zustand, Vitest, tsx (script d'import).
+Vite, React 19, TypeScript, MapLibre GL JS 6, Supabase (comptes, chargé à la demande), Zustand, Vitest, tsx (script d'import).

@@ -1,17 +1,21 @@
 import { useEffect, useState } from 'react';
 import { HashRouter, Link, NavLink, Route, Routes, useLocation } from 'react-router-dom';
 import { ErrorBoundary } from './components/ErrorBoundary';
+import { UserIcon } from './components/Icons';
 import { LoadingGauge } from './components/LoadingGauge';
 import { CalendarPage } from './pages/CalendarPage';
+import { AccountPage } from './pages/AccountPage';
 import { MapPage } from './pages/MapPage';
 import { RacePage } from './pages/RacePage';
 import { SeasonPage } from './pages/SeasonPage';
 import { useTilt } from './lib/motion';
+import { startAccount, useAccount } from './store/account';
 import { useCatalog } from './store/catalog';
 import { useSeasonStore } from './store/season';
 
 function Header() {
   const count = useSeasonStore((s) => s.entries.length);
+  const user = useAccount((s) => s.user);
   return (
     <header className="app-header">
       <Link to="/" className="brand" aria-label="Take Ton Trail, accueil">
@@ -28,6 +32,16 @@ function Header() {
           {count > 0 && <span className="badge">{count}</span>}
         </NavLink>
       </nav>
+      <NavLink to="/compte" className="account-link" aria-label={user ? `Mon compte (${user.name || user.email})` : 'Mon compte'}>
+        {user ? (
+          <span className="account-avatar is-small" aria-hidden="true">
+            {(user.name || user.email).trim().slice(0, 1).toUpperCase()}
+          </span>
+        ) : (
+          <UserIcon size={20} />
+        )}
+        <span className="account-link-label">{user ? user.name || 'Mon compte' : 'Mon compte'}</span>
+      </NavLink>
     </header>
   );
 }
@@ -87,6 +101,7 @@ function PageRoutes() {
         <Route path="/calendrier" element={<CalendarPage />} />
         <Route path="/course/:id" element={<RacePage />} />
         <Route path="/ma-saison" element={<SeasonPage />} />
+        <Route path="/compte" element={<AccountPage />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </ErrorBoundary>
@@ -108,6 +123,9 @@ function NotFound() {
 
 export function App() {
   useTilt('.course-tab', 4);
+  useEffect(() => {
+    startAccount();
+  }, []);
   return (
     // Changements de page immédiats : en mode « transition », React attendait que le
     // navigateur soit libre, ce que les cartes WebGL retardaient parfois de plusieurs secondes.

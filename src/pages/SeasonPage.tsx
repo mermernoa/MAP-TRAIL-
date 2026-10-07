@@ -3,12 +3,15 @@ import { Link, useNavigate } from 'react-router-dom';
 import { fmtDplus, fmtKm, fmtM, fmtNum, TechnicityMeter } from '../components/bits';
 import { CountUp } from '../components/CountUp';
 import { CustomRaceForm } from '../components/CustomRaceForm';
+import { SuggestionList } from '../components/SuggestionList';
 import { AlertIcon, CalendarIcon, ClockIcon, DownloadIcon, PlusIcon, TrashIcon, UploadIcon } from '../components/Icons';
 import type { RaceEvent } from '../data/types';
 import { addMonths, daysBetween, formatDate, formatShortDate, formatTime, MONTH_SHORT, parseYMD, relativeDays } from '../lib/dates';
 import { buildIcs, courseIcsItems, downloadFile } from '../lib/ical';
 import { countryFlag, distanceBand } from '../lib/metrics';
 import { useReveal } from '../lib/motion';
+import { suggestRaces } from '../lib/suggestions';
+import { useAccount } from '../store/account';
 import {
   PRIORITY_LABELS,
   resolveEntries,
@@ -57,6 +60,8 @@ export function SeasonPage() {
   const deadlines = upcomingDeadlines(resolved, today, 60);
   const next = resolved.find((r) => r.date >= today && r.entry.status !== 'abandon');
   const pageRef = useReveal<HTMLDivElement>('.entry, .season-totals', [shown.length, range]);
+  const homeRegion = useAccount((s) => s.user?.region);
+  const suggestions = useMemo(() => suggestRaces(resolved, races, today, { limit: 3, homeRegion: homeRegion || undefined }), [resolved, races, today, homeRegion]);
 
   const exportIcs = () => {
     const items = shown.flatMap((r) => courseIcsItems(r.event, r.course, r.entry.status === 'envie' || r.entry.status === 'prevue'));
@@ -230,6 +235,16 @@ export function SeasonPage() {
               <EntryCard key={r.entry.id} item={r} gapDays={i ? daysBetween(shown[i - 1].date, r.date) : null} today={today} />
             ))}
           </ol>
+
+          {suggestions.length > 0 && (
+            <section className="panel season-suggestions" aria-labelledby="season-suggestions-title">
+              <div className="panel-head">
+                <h2 id="season-suggestions-title">Courses pour vous</h2>
+                <Link to="/compte">Toutes les propositions</Link>
+              </div>
+              <SuggestionList suggestions={suggestions} />
+            </section>
+          )}
         </>
       )}
 

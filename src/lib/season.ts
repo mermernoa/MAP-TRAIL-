@@ -30,6 +30,8 @@ export interface SeasonEntry {
   goal: string;
   result: string;
   addedAt: string;
+  /** Dernière modification (statut, priorité, notes…), pour la synchronisation entre appareils. */
+  updatedAt?: string;
 }
 
 export interface ResolvedEntry {
