@@ -3216,3 +3216,275 @@ textarea {
   white-space: pre-wrap;
   word-break: break-word;
 }
+
+/* ---------- Exploration 3D (carte et parcours) ---------- */
+.explore-hud {
+  position: absolute;
+  top: 56px;
+  left: 12px;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 8px 6px 6px;
+  border-radius: var(--radius-m);
+  background: rgba(255, 255, 255, 0.94);
+  color: #071c3f;
+  box-shadow: 0 1px 4px rgba(7, 28, 63, 0.25);
+  backdrop-filter: blur(6px);
+}
+
+.explore-compass {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+}
+
+.explore-compass .compass-ring {
+  fill: #ffffff;
+  stroke: rgba(7, 28, 63, 0.2);
+}
+
+.explore-compass .compass-north {
+  fill: #fe66c4;
+  stroke: #071c3f;
+  stroke-width: 1.2;
+  stroke-linejoin: round;
+}
+
+.explore-compass .compass-south {
+  fill: #e3d5e6;
+  stroke: #071c3f;
+  stroke-width: 1.2;
+  stroke-linejoin: round;
+}
+
+.explore-compass .compass-n {
+  font: 700 7px var(--font);
+  fill: #071c3f;
+  text-anchor: middle;
+}
+
+.explore-compass g {
+  transition: transform 0.12s linear;
+}
+
+.explore-readout {
+  display: flex;
+  gap: 12px;
+  margin: 0;
+}
+
+.explore-readout div {
+  display: grid;
+  gap: 1px;
+}
+
+.explore-readout dt {
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #635c7d;
+}
+
+.explore-readout dd {
+  margin: 0;
+  font-size: 13.5px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.explore-help-toggle {
+  width: 26px;
+  height: 26px;
+  border: 1.5px solid rgba(7, 28, 63, 0.3);
+  border-radius: 50%;
+  background: #ffffff;
+  color: #071c3f;
+  font-weight: 700;
+  font-size: 13px;
+  line-height: 1;
+}
+
+.explore-pad {
+  position: absolute;
+  right: 12px;
+  bottom: 36px;
+  z-index: 3;
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+  touch-action: none;
+  user-select: none;
+}
+
+.explore-joystick {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 112px;
+  height: 112px;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.96) 0 52%, rgba(243, 234, 244, 0.96) 53% 100%);
+  box-shadow: 0 1px 4px rgba(7, 28, 63, 0.25), inset 0 0 0 1px rgba(7, 28, 63, 0.08);
+  cursor: grab;
+  touch-action: none;
+}
+
+.explore-joystick:active {
+  cursor: grabbing;
+}
+
+/* Quatre chevrons discrets autour du joystick. */
+.joystick-arrows,
+.joystick-arrows::before {
+  position: absolute;
+  inset: 8px;
+  border-radius: 50%;
+  background:
+    conic-gradient(from -8deg, rgba(7, 28, 63, 0.35) 0 16deg, transparent 16deg 90deg, rgba(7, 28, 63, 0.35) 90deg 106deg, transparent 106deg 180deg, rgba(7, 28, 63, 0.35) 180deg 196deg, transparent 196deg 270deg, rgba(7, 28, 63, 0.35) 270deg 286deg, transparent 286deg);
+  -webkit-mask: radial-gradient(circle, transparent 0 41px, #000 42px 46px, transparent 47px);
+  mask: radial-gradient(circle, transparent 0 41px, #000 42px 46px, transparent 47px);
+}
+
+.joystick-knob {
+  position: relative;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: #071c3f;
+  box-shadow: 0 0 0 3px #fe66c4, 2px 3px 0 #071c3f;
+  transition: transform 0.08s ease-out;
+  pointer-events: none;
+}
+
+.explore-climb {
+  display: grid;
+  gap: 6px;
+}
+
+.explore-hold {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border: 0;
+  border-radius: var(--radius-m);
+  background: #ffffff;
+  color: #071c3f;
+  box-shadow: 0 1px 4px rgba(7, 28, 63, 0.25);
+  touch-action: none;
+}
+
+.explore-hold svg {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.explore-hold:active {
+  background: #071c3f;
+  color: #ffffff;
+}
+
+.explore-help {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: 4;
+  display: grid;
+  gap: 10px;
+  width: min(360px, calc(100% - 32px));
+  padding: 18px 20px;
+  border-radius: var(--radius-l);
+  background: #ffffff;
+  color: #071c3f;
+  box-shadow: var(--shadow-float);
+  transform: translate(-50%, -50%);
+  animation: explore-help-in 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.explore-help strong {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 400;
+}
+
+.explore-help ul {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 13.5px;
+  line-height: 1.4;
+}
+
+.explore-help li {
+  padding-left: 14px;
+  background: radial-gradient(circle at 4px 0.62em, #fe66c4 3px, transparent 3.5px) no-repeat;
+}
+
+.explore-help .button {
+  justify-self: start;
+}
+
+/* Fiche de course ouverte (ordinateur) : les commandes passent à gauche de la fiche, au-dessus de la légende. */
+.map-page.has-preview .explore-pad {
+  right: calc(min(380px, 100% - 80px) + 72px);
+  bottom: 80px;
+}
+
+.map-page.has-preview .explore-readout > div:nth-child(3) {
+  display: none;
+}
+
+@keyframes explore-help-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -46%) scale(0.97);
+  }
+}
+
+@media (max-width: 700px) {
+  .explore-hud {
+    top: 54px;
+    gap: 8px;
+    padding: 4px 6px 4px 4px;
+  }
+
+  .explore-pad {
+    right: 10px;
+    bottom: 104px;
+  }
+
+  .explore-joystick {
+    width: 96px;
+    height: 96px;
+  }
+
+  .map-page.has-preview .explore-pad {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .explore-help {
+    animation: none;
+  }
+
+  .joystick-knob,
+  .explore-compass g {
+    transition: none;
+  }
+}

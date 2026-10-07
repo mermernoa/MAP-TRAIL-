@@ -6,6 +6,9 @@ import { BAND_COLORS, INK } from '../lib/colors';
 import { formatRange } from '../lib/dates';
 import { DISTANCE_BANDS, distanceBand } from '../lib/metrics';
 import { basemapStyle, BASEMAPS, DEM_SOURCE, LABEL_FONT, type BasemapId } from '../lib/mapStyles';
+import { MapExplorer } from '../lib/explore';
+import { disableTerrain, enableTerrain, groundAltitude } from '../lib/terrain3d';
+import { ExplorePad } from './ExplorePad';
 import { LayersIcon, MountainIcon } from './Icons';
 
 export interface MapBounds {
@@ -195,12 +198,14 @@ export function RaceMap({ matches, selectedId, hoveredId, focusNonce, onSelect, 
   const [terrain, setTerrain] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [failed, setFailed] = useState(false);
-  // Le relief 3D n'est proposé qu'avec une carte graphique : en rendu logiciel il fige la page.
+  // Le relief 3D et le globe ne sont proposés qu'avec une carte graphique : en rendu logiciel ils figent la page.
   const [fastGpu] = useState(() => supportsWebGL() && hasFastWebGL());
+  const explorerRef = useRef<MapExplorer | null>(null);
+  const [view, setView] = useState({ bearing: 0, pitch: 0, altitude: null as number | null });
 
   // Dernières valeurs des props, lues depuis les gestionnaires MapLibre.
-  const latest = useRef({ matches, selectedId, hoveredId, onSelect, onHover, onBoundsChange, basemap, terrain });
-  latest.current = { matches, selectedId, hoveredId, onSelect, onHover, onBoundsChange, basemap, terrain };
+  const latest = useRef({ matches, selectedId, hoveredId, onSelect, onHover, onBoundsChange, basemap, terrain, fastGpu: false });
+  latest.current = { matches, selectedId, hoveredId, onSelect, onHover, onBoundsChange, basemap, terrain, fastGpu };
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -215,19 +220,52 @@ export function RaceMap({ matches, selectedId, hoveredId, focusNonce, onSelect, 
       style: basemapStyle(latest.current.basemap),
       center: [2.6, 46.6],
       zoom: window.innerWidth < 700 ? 4.3 : 5,
-      maxPitch: 75,
+      maxPitch: 85,
       attributionControl: { compact: true },
     });
     mapRef.current = map;
+    // Retour d'état pour la boussole et l'altitude, une fois par image au plus.
+    let pending = 0;
+    const report = () => {
+      if (pending || !latest.current.terrain) return;
+      pending = requestAnimationFrame(() => {
+        pending = 0;
+        setView({ bearing: map.getBearing(), pitch: map.getPitch(), altitude: groundAltitude(map) });
+      });
+    };
+    map.on('move', report);
+    map.on('idle', report);
+    explorerRef.current = new MapExplorer(map);
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let introDone = reduce || !latest.current.fastGpu;
+    try {
+      introDone ||= sessionStorage.getItem('ttt-intro-globe') === '1';
+    } catch {
+      introDone = true;
+    }
     map.addControl(new maplibregl.NavigationControl({ visualizePitch: true }), 'top-right');
     map.addControl(new maplibregl.GeolocateControl({ positionOptions: { enableHighAccuracy: false } }), 'top-right');
     map.addControl(new maplibregl.ScaleControl({ unit: 'metric' }), 'bottom-left');
 
     map.on('style.load', () => {
-      const { matches: m, basemap: b, terrain: t } = latest.current;
+      const { matches: m, basemap: b, terrain: t, fastGpu: gpu } = latest.current;
+      // Globe : la Terre en relief au dézoom, la carte à plat de près (avec une carte graphique).
+      if (gpu) map.setProjection({ type: 'globe' });
       addRaceLayers(map, b, toGeoJSON(m));
-      if (t) map.setTerrain({ source: 'dem', exaggeration: 1.4 });
+      if (t) enableTerrain(map);
       syncFocus(map);
+      if (!introDone) {
+        // Ouverture, une fois par session : on arrive de l'espace jusqu'à la France.
+        introDone = true;
+        try {
+          sessionStorage.setItem('ttt-intro-globe', '1');
+        } catch {
+          /* navigation privée : l'ouverture se rejouera */
+        }
+        const home = { center: map.getCenter(), zoom: map.getZoom() };
+        map.jumpTo({ center: [-28, 34], zoom: 1.4 });
+        map.flyTo({ ...home, duration: 3400, curve: 1.25, essential: true });
+      }
     });
 
     map.on('click', 'race-clusters', async (e) => {
@@ -282,6 +320,9 @@ export function RaceMap({ matches, selectedId, hoveredId, focusNonce, onSelect, 
     return () => {
       popupRef.current?.remove();
       popupRef.current = null;
+      cancelAnimationFrame(pending);
+      explorerRef.current?.destroy();
+      explorerRef.current = null;
       if (mapRef.current === map) mapRef.current = null;
       map.remove();
     };
@@ -320,11 +361,14 @@ export function RaceMap({ matches, selectedId, hoveredId, focusNonce, onSelect, 
     const match = latest.current.matches.find((m) => m.event.id === selectedId);
     if (!match) return;
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const in3d = latest.current.terrain;
     map.flyTo({
       center: [match.event.lng, match.event.lat],
-      zoom: Math.max(map.getZoom(), 8),
+      // En 3D, on descend au niveau du relief, regard vers l'horizon.
+      zoom: in3d ? Math.max(map.getZoom(), 11.2) : Math.max(map.getZoom(), 8),
+      ...(in3d ? { pitch: 68, bearing: map.getBearing() - 25 } : {}),
       essential: true,
-      duration: reduce ? 0 : 1400,
+      duration: reduce ? 0 : in3d ? 2600 : 1400,
       padding: window.innerWidth >= 900 ? { right: 380, left: 0, top: 0, bottom: 0 } : { bottom: 280, top: 0, left: 0, right: 0 },
     });
   }, [focusNonce, selectedId]);
@@ -341,16 +385,22 @@ export function RaceMap({ matches, selectedId, hoveredId, focusNonce, onSelect, 
     map.setStyle(basemapStyle(basemap));
   }, [basemap]);
 
-  // Relief 3D.
+  // Relief 3D et exploration.
   useEffect(() => {
     const map = mapRef.current;
-    if (!map || !map.isStyleLoaded()) return;
+    const explorer = explorerRef.current;
+    if (!map || !explorer) return;
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (terrain) {
-      map.setTerrain({ source: 'dem', exaggeration: 1.4 });
-      map.easeTo({ pitch: 60, duration: 900 });
+      if (map.isStyleLoaded()) enableTerrain(map);
+      explorer.enable();
+      // On bascule le regard vers l'horizon et on se rapproche assez pour que le relief se lise.
+      map.easeTo({ pitch: 72, zoom: Math.max(map.getZoom(), 6.4), bearing: map.getBearing() || -18, duration: reduce ? 0 : 1800 });
+      setView({ bearing: map.getBearing(), pitch: map.getPitch(), altitude: groundAltitude(map) });
     } else {
-      map.setTerrain(null);
-      map.easeTo({ pitch: 0, bearing: 0, duration: 700 });
+      explorer.disable();
+      if (map.getTerrain()) disableTerrain(map);
+      map.easeTo({ pitch: 0, bearing: 0, duration: reduce ? 0 : 900 });
     }
   }, [terrain]);
 
@@ -404,6 +454,7 @@ export function RaceMap({ matches, selectedId, hoveredId, focusNonce, onSelect, 
           </button>
         )}
       </div>
+      {terrain && <ExplorePad explorer={explorerRef.current} bearing={view.bearing} pitch={view.pitch} altitude={view.altitude} helpKey="carte" />}
       <div className="map-legend" aria-label="Légende : distance du plus long parcours">
         {DISTANCE_BANDS.map((b) => (
           <span key={b.id} className="map-legend-item">

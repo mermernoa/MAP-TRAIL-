@@ -35,6 +35,14 @@ jobs:
       - run: npm ci
       - run: npm test
       - run: npm run build
+      # Sauvegarde : le site d'avant la version immersive 3D reste en ligne sous /sauvegarde/.
+      - name: Construire la sauvegarde (version du 6 octobre 2026)
+        run: |
+          git fetch --depth=1 origin a5b225be3529b7bd78f5fd6840a92074f7eda40d
+          git worktree add --detach "$RUNNER_TEMP/sauvegarde" FETCH_HEAD
+          cd "$RUNNER_TEMP/sauvegarde"
+          npm ci
+          npx vite build --outDir "$GITHUB_WORKSPACE/dist/sauvegarde" --emptyOutDir
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist
