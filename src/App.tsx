@@ -1,10 +1,11 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { HashRouter, Link, NavLink, Route, Routes, useLocation } from 'react-router-dom';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { CalendarPage } from './pages/CalendarPage';
 import { MapPage } from './pages/MapPage';
 import { RacePage } from './pages/RacePage';
 import { SeasonPage } from './pages/SeasonPage';
+import { holdForIntro, prefersReducedMotion, useTilt } from './lib/motion';
 import { useCatalog } from './store/catalog';
 import { useSeasonStore } from './store/season';
 
@@ -34,10 +35,32 @@ function Header() {
 function CatalogGate({ children }: { children: React.ReactNode }) {
   const status = useCatalog((s) => s.status);
   const load = useCatalog((s) => s.load);
+  // Rideau d'ouverture aux couleurs des distances, seulement après un vrai chargement.
+  const [curtain, setCurtain] = useState(() => status !== 'ready' && !prefersReducedMotion());
   useEffect(() => {
     load();
   }, [load]);
-  if (status === 'ready') return <>{children}</>;
+  useEffect(() => {
+    if (status !== 'ready' || !curtain) return;
+    // Dernière lame levée vers 1 s : chiffres et apparitions démarrent ensuite.
+    holdForIntro(850);
+    const timer = window.setTimeout(() => setCurtain(false), 1400);
+    return () => clearTimeout(timer);
+  }, [status, curtain]);
+  if (status === 'ready') {
+    return (
+      <>
+        {children}
+        {curtain && (
+          <div className="curtain" aria-hidden="true">
+            {[0, 1, 2, 3, 4].map((i) => (
+              <span key={i} style={{ '--i': i } as React.CSSProperties} />
+            ))}
+          </div>
+        )}
+      </>
+    );
+  }
   if (status === 'error') {
     return (
       <div className="page-message">
@@ -104,6 +127,7 @@ function NotFound() {
 }
 
 export function App() {
+  useTilt('.course-tab', 4);
   return (
     // Changements de page immédiats : en mode « transition », React attendait que le
     // navigateur soit libre, ce que les cartes WebGL retardaient parfois de plusieurs secondes.

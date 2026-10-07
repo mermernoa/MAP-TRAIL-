@@ -1,12 +1,15 @@
 import { useMemo, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { fmtDplus, fmtKm, fmtM, fmtNum, TechnicityMeter } from '../components/bits';
+import { CountUp } from '../components/CountUp';
 import { CustomRaceForm } from '../components/CustomRaceForm';
+import { GlassMedal } from '../components/GlassMedal';
 import { AlertIcon, CalendarIcon, ClockIcon, DownloadIcon, PlusIcon, TrashIcon, UploadIcon } from '../components/Icons';
 import type { RaceEvent } from '../data/types';
 import { addMonths, daysBetween, formatDate, formatShortDate, formatTime, MONTH_SHORT, parseYMD, relativeDays } from '../lib/dates';
 import { buildIcs, courseIcsItems, downloadFile } from '../lib/ical';
 import { countryFlag, distanceBand } from '../lib/metrics';
+import { useReveal } from '../lib/motion';
 import {
   PRIORITY_LABELS,
   resolveEntries,
@@ -54,6 +57,7 @@ export function SeasonPage() {
   const warnings = seasonWarnings(shown);
   const deadlines = upcomingDeadlines(resolved, today, 60);
   const next = resolved.find((r) => r.date >= today && r.entry.status !== 'abandon');
+  const pageRef = useReveal<HTMLDivElement>('.entry, .season-totals', [shown.length, range]);
 
   const exportIcs = () => {
     const items = shown.flatMap((r) => courseIcsItems(r.event, r.course, r.entry.status === 'envie' || r.entry.status === 'prevue'));
@@ -78,9 +82,10 @@ export function SeasonPage() {
   };
 
   return (
-    <div className="season-page">
+    <div ref={pageRef} className="season-page">
       <header className="season-head">
-        <div>
+        {resolved.length > 0 && <GlassMedal variant="badge" className="season-medal" />}
+        <div className="season-heading">
           <h1 className="season-title">Ma saison {typeof range === 'number' ? range : ''}</h1>
           {next ? (
             <p className="season-next">
@@ -143,7 +148,7 @@ export function SeasonPage() {
 
       {!resolved.length ? (
         <div className="empty empty-large">
-          <img className="empty-illustration" src="brand/medaille.webp" alt="" width={150} height={219} />
+          <GlassMedal className="empty-illustration" />
           <h2>Votre saison est vide</h2>
           <p>Ajoutez des courses depuis la carte ou le calendrier avec le bouton « Ma saison », ou saisissez une course locale absente du catalogue.</p>
           <div className="button-row">
@@ -163,23 +168,33 @@ export function SeasonPage() {
           <dl className="season-totals">
             <div>
               <dt>Courses</dt>
-              <dd>{totals.races}</dd>
+              <dd>
+                <CountUp value={totals.races} format={fmtNum} />
+              </dd>
             </div>
             <div>
               <dt>Distance cumulée</dt>
-              <dd>{fmtKm(totals.distanceKm)}</dd>
+              <dd>
+                <CountUp value={totals.distanceKm} format={fmtKm} />
+              </dd>
             </div>
             <div>
               <dt>Dénivelé cumulé</dt>
-              <dd>{fmtM(totals.elevationGain)}</dd>
+              <dd>
+                <CountUp value={totals.elevationGain} format={fmtM} />
+              </dd>
             </div>
             <div>
               <dt>Points ITRA</dt>
-              <dd>{fmtNum(totals.itraPoints)}</dd>
+              <dd>
+                <CountUp value={totals.itraPoints} format={fmtNum} />
+              </dd>
             </div>
             <div>
               <dt>Running Stones</dt>
-              <dd>{fmtNum(totals.runningStones)}</dd>
+              <dd>
+                <CountUp value={totals.runningStones} format={fmtNum} />
+              </dd>
             </div>
           </dl>
 

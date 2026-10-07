@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useParams, useSearchParams } from 'react-router-dom';
 import { fmtDplus, fmtHours, fmtKm, fmtM, fmtNum, fmtPrice, PopularityLabel, TechnicityMeter } from '../components/bits';
+import { CountUp } from '../components/CountUp';
 import { CourseMap } from '../components/CourseMap';
 import { ElevationProfile, ProfileHorizon } from '../components/ElevationProfile';
 import { GpxPanel } from '../components/GpxPanel';
@@ -12,7 +13,7 @@ import { derivedLinks } from '../data';
 import type { Course, RaceEvent } from '../data/types';
 import { formatDate, formatRange, formatTime, relativeDays } from '../lib/dates';
 import { altitudeAt, profileFromCheckpoints, profileFromTrack, type ProfilePoint } from '../lib/gpx';
-import { useParallax } from '../lib/motion';
+import { useParallax, useReveal } from '../lib/motion';
 import {
   countryFlag,
   courseUtmbCategory,
@@ -56,6 +57,7 @@ function RaceDetail({ event }: { event: RaceEvent }) {
   const [photoFailed, setPhotoFailed] = useState(false);
   const showPhoto = !!event.image && heroMode === 'photo' && !photoFailed;
   const heroRef = useParallax<HTMLElement>(0.35);
+  const bodyRef = useReveal<HTMLDivElement>('.panel', [course.id, !!trackState.track]);
 
   useEffect(() => {
     document.title = `${event.name} – Take Ton Trail`;
@@ -150,7 +152,7 @@ function RaceDetail({ event }: { event: RaceEvent }) {
         {showPhoto && event.imageCredit && <p className="race-hero-credit">Photo : {event.imageCredit}</p>}
       </header>
 
-      <div className="race-body">
+      <div ref={bodyRef} className="race-body">
         <div className="course-tabs" role="tablist" aria-label="Parcours">
           {sortedCourses.map((c) => (
             <button
@@ -359,11 +361,13 @@ function CourseOverview({ event, course }: { event: RaceEvent; course: Course })
       <dl className="stat-grid">
         <div className="stat stat-hero">
           <dt>Distance</dt>
-          <dd>{fmtKm(course.distanceKm)}</dd>
+          <dd>
+            <CountUp value={course.distanceKm} format={fmtKm} />
+          </dd>
         </div>
         <div className="stat stat-hero">
           <dt>Dénivelé positif</dt>
-          <dd>{course.elevationGain != null ? fmtM(course.elevationGain) : <span className="stat-missing">Non communiqué</span>}</dd>
+          <dd>{course.elevationGain != null ? <CountUp value={course.elevationGain} format={fmtM} /> : <span className="stat-missing">Non communiqué</span>}</dd>
         </div>
         <div className="stat">
           <dt>Départ</dt>
