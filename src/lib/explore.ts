@@ -90,6 +90,13 @@ interface Options {
   onChange?: (status: ExploreStatus) => void;
   /** Double-clic : aller au point visé (comme les flèches au sol de Street View). */
   doubleClickTravel?: boolean;
+  /**
+   * Carte insérée dans une page qui défile : la molette et le clavier ne pilotent
+   * la vue qu'après un clic dans la carte, pour ne pas bloquer le défilement.
+   */
+  contained?: boolean;
+  /** Molette ignorée parce que la carte n'a pas encore été activée d'un clic. */
+  onWheelIgnored?: () => void;
 }
 
 function isTyping(target: EventTarget | null): boolean {
@@ -112,6 +119,7 @@ export class MapExplorer {
   private pointers = new Set<number>();
   private gestureRotation = 0;
   private gestureScale = 1;
+  private engaged = false;
   private cleanup: (() => void)[] = [];
 
   constructor(map: MapLibreMap, options: Options = {}) {
@@ -146,6 +154,16 @@ export class MapExplorer {
     on(window, 'keydown', (e) => this.onKey(e, true));
     on(window, 'keyup', (e) => this.onKey(e, false));
     on(window, 'blur', () => this.keys.clear());
+    if (this.options.contained) {
+      const root = map.getContainer();
+      on(window, 'pointerdown', (e) => {
+        if (!root.contains(e.target as Node)) this.engaged = false;
+      });
+      // La page a défilé : la carte n'est plus l'objet de l'attention.
+      on(window, 'scroll', () => {
+        if (!document.fullscreenElement) this.engaged = false;
+      }, { passive: true });
+    }
     // Safari (macOS) : rotation à deux doigts sur le trackpad.
     on(container, 'gesturestart' as keyof HTMLElementEventMap, (e) => this.onGesture(e as unknown as GestureLike, true), { passive: false });
     on(container, 'gesturechange' as keyof HTMLElementEventMap, (e) => this.onGesture(e as unknown as GestureLike, false), { passive: false });
@@ -171,6 +189,7 @@ export class MapExplorer {
     this.pad = { ...NO_INPUT };
     this.velocity = { ...NO_INPUT };
     this.drag = null;
+    this.engaged = false;
     this.pointers.clear();
     const map = this.map;
     map.dragPan.enable();
@@ -202,7 +221,8 @@ export class MapExplorer {
     if (isTyping(e.target) || e.metaKey || e.ctrlKey || e.altKey) return;
     // Le clavier pilote la carte quand elle a le focus (ou personne) : pas pendant qu'on parcourt la liste.
     const focused = document.activeElement;
-    if (down && focused && focused !== document.body && !this.map.getContainer().contains(focused)) return;
+    const inMap = !!focused && this.map.getContainer().contains(focused);
+    if (down && !inMap && (this.options.contained || (focused && focused !== document.body))) return;
     const binding = KEYS[e.code];
     if (!binding) return;
     e.preventDefault();
@@ -213,6 +233,10 @@ export class MapExplorer {
   }
 
   private onWheel(e: WheelEvent) {
+    if (this.options.contained && !this.engaged && !document.fullscreenElement) {
+      this.options.onWheelIgnored?.();
+      return;
+    }
     e.preventDefault();
     e.stopPropagation();
     const map = this.map;
@@ -252,6 +276,10 @@ export class MapExplorer {
 
   private onPointerDown(e: PointerEvent) {
     this.pointers.add(e.pointerId);
+    if (this.options.contained) {
+      this.engaged = true;
+      this.map.getCanvas().focus({ preventScroll: true });
+    }
     if (this.pointers.size > 1) {
       // Deux doigts : on laisse MapLibre pincer et pivoter.
       this.drag = null;

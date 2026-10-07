@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { destination, headingLabel, metersPerPixel } from '../lib/explore';
 import { exaggerationForZoom } from '../lib/terrain3d';
+import { angleDelta, bearingBetween, elevationAtKm, flyoverSeconds, positionAtKm } from '../lib/flyover';
 
 describe('relief 3D', () => {
   it('accentue le relief de loin et revient presque au réel de près', () => {
@@ -48,5 +49,38 @@ describe('exploration 3D', () => {
     expect(headingLabel(-90)).toBe('270° O');
     expect(headingLabel(317)).toBe('317° NO');
     expect(headingLabel(359.6)).toBe('0° N');
+  });
+});
+
+describe('survol du parcours', () => {
+  const points = [
+    { lat: 45.9, lng: 6.8, ele: 1000, km: 0 },
+    { lat: 45.91, lng: 6.8, ele: 1200, km: 1.112 },
+    { lat: 45.91, lng: 6.81, ele: null, km: 1.886 },
+  ];
+
+  it('interpole la position et l’altitude le long de la trace', () => {
+    const [lng, lat] = positionAtKm(points, 0.556);
+    expect(lng).toBeCloseTo(6.8, 6);
+    expect(lat).toBeCloseTo(45.905, 6);
+    expect(positionAtKm(points, -1)).toEqual([6.8, 45.9]);
+    expect(positionAtKm(points, 99)).toEqual([6.81, 45.91]);
+    expect(elevationAtKm(points, 0.556)).toBe(1100);
+    expect(elevationAtKm(points, 1.5)).toBe(1200);
+  });
+
+  it('oriente la caméra vers la suite du chemin', () => {
+    expect(bearingBetween([6.8, 45.9], [6.8, 45.91])).toBeCloseTo(0, 3);
+    expect(bearingBetween([6.8, 45.91], [6.81, 45.91])).toBeCloseTo(90, 0);
+    expect(angleDelta(350, 10)).toBe(20);
+    expect(angleDelta(10, 350)).toBe(-20);
+    expect(angleDelta(0, 180)).toBe(-180);
+  });
+
+  it('dure assez pour lire le relief, sans jamais s’éterniser', () => {
+    expect(flyoverSeconds(5)).toBe(26);
+    expect(flyoverSeconds(42)).toBeCloseTo(39.64, 2);
+    expect(flyoverSeconds(170)).toBeCloseTo(93.4, 6);
+    expect(flyoverSeconds(400)).toBe(95);
   });
 });

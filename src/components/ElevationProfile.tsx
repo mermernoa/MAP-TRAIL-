@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useId, useMemo, useRef, useState } from 'react';
 import { altitudeAt, type ProfilePoint } from '../lib/gpx';
 import { fmtKm, fmtM, fmtNum } from './bits';
 
@@ -8,6 +8,8 @@ interface Props {
   markers?: ProfilePoint[];
   height?: number;
   onHoverKm?: (km: number | null) => void;
+  /** Position du survol 3D de la carte, en km : curseur et portion déjà parcourue. */
+  playKm?: number | null;
   ariaLabel: string;
 }
 
@@ -22,7 +24,7 @@ function niceStep(range: number, targetTicks: number): number {
 }
 
 /** Profil altimétrique : aire lavée, ligne 2 px, réticule et infobulle au survol. */
-export function ElevationProfile({ points, markers = [], height = 220, onHoverKm, ariaLabel }: Props) {
+export function ElevationProfile({ points, markers = [], height = 220, onHoverKm, playKm = null, ariaLabel }: Props) {
   const wrapRef = useRef<HTMLDivElement>(null);
   const [width, setWidth] = useState(640);
   const [hoverKm, setHoverKm] = useState<number | null>(null);
@@ -78,13 +80,16 @@ export function ElevationProfile({ points, markers = [], height = 220, onHoverKm
     setHover(Math.min(geo.maxKm, Math.max(0, km)));
   };
 
-  const hoverAlt = hoverKm != null ? altitudeAt(points, hoverKm) : null;
+  // Le survol de la souris l'emporte sur celui de la carte.
+  const cursorKm = hoverKm ?? playKm;
+  const hoverAlt = cursorKm != null ? altitudeAt(points, cursorKm) : null;
   const nearest =
-    hoverKm != null && markers.length
-      ? markers.reduce((a, b) => (Math.abs(b.km - hoverKm) < Math.abs(a.km - hoverKm) ? b : a))
+    cursorKm != null && markers.length
+      ? markers.reduce((a, b) => (Math.abs(b.km - cursorKm) < Math.abs(a.km - cursorKm) ? b : a))
       : null;
-  const nearName = nearest && hoverKm != null && Math.abs(nearest.km - hoverKm) <= geo.maxKm * 0.02 ? nearest.label : null;
-  const tipLeft = hoverKm != null ? geo.x(hoverKm) : 0;
+  const nearName = nearest && cursorKm != null && Math.abs(nearest.km - cursorKm) <= geo.maxKm * 0.02 ? nearest.label : null;
+  const tipLeft = cursorKm != null ? geo.x(cursorKm) : 0;
+  const clipId = `profile-done-${useId().replace(/[^\w-]/g, '')}`;
 
   return (
     <div className="profile" ref={wrapRef}>
@@ -125,6 +130,15 @@ export function ElevationProfile({ points, markers = [], height = 220, onHoverKm
         </g>
         <path d={geo.area} className="profile-area" />
         <path d={geo.line} className="profile-line" />
+        {playKm != null && playKm > 0 && (
+          <g className="profile-done" clipPath={`url(#${clipId})`}>
+            <clipPath id={clipId}>
+              <rect x={0} y={0} width={geo.x(Math.min(playKm, geo.maxKm))} height={height} />
+            </clipPath>
+            <path d={geo.area} className="profile-done-area" />
+            <path d={geo.line} className="profile-done-line" />
+          </g>
+        )}
         {markers.map((mk, i) => (
           <circle key={i} cx={geo.x(mk.km)} cy={geo.y(mk.alt)} r={3.5} className="profile-marker" />
         ))}
@@ -144,20 +158,20 @@ export function ElevationProfile({ points, markers = [], height = 220, onHoverKm
             </text>
           );
         })}
-        {hoverKm != null && hoverAlt != null && (
-          <g className="profile-cursor">
-            <line x1={geo.x(hoverKm)} x2={geo.x(hoverKm)} y1={M.top} y2={height - M.bottom} />
-            <circle cx={geo.x(hoverKm)} cy={geo.y(hoverAlt)} r={5} />
+        {cursorKm != null && hoverAlt != null && (
+          <g className={`profile-cursor ${hoverKm == null ? 'is-flying' : ''}`}>
+            <line x1={geo.x(cursorKm)} x2={geo.x(cursorKm)} y1={M.top} y2={height - M.bottom} />
+            <circle cx={geo.x(cursorKm)} cy={geo.y(hoverAlt)} r={5} />
           </g>
         )}
       </svg>
-      {hoverKm != null && hoverAlt != null && (
+      {cursorKm != null && hoverAlt != null && (
         <div
           className="profile-tip"
           style={{ left: Math.min(Math.max(tipLeft, 70), width - 70) }}
           role="status"
         >
-          <strong>{fmtKm(hoverKm)}</strong>
+          <strong>{fmtKm(cursorKm)}</strong>
           <span>{fmtM(hoverAlt)}</span>
           {nearName && <span className="muted">{nearName}</span>}
         </div>

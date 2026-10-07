@@ -142,3 +142,22 @@ export const ClockIcon = (p: IconProps) => (
     <path d="M12 7.5V12l3 2" />
   </Icon>
 );
+
+export const PlayIcon = (p: IconProps) => (
+  <Icon {...p}>
+    <path d="M8 5.5v13l10.5-6.5z" fill="currentColor" />
+  </Icon>
+);
+
+export const PauseIcon = (p: IconProps) => (
+  <Icon {...p}>
+    <path d="M8.5 5.5v13M15.5 5.5v13" strokeWidth={3} />
+  </Icon>
+);
+
+export const OrbitIcon = (p: IconProps) => (
+  <Icon {...p}>
+    <path d="M20 12a8 8 0 1 1-2.3-5.6" />
+    <path d="M18 3v4h-4" />
+  </Icon>
+);

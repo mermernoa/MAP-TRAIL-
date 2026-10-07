@@ -12,6 +12,7 @@ import { derivedLinks } from '../data';
 import type { Course, RaceEvent } from '../data/types';
 import { formatDate, formatRange, formatTime, relativeDays } from '../lib/dates';
 import { altitudeAt, profileFromCheckpoints, profileFromTrack, type ProfilePoint } from '../lib/gpx';
+import { useParallax } from '../lib/motion';
 import {
   countryFlag,
   courseUtmbCategory,
@@ -48,11 +49,13 @@ function RaceDetail({ event }: { event: RaceEvent }) {
   const course = event.courses.find((c) => c.id === params.get('parcours')) ?? event.courses[0];
   const trackState = useCourseTrack(`${event.id}/${course.id}`, course.gpxUrl);
   const [hoverKm, setHoverKm] = useState<number | null>(null);
+  const [flyKm, setFlyKm] = useState<number | null>(null);
   const [allCheckpoints, setAllCheckpoints] = useState(false);
   // Photo de la base si elle existe et se charge, sinon relief 3D du lieu.
   const [heroMode, setHeroMode] = useState<'photo' | 'relief'>(event.image ? 'photo' : 'relief');
   const [photoFailed, setPhotoFailed] = useState(false);
   const showPhoto = !!event.image && heroMode === 'photo' && !photoFailed;
+  const heroRef = useParallax<HTMLElement>(0.35);
 
   useEffect(() => {
     document.title = `${event.name} – Take Ton Trail`;
@@ -87,7 +90,7 @@ function RaceDetail({ event }: { event: RaceEvent }) {
 
   return (
     <article className="race-page">
-      <header className={`race-hero ${showPhoto ? 'has-photo' : ''}`}>
+      <header ref={heroRef} className={`race-hero ${showPhoto ? 'has-photo' : ''}`}>
         {showPhoto ? (
           <img
             className="race-hero-photo"
@@ -187,6 +190,7 @@ function RaceDetail({ event }: { event: RaceEvent }) {
                   points={profile.points}
                   markers={profile.markers}
                   onHoverKm={setHoverKm}
+                  playKm={profile.source === 'gpx' ? flyKm : null}
                   ariaLabel={`Profil altimétrique de ${course.name} : ${fmtKm(course.distanceKm)}${course.elevationGain != null ? ` pour ${fmtM(course.elevationGain)} de dénivelé positif` : ''}. Flèches gauche et droite pour parcourir.`}
                 />
               ) : (
@@ -201,7 +205,7 @@ function RaceDetail({ event }: { event: RaceEvent }) {
                 <h2 id="map-title">Parcours</h2>
                 {!trackState.track && <p className="muted small">Emplacement de la course. Le tracé apparaît une fois le GPX importé.</p>}
               </div>
-              <CourseMap event={event} track={trackState.track} hoverKm={hoverKm} />
+              <CourseMap event={event} track={trackState.track} hoverKm={hoverKm} onFlyKm={setFlyKm} />
             </section>
 
             <section className="panel" aria-labelledby="gpx-title">

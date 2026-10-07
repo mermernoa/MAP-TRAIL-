@@ -10,6 +10,10 @@ interface Props {
   /** Clé de mémorisation de l'aide (une par carte). */
   helpKey: string;
   compact?: boolean;
+  /** Afficher l'aide au premier passage (pas quand un survol démarre). */
+  autoHelp?: boolean;
+  /** Carte insérée dans la page : un clic active la molette et le clavier. */
+  contained?: boolean;
 }
 
 const HELP_STORAGE = 'ttt-aide-3d';
@@ -33,8 +37,8 @@ function rememberHelp(key: string) {
 }
 
 /** Commandes d'exploration 3D : boussole, altitude, joystick, montée et descente. */
-export function ExplorePad({ explorer, bearing, pitch, altitude, helpKey, compact }: Props) {
-  const [help, setHelp] = useState(() => !helpSeen(helpKey));
+export function ExplorePad({ explorer, bearing, pitch, altitude, helpKey, compact, autoHelp = true, contained }: Props) {
+  const [help, setHelp] = useState(() => autoHelp && !helpSeen(helpKey));
   const closeHelp = () => {
     setHelp(false);
     rememberHelp(helpKey);
@@ -90,11 +94,17 @@ export function ExplorePad({ explorer, bearing, pitch, altitude, helpKey, compac
         <div className="explore-help" role="dialog" aria-label="Se déplacer en 3D">
           <strong>Se déplacer en 3D</strong>
           <ul>
-            <li><b>Glisser</b> : regarder autour de soi</li>
-            <li><b>Trackpad</b> : deux doigts à l’horizontale pour tourner, à la verticale pour avancer, pincer pour l’altitude</li>
-            <li><b>Clavier</b> : flèches ou ZQSD, A et E en pas de côté, R et F pour le regard, Maj pour aller plus vite</li>
-            <li><b>Double-clic</b> : aller à l’endroit visé</li>
-            <li><b>Joystick</b> ou <b>manette</b> : avancer et tourner</li>
+            {contained && <li className="for-mouse"><b>Clic</b> dans la carte : la molette et le clavier la pilotent</li>}
+            <li className="for-mouse"><b>Glisser</b> : regarder autour de soi</li>
+            <li className="for-mouse"><b>Trackpad</b> : deux doigts à l’horizontale pour tourner, à la verticale pour avancer, pincer pour l’altitude</li>
+            <li className="for-mouse"><b>Clavier</b> : flèches ou ZQSD, A et E en pas de côté, R et F pour le regard, Maj pour aller plus vite</li>
+            <li className="for-mouse"><b>Double-clic</b> : aller à l’endroit visé</li>
+            <li className="for-touch"><b>Un doigt</b> : regarder autour de soi</li>
+            <li className="for-touch"><b>Deux doigts</b> : pincer pour l’altitude, tourner pour changer de cap</li>
+            <li>
+              <b>Joystick</b>
+              {contained && <span className="for-touch"> (en plein écran)</span>} ou <b>manette</b> : avancer et tourner
+            </li>
           </ul>
           <button type="button" className="button button-primary" onClick={closeHelp}>
             C’est parti

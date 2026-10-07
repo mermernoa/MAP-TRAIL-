@@ -11,7 +11,8 @@ interface Props {
 
 /**
  * Image de fond d'une fiche course : le relief réel du lieu, en 3D, sous
- * imagerie satellite. Un court panoramique au chargement, puis la vue se fige.
+ * imagerie satellite. La caméra tourne lentement autour du site, comme un
+ * drone, tant que l'en-tête est à l'écran.
  */
 export function TerrainHero({ lat, lng, track }: Props) {
   const ref = useRef<HTMLDivElement>(null);
@@ -63,14 +64,48 @@ export function TerrainHero({ lat, lng, track }: Props) {
         });
         setReady(true);
       });
-      // Un court panoramique à l'arrivée, puis la vue se fige : pas de rendu continu.
-      map.once('idle', () => {
-        if (relief && !reduce) map.easeTo({ bearing: 0, duration: 8000, easing: (t) => 1 - (1 - t) ** 2 });
+      // Rotation lente, seulement visible et onglet actif : aucun rendu inutile hors de l'écran.
+      let raf = 0;
+      let last = 0;
+      let speed = 0;
+      let visible = true;
+      const step = (now: number) => {
+        raf = 0;
+        const dt = last ? Math.min(0.1, (now - last) / 1000) : 0;
+        last = now;
+        // Démarrage en douceur jusqu'à 2,4° par seconde.
+        speed = Math.min(2.4, speed + dt * 0.8);
+        map.jumpTo({ bearing: map.getBearing() + speed * dt });
+        schedule();
+      };
+      const schedule = () => {
+        if (!raf && visible && !document.hidden) raf = requestAnimationFrame(step);
+      };
+      const halt = () => {
+        cancelAnimationFrame(raf);
+        raf = 0;
+        last = 0;
+      };
+      const observer = new IntersectionObserver(([entry]) => {
+        visible = entry.isIntersecting;
+        if (visible) schedule();
+        else halt();
       });
+      const onVisibility = () => (document.hidden ? halt() : schedule());
+      if (relief && !reduce) {
+        map.once('idle', () => {
+          observer.observe(container);
+          document.addEventListener('visibilitychange', onVisibility);
+          schedule();
+        });
+      }
       map.on('error', (e) => {
         console.warn('[relief]', e.error?.message ?? e);
       });
       return () => {
+        halt();
+        observer.disconnect();
+        document.removeEventListener('visibilitychange', onVisibility);
         if (mapRef.current === map) mapRef.current = null;
         map.remove();
       };
