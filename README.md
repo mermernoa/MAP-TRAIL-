@@ -6,9 +6,9 @@ La carte et le calendrier des trails, du plus confidentiel au plus mythique.
 - **Filtres** communs à la carte et au calendrier : distance, dénivelé, technicité, type de course (court, long, ultra, nocturne, urbain, KV), format (solo, duo, relais), massif, région, rayon autour de soi, période, notoriété, points ITRA, catégorie UTMB Index, circuits, prix maximum, inscriptions ouvertes, courses complètes masquées.
 - **Calendrier** en vues mois, année et liste, avec les ouvertures et clôtures d'inscription.
 - **Fiche course** : photo de la base (ou relief 3D du lieu en lente rotation), chaque parcours avec ses chiffres, son prix, son lien d'inscription et le document demandé, profil altimétrique, carte du tracé avec relief 3D et **survol du parcours** (la caméra suit la trace GPX, le profil avance en même temps), import et export GPX, dates importantes (export agenda) et liens utiles.
-- **Ma saison** : médaille en verre 3D, statut, priorité A/B/C, objectif ou temps réalisé, notes, frise des 12 prochains mois, cumuls, alertes d'inscription et de récupération, export agenda, sauvegarde JSON et courses hors catalogue.
+- **Ma saison** : statut, priorité A/B/C, objectif ou temps réalisé, notes, frise des 12 prochains mois, cumuls, alertes d'inscription et de récupération, export agenda, sauvegarde JSON et courses hors catalogue.
 
-Le site reste lisible sans carte graphique : relief, globe, survol et médaille 3D ne s'activent qu'avec une accélération matérielle, et toutes les animations (rideau d'ouverture, chiffres qui défilent, apparitions au défilement, parallaxe) s'effacent si le système demande de réduire les animations.
+Le site reste lisible sans carte graphique : relief, globe et survol 3D ne s'activent qu'avec une accélération matérielle, et toutes les animations (rideau d'ouverture, chiffres qui défilent, apparitions au défilement, parallaxe) s'effacent si le système demande de réduire les animations.
 
 ## Démarrer
 
@@ -80,4 +80,4 @@ La saison et les courses personnelles restent dans le navigateur (`localStorage`
 
 ## Pile technique
 
-Vite, React 19, TypeScript, MapLibre GL JS 6, three.js (médaille en verre, chargée à la demande), Zustand, Vitest, tsx (script d'import).
+Vite, React 19, TypeScript, MapLibre GL JS 6, Zustand, Vitest, tsx (script d'import).

@@ -3,7 +3,6 @@ import { Link, useNavigate } from 'react-router-dom';
 import { fmtDplus, fmtKm, fmtM, fmtNum, TechnicityMeter } from '../components/bits';
 import { CountUp } from '../components/CountUp';
 import { CustomRaceForm } from '../components/CustomRaceForm';
-import { GlassMedal } from '../components/GlassMedal';
 import { AlertIcon, CalendarIcon, ClockIcon, DownloadIcon, PlusIcon, TrashIcon, UploadIcon } from '../components/Icons';
 import type { RaceEvent } from '../data/types';
 import { addMonths, daysBetween, formatDate, formatShortDate, formatTime, MONTH_SHORT, parseYMD, relativeDays } from '../lib/dates';
@@ -84,8 +83,7 @@ export function SeasonPage() {
   return (
     <div ref={pageRef} className="season-page">
       <header className="season-head">
-        {resolved.length > 0 && <GlassMedal variant="badge" className="season-medal" />}
-        <div className="season-heading">
+        <div>
           <h1 className="season-title">Ma saison {typeof range === 'number' ? range : ''}</h1>
           {next ? (
             <p className="season-next">
@@ -148,7 +146,7 @@ export function SeasonPage() {
 
       {!resolved.length ? (
         <div className="empty empty-large">
-          <GlassMedal className="empty-illustration" />
+          <img className="empty-illustration" src="brand/medaille.webp" alt="" width={150} height={219} />
           <h2>Votre saison est vide</h2>
           <p>Ajoutez des courses depuis la carte ou le calendrier avec le bouton « Ma saison », ou saisissez une course locale absente du catalogue.</p>
           <div className="button-row">

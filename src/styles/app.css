@@ -3714,64 +3714,6 @@ textarea {
   }
 }
 
-/* ---------- Médaille en verre 3D ---------- */
-.glass-medal {
-  position: relative;
-  display: grid;
-  place-items: center;
-}
-
-.glass-medal img {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  transition: opacity 0.5s ease;
-}
-
-.glass-medal-canvas {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  opacity: 0;
-  transition: opacity 0.8s ease;
-}
-
-.glass-medal.is-ready .glass-medal-canvas {
-  opacity: 1;
-}
-
-.glass-medal.is-ready img {
-  opacity: 0;
-}
-
-.glass-medal-ribbon {
-  aspect-ratio: 150 / 219;
-}
-
-.empty .glass-medal.empty-illustration {
-  width: 132px;
-}
-
-.season-medal {
-  flex: none;
-  align-self: center;
-  width: 96px;
-  height: 96px;
-  margin: -8px -6px -8px -10px;
-}
-
-.season-heading {
-  flex: 1 1 280px;
-}
-
-@media (max-width: 700px) {
-  .season-medal {
-    width: 72px;
-    height: 72px;
-  }
-}
-
 /* ---------- Mouvements : apparitions, inclinaison, entrée des pages, rideau ---------- */
 .reveal-armed {
   opacity: 0;
