@@ -7,11 +7,13 @@ import { ElevationProfile, ProfileHorizon } from '../components/ElevationProfile
 import { GpxPanel } from '../components/GpxPanel';
 import { ExternalIcon, MountainIcon } from '../components/Icons';
 import { KeyDates } from '../components/KeyDates';
+import { PhotoCredit } from '../components/PhotoCredit';
 import { SeasonToggle } from '../components/SeasonToggle';
 import { TerrainHero } from '../components/TerrainHero';
 import { derivedLinks } from '../data';
 import type { Course, RaceEvent } from '../data/types';
 import { formatDate, formatRange, formatTime, relativeDays } from '../lib/dates';
+import { massifByName } from '../lib/massifs';
 import { altitudeAt, profileFromCheckpoints, profileFromTrack, type ProfilePoint } from '../lib/gpx';
 import { useParallax, useReveal } from '../lib/motion';
 import {
@@ -35,7 +37,7 @@ export function RacePage() {
       <div className="page-message">
         <h1>Course introuvable</h1>
         <p>Cette course n’existe pas ou a été supprimée de votre navigateur.</p>
-        <Link to="/" className="button button-primary">
+        <Link to="/carte" className="button button-primary">
           Revenir à la carte
         </Link>
       </div>
@@ -119,7 +121,7 @@ function RaceDetail({ event }: { event: RaceEvent }) {
         <div className="race-hero-shade" aria-hidden="true" />
         <div className="race-hero-content">
           <nav className="breadcrumb" aria-label="Fil d’Ariane">
-            <Link to="/">Carte</Link>
+            <Link to="/carte">Carte</Link>
             <span aria-hidden="true">/</span>
             <span>{event.region}</span>
           </nav>
@@ -130,7 +132,16 @@ function RaceDetail({ event }: { event: RaceEvent }) {
           </p>
           {(event.massif || event.edition) && (
             <p className="race-hero-meta">
-              {event.massif && <span>Massif : {event.massif}</span>}
+              {event.massif && (
+                <span>
+                  Massif :{' '}
+                  {massifByName(event.massif) ? (
+                    <Link to={`/massif/${massifByName(event.massif)!.slug}`}>{massifByName(event.massif)!.title}</Link>
+                  ) : (
+                    event.massif
+                  )}
+                </span>
+              )}
               {event.edition && <span>Édition {event.edition}</span>}
             </p>
           )}
@@ -149,7 +160,7 @@ function RaceDetail({ event }: { event: RaceEvent }) {
           </div>
         </div>
         {profile && <ProfileHorizon points={profile.points} />}
-        {showPhoto && event.imageCredit && <p className="race-hero-credit">Photo : {event.imageCredit}</p>}
+        {showPhoto && event.imageCredit && <PhotoCredit credit={event.imageCredit} src={event.image!} className="race-hero-credit" />}
       </header>
 
       <div ref={bodyRef} className="race-body">
@@ -325,6 +336,12 @@ function RaceDetail({ event }: { event: RaceEvent }) {
               {event.dateStatus === 'estimated' && ' Les dates sont prévisionnelles.'} Vérifiez les conditions d’inscription
               sur le site de l’organisation avant de vous engager.
             </p>
+            {!event.custom && (
+              <p className="data-note">
+                Une information est fausse ou a changé ?{' '}
+                <Link to={`/signaler?course=${encodeURIComponent(event.id)}`}>Signaler une erreur</Link>
+              </p>
+            )}
           </aside>
         </div>
       </div>

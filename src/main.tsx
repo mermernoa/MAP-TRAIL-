@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client';
 import '@fontsource/chewy/400.css';
 import './styles/tokens.css';
 import './styles/app.css';
+import './styles/home.css';
 import { App } from './App';
 
 const container = document.getElementById('root') as HTMLElement;

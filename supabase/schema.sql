@@ -50,3 +50,27 @@ $$;
 
 revoke execute on function public.delete_my_account() from public, anon;
 grant execute on function public.delete_my_account() to authenticated;
+
+-- Messages des formulaires : contact, signalement d'erreur, proposition de course.
+-- Tout visiteur peut en envoyer ; personne ne peut les relire par l'API.
+-- On les consulte dans le tableau de bord Supabase (Table Editor > messages).
+create table if not exists public.messages (
+  id uuid primary key default gen_random_uuid(),
+  kind text not null check (kind in ('contact', 'erreur', 'course')),
+  subject text not null check (char_length(subject) between 1 and 200),
+  body text not null check (char_length(body) between 1 and 5000),
+  email text check (email is null or char_length(email) <= 200),
+  course_id text check (course_id is null or char_length(course_id) <= 120),
+  page text check (page is null or char_length(page) <= 500),
+  created_at timestamptz not null default now()
+);
+
+alter table public.messages enable row level security;
+
+revoke all on table public.messages from anon, authenticated;
+grant insert on table public.messages to anon, authenticated;
+
+drop policy if exists "Envoyer un message" on public.messages;
+create policy "Envoyer un message" on public.messages
+  for insert to anon, authenticated
+  with check (true);

@@ -155,7 +155,7 @@ export function SeasonPage() {
           <h2>Votre saison est vide</h2>
           <p>Ajoutez des courses depuis la carte ou le calendrier avec le bouton « Ma saison », ou saisissez une course locale absente du catalogue.</p>
           <div className="button-row">
-            <Link to="/" className="button button-primary">
+            <Link to="/carte" className="button button-primary">
               Explorer la carte
             </Link>
             <Link to="/calendrier" className="button">

@@ -3,9 +3,16 @@ import { HashRouter, Link, NavLink, Route, Routes, useLocation } from 'react-rou
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { UserIcon } from './components/Icons';
 import { LoadingGauge } from './components/LoadingGauge';
-import { CalendarPage } from './pages/CalendarPage';
+import { SiteFooter } from './components/SiteFooter';
 import { AccountPage } from './pages/AccountPage';
+import { CalendarPage } from './pages/CalendarPage';
+import { CollectionPage } from './pages/CollectionPage';
+import { ExplorePage } from './pages/ExplorePage';
+import { HomePage } from './pages/HomePage';
+import { AboutPage, LegalPage, PrivacyPage } from './pages/InfoPages';
 import { MapPage } from './pages/MapPage';
+import { MassifPage } from './pages/MassifPage';
+import { ContactPage, ProposePage, ReportPage } from './pages/MessagePages';
 import { RacePage } from './pages/RacePage';
 import { SeasonPage } from './pages/SeasonPage';
 import { useTilt } from './lib/motion';
@@ -13,20 +20,39 @@ import { startAccount, useAccount } from './store/account';
 import { useCatalog } from './store/catalog';
 import { useSeasonStore } from './store/season';
 
+/** Sur l'accueil, l'en-tête se fond dans la nuit du décor tant qu'on ne l'a pas quitté. */
+function useOverHero(active: boolean) {
+  const [over, setOver] = useState(active);
+  useEffect(() => {
+    if (!active) {
+      setOver(false);
+      return;
+    }
+    const update = () => setOver(window.scrollY < window.innerHeight * 0.85);
+    update();
+    window.addEventListener('scroll', update, { passive: true });
+    return () => window.removeEventListener('scroll', update);
+  }, [active]);
+  return over;
+}
+
 function Header() {
   const count = useSeasonStore((s) => s.entries.length);
   const user = useAccount((s) => s.user);
+  const { pathname } = useLocation();
+  const overHero = useOverHero(pathname === '/');
   return (
-    <header className="app-header">
+    <header className={`app-header ${overHero ? 'is-over-hero' : ''}`}>
       <Link to="/" className="brand" aria-label="Take Ton Trail, accueil">
         <img className="brand-wordmark" src="brand/wordmark.webp" alt="" width={74} height={48} />
         <span className="brand-name">Take Ton Trail</span>
       </Link>
       <nav className="app-nav" aria-label="Navigation principale">
-        <NavLink to="/" end>
-          Carte
-        </NavLink>
+        <NavLink to="/carte">Carte</NavLink>
         <NavLink to="/calendrier">Calendrier</NavLink>
+        <NavLink to="/explorer" className="nav-optional">
+          Explorer
+        </NavLink>
         <NavLink to="/ma-saison">
           Ma saison
           {count > 0 && <span className="badge">{count}</span>}
@@ -97,8 +123,18 @@ function PageRoutes() {
   return (
     <ErrorBoundary key={pathname}>
       <Routes>
-        <Route path="/" element={<MapPage />} />
+        <Route path="/" element={<HomePage />} />
+        <Route path="/carte" element={<MapPage />} />
         <Route path="/calendrier" element={<CalendarPage />} />
+        <Route path="/explorer" element={<ExplorePage />} />
+        <Route path="/collection/:slug" element={<CollectionPage />} />
+        <Route path="/massif/:slug" element={<MassifPage />} />
+        <Route path="/a-propos" element={<AboutPage />} />
+        <Route path="/contact" element={<ContactPage />} />
+        <Route path="/signaler" element={<ReportPage />} />
+        <Route path="/proposer-une-course" element={<ProposePage />} />
+        <Route path="/mentions-legales" element={<LegalPage />} />
+        <Route path="/confidentialite" element={<PrivacyPage />} />
         <Route path="/course/:id" element={<RacePage />} />
         <Route path="/ma-saison" element={<SeasonPage />} />
         <Route path="/compte" element={<AccountPage />} />
@@ -108,6 +144,14 @@ function PageRoutes() {
   );
 }
 
+/** Pied de page partout, sauf sur la carte qui occupe tout l'écran. */
+function Footer() {
+  const { pathname } = useLocation();
+  const ready = useCatalog((s) => s.status === 'ready');
+  if (pathname === '/carte' || !ready) return null;
+  return <SiteFooter />;
+}
+
 function NotFound() {
   return (
     <div className="page-message">
@@ -115,7 +159,7 @@ function NotFound() {
       <h1>Page introuvable</h1>
       <p>Cette adresse ne correspond à aucune page.</p>
       <Link to="/" className="button button-primary">
-        Revenir à la carte
+        Revenir à l’accueil
       </Link>
     </div>
   );
@@ -148,6 +192,7 @@ export function App() {
           <PageRoutes />
         </CatalogGate>
       </main>
+      <Footer />
     </HashRouter>
   );
 }

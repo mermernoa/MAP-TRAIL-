@@ -2,7 +2,11 @@
 
 La carte et le calendrier des trails, du plus confidentiel au plus mythique.
 
-- **Carte interactive** : zoom, regroupement des repères, survol, sélection, aperçu ; fonds plan ombré, topo et satellite ; globe à l'ouverture ; **relief 3D** accentué selon le zoom, sous un ciel teinté de rose, que l'on parcourt comme dans Street View (glisser pour regarder, trackpad, clavier ZQSD ou flèches, joystick à l'écran, manette).
+- **Accueil** (`#/`) : une nuit en relief dessinée en lignes de crête, un sentier où montent des frontales jusqu'à la lune et au logo 3T, la recherche (courses, massifs, collections, lieux) et trois portes : près de chez moi, ce week-end (ou le prochain week-end de course), les mythiques.
+- **Collections** (`#/collection/…`) : premiers ultras, nocturnes d'Halloween, moins de 20 €, premier dossard, fin d'année, hiver en montagne, au soleil l'hiver, en équipe, mythiques (`src/lib/collections.ts`).
+- **Massifs** (`#/massif/…`) : relief 3D du massif, texte court, photo de course créditée et courses à venir (`src/lib/massifs.ts`). `#/explorer` réunit collections et massifs.
+- **Pages d'information** : à propos, contact, signaler une erreur (lien sur chaque fiche), proposer une course, mentions légales, confidentialité.
+- **Carte interactive** (`#/carte`) : zoom, regroupement des repères, survol, sélection, aperçu ; fonds plan ombré, topo et satellite ; globe à l'ouverture ; **relief 3D** accentué selon le zoom, sous un ciel teinté de rose, que l'on parcourt comme dans Street View (glisser pour regarder, trackpad, clavier ZQSD ou flèches, joystick à l'écran, manette).
 - **Filtres** communs à la carte et au calendrier : distance, dénivelé, technicité, type de course (court, long, ultra, nocturne, urbain, KV), format (solo, duo, relais), massif, région, rayon autour de soi, période, notoriété, points ITRA, catégorie UTMB Index, circuits, prix maximum, inscriptions ouvertes, courses complètes masquées.
 - **Calendrier** en vues mois, année et liste, avec les ouvertures et clôtures d'inscription.
 - **Fiche course** : photo de la base (ou relief 3D du lieu en lente rotation), chaque parcours avec ses chiffres, son prix, son lien d'inscription et le document demandé, profil altimétrique, carte du tracé avec relief 3D et **survol du parcours** (la caméra suit la trace GPX, le profil avance en même temps), import et export GPX, dates importantes (export agenda) et liens utiles.
@@ -87,6 +91,14 @@ Les comptes reposent sur [Supabase](https://supabase.com) (offre gratuite). Pour
 4. Pour envoyer les e-mails de confirmation à grande échelle, configurez un serveur SMTP (Authentication → Emails) : l'envoi intégré de Supabase est limité à quelques messages par heure.
 
 Sans ces réglages, la page indique que les comptes arrivent bientôt et la saison reste enregistrée dans le navigateur.
+
+### Formulaires
+
+Contact, signaler une erreur et proposer une course enregistrent les messages dans la table `messages` de Supabase (créée par `supabase/schema.sql`, envoi possible sans compte, lecture impossible par l'API : on les lit dans le tableau de bord). Sans Supabase, renseignez `VITE_CONTACT_EMAIL` dans `.env.production` : les formulaires ouvrent alors la messagerie du visiteur avec le message prêt à partir.
+
+## Photos
+
+Une photo n'est affichée qu'avec son crédit (colonne « Crédit photo » de la feuille), qui renvoie vers l'image d'origine. Les demandes de retrait passent par « Signaler une erreur ».
 
 ## Stockage
 

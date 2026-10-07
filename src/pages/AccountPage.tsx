@@ -350,7 +350,7 @@ function Suggestions() {
         <div className="empty-inline account-empty">
           <UserIcon size={22} />
           <p>Ajoutez une ou deux courses à votre saison : nous vous proposerons des courses qui vous ressemblent.</p>
-          <Link to="/" className="button button-primary">
+          <Link to="/carte" className="button button-primary">
             Explorer la carte
           </Link>
         </div>
