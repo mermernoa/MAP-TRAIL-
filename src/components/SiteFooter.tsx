@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { CONTACT_EMAIL } from '../lib/messages';
 import { INFO_LINKS } from '../pages/InfoPages';
 
 const EXPLORE_LINKS = [
@@ -19,6 +20,9 @@ export function SiteFooter() {
             <img src="brand/3t.webp" alt="" width={108} height={80} />
           </Link>
           <p>Toutes les courses de trail, du plus confidentiel au plus mythique.</p>
+          <a className="site-footer-mail" href={`mailto:${CONTACT_EMAIL}`}>
+            {CONTACT_EMAIL}
+          </a>
         </div>
         <nav aria-label="Explorer">
           <h2>Explorer</h2>

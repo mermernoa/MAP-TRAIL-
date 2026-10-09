@@ -76,6 +76,9 @@ export function ContactPage() {
   const set = (patch: Partial<typeof form>) => setForm((f) => ({ ...f, ...patch }));
   return (
     <InfoLayout title="Contact" lede="Une question, une idée, un partenariat ? Écrivez-nous : chaque message est lu.">
+      <p className="contact-direct">
+        Par e-mail : <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>, ou avec le formulaire ci-dessous.
+      </p>
       {status === 'sent' ? (
         <SendFeedback status={status} onAgain={reset} />
       ) : (

@@ -1,7 +1,8 @@
+import { SITE } from './site';
 import { accountsEnabled, getSupabase } from './supabase';
 
 /** Adresse de contact affichée et utilisée si les messages ne peuvent pas être enregistrés en ligne. */
-export const CONTACT_EMAIL: string = import.meta.env.VITE_CONTACT_EMAIL ?? '';
+export const CONTACT_EMAIL: string = SITE.contactEmail;
 
 export type MessageKind = 'contact' | 'erreur' | 'course';
 

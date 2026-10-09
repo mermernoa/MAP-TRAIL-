@@ -105,3 +105,16 @@ describe('bruit du décor', () => {
     }
   });
 });
+
+describe('formulaires sans Supabase', () => {
+  it('préparent un e-mail vers l’adresse de contact, avec l’adresse de réponse', async () => {
+    const { CONTACT_EMAIL, mailtoUrl, messagesEnabled } = await import('../lib/messages');
+    expect(CONTACT_EMAIL).toBe('taketontrail@gmail.com');
+    expect(messagesEnabled).toBe(true);
+    const url = mailtoUrl({ kind: 'erreur', subject: 'Prix – SaintéLyon', body: 'Le prix a changé.', email: 'coureur@example.fr' });
+    expect(url.startsWith('mailto:taketontrail@gmail.com?subject=')).toBe(true);
+    const params = new URLSearchParams(url.split('?')[1]);
+    expect(params.get('subject')).toBe('[Take Ton Trail] Prix – SaintéLyon');
+    expect(params.get('body')).toBe('Le prix a changé.\n\nRépondre à : coureur@example.fr');
+  });
+});

@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { Link, NavLink } from 'react-router-dom';
 import { CONTACT_EMAIL } from '../lib/messages';
+import { SITE } from '../lib/site';
 import { accountsEnabled } from '../lib/supabase';
 import { useCatalog } from '../store/catalog';
 
@@ -91,6 +92,7 @@ export function AboutPage() {
         <p>
           Une date a changé, un prix est faux, une course manque ? <Link to="/signaler">Signalez une erreur</Link> ou{' '}
           <Link to="/proposer-une-course">proposez une course</Link>. Chaque message est lu et la base est corrigée à la main.
+          Pour tout le reste : <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>.
         </p>
       </section>
     </InfoLayout>
@@ -102,20 +104,31 @@ export function LegalPage() {
     <InfoLayout title="Mentions légales">
       <section>
         <h2>Éditeur</h2>
+        <p>Le site Take Ton Trail est édité par {SITE.legalName || SITE.name}.</p>
+        {(SITE.address || SITE.siret || SITE.publicationDirector) && (
+          <dl className="legal-facts">
+            {SITE.address && (
+              <div>
+                <dt>Adresse</dt>
+                <dd>{SITE.address}</dd>
+              </div>
+            )}
+            {SITE.siret && (
+              <div>
+                <dt>SIRET</dt>
+                <dd>{SITE.siret}</dd>
+              </div>
+            )}
+            {SITE.publicationDirector && (
+              <div>
+                <dt>Responsable de la publication</dt>
+                <dd>{SITE.publicationDirector}</dd>
+              </div>
+            )}
+          </dl>
+        )}
         <p>
-          Take Ton Trail est un site personnel, édité à titre non professionnel. Conformément à l’article 6, III, 2° de la
-          loi n° 2004-575 du 21 juin 2004 pour la confiance dans l’économie numérique, son éditeur, personne physique, a choisi
-          de ne pas publier son identité ; ses coordonnées sont tenues à la disposition de l’hébergeur.
-        </p>
-        <p>
-          Pour toute question : <Link to="/contact">formulaire de contact</Link>
-          {CONTACT_EMAIL && (
-            <>
-              {' '}
-              ou <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>
-            </>
-          )}
-          .
+          Contact : <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a> ou le <Link to="/contact">formulaire de contact</Link>.
         </p>
       </section>
       <section>
@@ -215,8 +228,8 @@ export function PrivacyPage() {
         <h2>Vos droits</h2>
         <p>
           Vous pouvez accéder à vos données, les corriger, les exporter (bouton « Sauvegarder » de Ma saison) ou les effacer à
-          tout moment. Pour toute question ou demande, <Link to="/contact">écrivez-nous</Link>. Vous pouvez aussi adresser une
-          réclamation à la CNIL (cnil.fr).
+          tout moment. Pour toute question ou demande, écrivez à <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>. Vous
+          pouvez aussi adresser une réclamation à la CNIL (cnil.fr).
         </p>
       </section>
     </InfoLayout>

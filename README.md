@@ -94,7 +94,9 @@ Sans ces réglages, la page indique que les comptes arrivent bientôt et la sais
 
 ### Formulaires
 
-Contact, signaler une erreur et proposer une course enregistrent les messages dans la table `messages` de Supabase (créée par `supabase/schema.sql`, envoi possible sans compte, lecture impossible par l'API : on les lit dans le tableau de bord). Sans Supabase, renseignez `VITE_CONTACT_EMAIL` dans `.env.production` : les formulaires ouvrent alors la messagerie du visiteur avec le message prêt à partir.
+Contact, signaler une erreur et proposer une course enregistrent les messages dans la table `messages` de Supabase (créée par `supabase/schema.sql`, envoi possible sans compte, lecture impossible par l'API : on les lit dans le tableau de bord). Sans Supabase, les formulaires ouvrent la messagerie du visiteur avec le message prêt à partir vers l'adresse de contact, taketontrail@gmail.com (`VITE_CONTACT_EMAIL` dans `.env.production`).
+
+L'identité de l'éditeur affichée dans les mentions légales (raison sociale, adresse, SIRET, responsable de la publication) se règle dans `src/lib/site.ts` : les champs vides ne s'affichent pas.
 
 ## Photos
 

@@ -1155,6 +1155,42 @@ button.list-more {
   font-weight: 600;
 }
 
+.contact-direct {
+  font-size: 17px;
+}
+
+.legal-facts {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+}
+
+.legal-facts div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 8px;
+}
+
+.legal-facts dt {
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.legal-facts dt::after {
+  content: ' :';
+}
+
+.legal-facts dd {
+  margin: 0;
+  color: var(--ink-2);
+}
+
+.site-footer-mail {
+  justify-self: start;
+  font-weight: 700;
+  color: #fe66c4 !important;
+}
+
 /* ---------- Formulaires ---------- */
 .info-form {
   display: grid;
