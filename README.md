@@ -63,7 +63,7 @@ Les fichiers d'origine sont dans `brand-sources/` ; les versions détourées uti
 Le workflow `.github/workflows/pages.yml` publie le site sur GitHub Pages à chaque push sur `main` ou sur la branche de travail `claude/interactive-trails-map-rxpucs`, et après chaque synchronisation de la feuille.
 Activez-le une fois dans **Settings → Pages → Build and deployment → Source : GitHub Actions**.
 
-**Sauvegarde** : la version du site d'avant la refonte immersive 3D (commit `a5b225b`, 6 octobre 2026) est construite à chaque déploiement et reste en ligne sous `/sauvegarde/` (par exemple https://mermernoa.github.io/map-trail-/sauvegarde/). Pour y revenir entièrement : `git revert` des commits suivants, ou `git checkout a5b225b -- .` puis commit.
+**Sauvegarde** : la version du site d'avant la refonte immersive 3D (commit `a5b225b`, 6 octobre 2026) est construite à chaque déploiement et reste en ligne sous `/sauvegarde/` (par exemple https://mermernoa.github.io/MAP-TRAIL-/sauvegarde/). Pour y revenir entièrement : `git revert` des commits suivants, ou `git checkout a5b225b -- .` puis commit.
 
 ## Fonds de carte
 
@@ -85,8 +85,8 @@ La page **Mon compte** (`#/compte`) permet de créer un compte Take Ton Trail : 
 
 Les comptes reposent sur [Supabase](https://supabase.com) (offre gratuite). Pour les activer :
 
-1. Créez un projet Supabase et reliez-le au dépôt (**Integrations → GitHub**, dossier `supabase`, option **Deploy to production** sur la branche publiée) : chaque push applique les migrations de `supabase/migrations/` (table `seasons` protégée par des règles d'accès par utilisateur, table `messages`, fonction de suppression de compte). Sans l'intégration, collez le fichier de migration dans l'éditeur SQL ; il peut être rejoué sans risque.
-2. Dans **Authentication → URL Configuration**, indiquez l'adresse du site (`https://mermernoa.github.io/map-trail-/`) comme Site URL et ajoutez-la aux Redirect URLs.
+1. Créez un projet Supabase et reliez-le au dépôt (**Integrations → GitHub**, dossier `supabase`, option **Deploy to production**, branche de production `claude/interactive-trails-map-rxpucs`, celle qui est publiée) : chaque push applique les migrations de `supabase/migrations/` (table `seasons` protégée par des règles d'accès par utilisateur, table `messages`, fonction de suppression de compte). Sans l'intégration, collez le fichier de migration dans l'éditeur SQL ; il peut être rejoué sans risque.
+2. Dans **Authentication → URL Configuration**, indiquez l'adresse du site (`https://mermernoa.github.io/MAP-TRAIL-/`) comme Site URL et ajoutez `https://mermernoa.github.io/MAP-TRAIL-/**` aux Redirect URLs.
 3. Renseignez l'URL du projet et sa clé publiable (`sb_publishable_…`, faite pour être publique) dans `.env.production` : `VITE_SUPABASE_URL=…` et `VITE_SUPABASE_PUBLISHABLE_KEY=…`. Ne mettez jamais la clé secrète dans le site.
 4. Pour envoyer les e-mails de confirmation à grande échelle, configurez un serveur SMTP (Authentication → Emails) : l'envoi intégré de Supabase est limité à quelques messages par heure.
 
