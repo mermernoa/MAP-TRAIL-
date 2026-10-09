@@ -3,7 +3,7 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 /**
  * Projet Supabase des comptes Take Ton Trail. L'URL et la clé publiable sont
  * faites pour être publiques (la sécurité repose sur les règles d'accès de la
- * base, voir supabase/schema.sql) ; elles peuvent être remplacées au build.
+ * base, voir supabase/migrations/) ; elles peuvent être remplacées au build.
  */
 const env = import.meta.env;
 export const SUPABASE_URL: string = env.VITE_SUPABASE_URL ?? '';

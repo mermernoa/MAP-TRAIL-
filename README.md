@@ -85,7 +85,7 @@ La page **Mon compte** (`#/compte`) permet de créer un compte Take Ton Trail : 
 
 Les comptes reposent sur [Supabase](https://supabase.com) (offre gratuite). Pour les activer :
 
-1. Créez un projet Supabase, puis exécutez `supabase/schema.sql` dans son éditeur SQL (table `seasons` protégée par des règles d'accès par utilisateur, fonction de suppression de compte).
+1. Créez un projet Supabase et reliez-le au dépôt (**Integrations → GitHub**, dossier `supabase`, option **Deploy to production** sur la branche publiée) : chaque push applique les migrations de `supabase/migrations/` (table `seasons` protégée par des règles d'accès par utilisateur, table `messages`, fonction de suppression de compte). Sans l'intégration, collez le fichier de migration dans l'éditeur SQL ; il peut être rejoué sans risque.
 2. Dans **Authentication → URL Configuration**, indiquez l'adresse du site (`https://mermernoa.github.io/map-trail-/`) comme Site URL et ajoutez-la aux Redirect URLs.
 3. Renseignez l'URL du projet et sa clé publiable (`sb_publishable_…`, faite pour être publique) dans `.env.production` : `VITE_SUPABASE_URL=…` et `VITE_SUPABASE_PUBLISHABLE_KEY=…`. Ne mettez jamais la clé secrète dans le site.
 4. Pour envoyer les e-mails de confirmation à grande échelle, configurez un serveur SMTP (Authentication → Emails) : l'envoi intégré de Supabase est limité à quelques messages par heure.
@@ -94,7 +94,7 @@ Sans ces réglages, la page indique que les comptes arrivent bientôt et la sais
 
 ### Formulaires
 
-Contact, signaler une erreur et proposer une course enregistrent les messages dans la table `messages` de Supabase (créée par `supabase/schema.sql`, envoi possible sans compte, lecture impossible par l'API : on les lit dans le tableau de bord). Sans Supabase, les formulaires ouvrent la messagerie du visiteur avec le message prêt à partir vers l'adresse de contact, taketontrail@gmail.com (`VITE_CONTACT_EMAIL` dans `.env.production`).
+Contact, signaler une erreur et proposer une course enregistrent les messages dans la table `messages` de Supabase (créée par la migration de `supabase/migrations/`, envoi possible sans compte, lecture impossible par l'API : on les lit dans le tableau de bord). Sans Supabase, les formulaires ouvrent la messagerie du visiteur avec le message prêt à partir vers l'adresse de contact, taketontrail@gmail.com (`VITE_CONTACT_EMAIL` dans `.env.production`).
 
 L'identité de l'éditeur affichée dans les mentions légales (raison sociale, adresse, SIRET, responsable de la publication) se règle dans `src/lib/site.ts` : les champs vides ne s'affichent pas.
 

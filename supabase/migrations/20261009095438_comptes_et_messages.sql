@@ -1,4 +1,6 @@
--- Comptes Take Ton Trail : à exécuter une fois dans l'éditeur SQL du projet Supabase.
+-- Comptes Take Ton Trail : saisons des utilisateurs, messages des formulaires, suppression de compte.
+-- Appliquée automatiquement par l'intégration GitHub de Supabase (ou à coller dans l'éditeur SQL).
+-- Rejouable sans risque : chaque objet est créé seulement s'il n'existe pas.
 -- Chaque utilisateur ne peut lire et modifier que sa propre saison.
 
 create table if not exists public.seasons (
