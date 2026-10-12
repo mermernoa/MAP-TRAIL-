@@ -1,6 +1,5 @@
 -- Comptes Take Ton Trail : saisons des utilisateurs, messages des formulaires, suppression de compte.
--- Appliquée automatiquement par l'intégration GitHub de Supabase (ou à coller dans l'éditeur SQL).
--- Rejouable sans risque : chaque objet est créé seulement s'il n'existe pas.
+-- Appliquée au projet Supabase le 12 octobre 2026 (versions alignées sur l'historique du projet).
 -- Chaque utilisateur ne peut lire et modifier que sa propre saison.
 
 create table if not exists public.seasons (
@@ -13,34 +12,28 @@ create table if not exists public.seasons (
 
 alter table public.seasons enable row level security;
 
--- Accès par l'API pour les utilisateurs connectés uniquement (aucun accès anonyme).
-revoke all on table public.seasons from anon;
 grant select, insert, update, delete on table public.seasons to authenticated;
 
-drop policy if exists "Lire sa saison" on public.seasons;
 create policy "Lire sa saison" on public.seasons
   for select to authenticated
   using ((select auth.uid()) = user_id);
 
-drop policy if exists "Créer sa saison" on public.seasons;
 create policy "Créer sa saison" on public.seasons
   for insert to authenticated
   with check ((select auth.uid()) = user_id);
 
-drop policy if exists "Modifier sa saison" on public.seasons;
 create policy "Modifier sa saison" on public.seasons
   for update to authenticated
   using ((select auth.uid()) = user_id)
   with check ((select auth.uid()) = user_id);
 
-drop policy if exists "Supprimer sa saison" on public.seasons;
 create policy "Supprimer sa saison" on public.seasons
   for delete to authenticated
   using ((select auth.uid()) = user_id);
 
 -- Suppression du compte par son propriétaire (bouton « Supprimer mon compte »).
 -- SECURITY DEFINER pour pouvoir effacer l'utilisateur ; la fonction ne touche qu'au compte
--- de l'appelant et n'est exécutable que par les utilisateurs connectés.
+-- de l'appelant et n'est exécutable que par les utilisateurs connectés (voir migration suivante).
 create or replace function public.delete_my_account()
 returns void
 language sql
@@ -50,7 +43,6 @@ as $$
   delete from auth.users where id = (select auth.uid());
 $$;
 
-revoke execute on function public.delete_my_account() from public, anon;
 grant execute on function public.delete_my_account() to authenticated;
 
 -- Messages des formulaires : contact, signalement d'erreur, proposition de course.
@@ -69,10 +61,8 @@ create table if not exists public.messages (
 
 alter table public.messages enable row level security;
 
-revoke all on table public.messages from anon, authenticated;
 grant insert on table public.messages to anon, authenticated;
 
-drop policy if exists "Envoyer un message" on public.messages;
 create policy "Envoyer un message" on public.messages
   for insert to anon, authenticated
   with check (true);

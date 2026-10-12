@@ -83,11 +83,11 @@ Pour un usage commercial ou à fort trafic, passez sur un fournisseur avec clé 
 
 La page **Mon compte** (`#/compte`) permet de créer un compte Take Ton Trail : la saison est alors enregistrée en ligne et synchronisée entre ordinateur et téléphone (la version modifiée le plus récemment l'emporte, les suppressions sont propagées). La page propose aussi des courses d'après celles déjà choisies (`src/lib/suggestions.ts` : distance et dénivelé voisins, un cran au-dessus de la plus longue course, mêmes massifs et circuits, assez de récupération entre deux courses) ; ces propositions fonctionnent aussi sans compte.
 
-Les comptes reposent sur [Supabase](https://supabase.com) (offre gratuite). Pour les activer :
+Les comptes reposent sur [Supabase](https://supabase.com) (offre gratuite). Mise en place :
 
-1. Créez un projet Supabase et reliez-le au dépôt (**Integrations → GitHub**, dossier `supabase`, option **Deploy to production**, branche de production `claude/interactive-trails-map-rxpucs`, celle qui est publiée) : chaque push applique les migrations de `supabase/migrations/` (table `seasons` protégée par des règles d'accès par utilisateur, table `messages`, fonction de suppression de compte). Sans l'intégration, collez le fichier de migration dans l'éditeur SQL ; il peut être rejoué sans risque.
+1. Le projet Supabase « TakeTonTrail » (`lmlafljyqfmargqlbdsf`, Europe) est créé et son schéma est en place : les migrations de `supabase/migrations/` (table `seasons` protégée par des règles d'accès par utilisateur, table `messages` en envoi seul, fonction de suppression de compte, droits réduits au nécessaire) sont appliquées et enregistrées dans l'historique du projet. Pour un nouveau changement, ajoutez une migration (`supabase migration new …`) et appliquez-la (intégration GitHub avec **Deploy to production** sur la branche `claude/interactive-trails-map-rxpucs`, ou éditeur SQL).
 2. Dans **Authentication → URL Configuration**, indiquez l'adresse du site (`https://mermernoa.github.io/MAP-TRAIL-/`) comme Site URL et ajoutez `https://mermernoa.github.io/MAP-TRAIL-/**` aux Redirect URLs.
-3. Renseignez l'URL du projet et sa clé publiable (`sb_publishable_…`, faite pour être publique) dans `.env.production` : `VITE_SUPABASE_URL=…` et `VITE_SUPABASE_PUBLISHABLE_KEY=…`. Ne mettez jamais la clé secrète dans le site.
+3. L'URL du projet et sa clé publiable (`sb_publishable_…`, faite pour être publique) sont dans `.env.production` (`VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`). Ne mettez jamais la clé secrète dans le site.
 4. Pour envoyer les e-mails de confirmation à grande échelle, configurez un serveur SMTP (Authentication → Emails) : l'envoi intégré de Supabase est limité à quelques messages par heure.
 
 Sans ces réglages, la page indique que les comptes arrivent bientôt et la saison reste enregistrée dans le navigateur.
