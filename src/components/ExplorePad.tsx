@@ -14,6 +14,12 @@ interface Props {
   autoHelp?: boolean;
   /** Carte insérée dans la page : un clic active la molette et le clavier. */
   contained?: boolean;
+  /**
+   * `map` : gestes habituels d'une carte et boutons simples (tourner, incliner,
+   * zoomer, survol automatique). `street` : regard et joystick façon Street View.
+   */
+  variant?: 'street' | 'map';
+  orbiting?: boolean;
 }
 
 const HELP_STORAGE = 'ttt-aide-3d';
@@ -37,7 +43,7 @@ function rememberHelp(key: string) {
 }
 
 /** Commandes d'exploration 3D : boussole, altitude, joystick, montée et descente. */
-export function ExplorePad({ explorer, bearing, pitch, altitude, helpKey, compact, autoHelp = true, contained }: Props) {
+export function ExplorePad({ explorer, bearing, pitch, altitude, helpKey, compact, autoHelp = true, contained, variant = 'street', orbiting = false }: Props) {
   const [help, setHelp] = useState(() => autoHelp && !helpSeen(helpKey));
   const closeHelp = () => {
     setHelp(false);
@@ -78,19 +84,40 @@ export function ExplorePad({ explorer, bearing, pitch, altitude, helpKey, compac
         </button>
       </div>
 
-      <div className="explore-pad">
-        <Joystick explorer={explorer} />
-        <div className="explore-climb" role="group" aria-label="Altitude">
-          <HoldButton explorer={explorer} input={{ climb: 1 }} label="Prendre de l’altitude">
-            <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M12 19V5M6 11l6-6 6 6" /></svg>
-          </HoldButton>
-          <HoldButton explorer={explorer} input={{ climb: -1 }} label="Descendre vers le sol">
-            <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M12 5v14M6 13l6 6 6-6" /></svg>
-          </HoldButton>
+      {variant === 'map' ? (
+        <MapPad explorer={explorer} orbiting={orbiting} />
+      ) : (
+        <div className="explore-pad">
+          <Joystick explorer={explorer} />
+          <div className="explore-climb" role="group" aria-label="Altitude">
+            <HoldButton explorer={explorer} input={{ climb: 1 }} label="Prendre de l’altitude">
+              <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M12 19V5M6 11l6-6 6 6" /></svg>
+            </HoldButton>
+            <HoldButton explorer={explorer} input={{ climb: -1 }} label="Descendre vers le sol">
+              <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M12 5v14M6 13l6 6 6-6" /></svg>
+            </HoldButton>
+          </div>
         </div>
-      </div>
+      )}
 
-      {help && (
+      {help && variant === 'map' && (
+        <div className="explore-help" role="dialog" aria-label="Se déplacer en 3D">
+          <strong>Se déplacer en 3D</strong>
+          <ul>
+            <li className="for-mouse"><b>Glisser</b> : déplacer la carte, comme en 2D</li>
+            <li className="for-mouse"><b>Clic droit</b> (ou Ctrl) <b>+ glisser</b> : tourner et incliner la vue</li>
+            <li className="for-mouse"><b>Molette</b> : zoomer</li>
+            <li className="for-touch"><b>Un doigt</b> : déplacer la carte</li>
+            <li className="for-touch"><b>Deux doigts</b> : pincer pour zoomer, tourner pour pivoter, glisser vers le haut pour incliner</li>
+            <li><b>Boutons</b> : tourner, incliner, zoomer, ou lancer le survol automatique</li>
+          </ul>
+          <button type="button" className="button button-primary" onClick={closeHelp}>
+            C’est parti
+          </button>
+        </div>
+      )}
+
+      {help && variant !== 'map' && (
         <div className="explore-help" role="dialog" aria-label="Se déplacer en 3D">
           <strong>Se déplacer en 3D</strong>
           <ul>
@@ -112,6 +139,53 @@ export function ExplorePad({ explorer, bearing, pitch, altitude, helpKey, compac
         </div>
       )}
     </>
+  );
+}
+
+const ICON = {
+  left: <path d="M9 7H4V2M4.5 7A8 8 0 1 1 4 13" />,
+  right: <path d="M15 7h5V2M19.5 7A8 8 0 1 0 20 13" />,
+  up: <path d="M3 17 12 7l9 10M3 21h18" />,
+  down: <path d="M3 7l9 10 9-10M3 3h18" />,
+  plus: <path d="M12 5v14M5 12h14" />,
+  minus: <path d="M5 12h14" />,
+};
+
+const Icon = ({ name }: { name: keyof typeof ICON }) => (
+  <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+    {ICON[name]}
+  </svg>
+);
+
+/** Commandes simples de la carte 3D : tourner, incliner, zoomer (maintenir pour continuer), survol. */
+function MapPad({ explorer, orbiting }: { explorer: MapExplorer | null; orbiting: boolean }) {
+  return (
+    <div className="explore-pad map-pad">
+      <button type="button" className={`map-pad-orbit ${orbiting ? 'is-on' : ''}`} aria-pressed={orbiting} onClick={() => explorer?.setOrbit(!orbiting)}>
+        <span className="map-pad-orbit-icon" aria-hidden="true" />
+        {orbiting ? 'Arrêter le survol' : 'Survol auto'}
+      </button>
+      <div className="map-pad-grid" role="group" aria-label="Orienter la vue">
+        <HoldButton explorer={explorer} input={{ turn: -0.7 }} label="Tourner vers la gauche">
+          <Icon name="left" />
+        </HoldButton>
+        <HoldButton explorer={explorer} input={{ tilt: 1 }} label="Regarder vers l’horizon">
+          <Icon name="up" />
+        </HoldButton>
+        <HoldButton explorer={explorer} input={{ turn: 0.7 }} label="Tourner vers la droite">
+          <Icon name="right" />
+        </HoldButton>
+        <HoldButton explorer={explorer} input={{ climb: -1 }} label="Zoomer">
+          <Icon name="plus" />
+        </HoldButton>
+        <HoldButton explorer={explorer} input={{ tilt: -1 }} label="Regarder vers le sol">
+          <Icon name="down" />
+        </HoldButton>
+        <HoldButton explorer={explorer} input={{ climb: 1 }} label="Dézoomer">
+          <Icon name="minus" />
+        </HoldButton>
+      </div>
+    </div>
   );
 }
 

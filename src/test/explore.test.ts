@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { destination, headingLabel, metersPerPixel } from '../lib/explore';
+import { destination, headingLabel, MapExplorer, metersPerPixel } from '../lib/explore';
 import { exaggerationForZoom } from '../lib/terrain3d';
 import { angleDelta, bearingBetween, elevationAtKm, flyoverSeconds, positionAtKm } from '../lib/flyover';
 
@@ -82,5 +82,61 @@ describe('survol du parcours', () => {
     expect(flyoverSeconds(42)).toBeCloseTo(39.64, 2);
     expect(flyoverSeconds(170)).toBeCloseTo(93.4, 6);
     expect(flyoverSeconds(400)).toBe(95);
+  });
+});
+
+describe('carte 3D aux gestes habituels', () => {
+  function fakeMap() {
+    const handlers = new Map<string, ((e: unknown) => void)[]>();
+    const state = { center: { lng: 6.87, lat: 45.86 }, zoom: 11, bearing: 0, pitch: 70 };
+    const disabled: string[] = [];
+    const handler = (name: string) => ({ disable: () => disabled.push(name), enable: () => {} });
+    const map = {
+      state,
+      disabled,
+      fire: (type: string, e: unknown) => handlers.get(type)?.forEach((fn) => fn(e)),
+      on: (type: string, fn: (e: unknown) => void) => handlers.set(type, [...(handlers.get(type) ?? []), fn]),
+      off: (type: string, fn: (e: unknown) => void) => handlers.set(type, (handlers.get(type) ?? []).filter((f) => f !== fn)),
+      getCenter: () => state.center,
+      getZoom: () => state.zoom,
+      getBearing: () => state.bearing,
+      getPitch: () => state.pitch,
+      jumpTo: (o: { bearing?: number; pitch?: number; zoom?: number }) => Object.assign(state, o),
+      dragPan: handler('dragPan'),
+      dragRotate: handler('dragRotate'),
+      scrollZoom: handler('scrollZoom'),
+      keyboard: handler('keyboard'),
+      doubleClickZoom: handler('doubleClickZoom'),
+    };
+    return map;
+  }
+
+  it('garde le glisser, la molette et le clavier de la carte', () => {
+    const map = fakeMap();
+    const explorer = new MapExplorer(map as never, { nativeGestures: true });
+    explorer.enable();
+    expect(map.disabled).toEqual([]);
+    explorer.disable();
+  });
+
+  it('tourne en survol automatique et s’arrête au premier geste', () => {
+    const map = fakeMap();
+    const changes: boolean[] = [];
+    const explorer = new MapExplorer(map as never, { nativeGestures: true, onOrbitChange: (on) => changes.push(on) });
+    explorer.enable();
+    explorer.setOrbit(true);
+    const step = (explorer as unknown as { step(t: number): void; last: number }).step.bind(explorer);
+    for (let t = 1; t <= 40; t++) {
+      (explorer as unknown as { last: number }).last = t * 100 - 100;
+      step(t * 100);
+    }
+    expect(map.state.bearing).toBeGreaterThan(5);
+    // Un mouvement programmé ne l'arrête pas, un glisser de l'utilisateur si.
+    map.fire('dragstart', {});
+    expect(explorer.isOrbiting).toBe(true);
+    map.fire('dragstart', { originalEvent: new Event('pointerdown') });
+    expect(explorer.isOrbiting).toBe(false);
+    expect(changes).toEqual([true, false]);
+    explorer.disable();
   });
 });

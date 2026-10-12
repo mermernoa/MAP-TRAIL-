@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { CollectionRail, MassifIndex, useCollectionEntries, useMassifEntries } from '../components/Explore';
 import { HomeSearch } from '../components/HomeSearch';
-import { RidgeScene } from '../components/RidgeScene';
+import { TopoScene } from '../components/TopoScene';
 import { MONTH_SHORT, parseYMD } from '../lib/dates';
 import type { Filters } from '../lib/filters';
 import { introDelay, useReveal } from '../lib/motion';
@@ -75,11 +75,7 @@ export function HomePage() {
   return (
     <div className="home">
       <section ref={heroRef} className="home-hero" aria-labelledby="home-title">
-        <div className="home-moon" aria-hidden="true">
-          <div className="home-moon-disc" />
-          <img className="home-moon-logo" src="brand/3t.webp" alt="" width={271} height={200} />
-        </div>
-        <RidgeScene host={heroRef} />
+        <TopoScene host={heroRef} />
         <div className="home-hero-scrim" aria-hidden="true" />
         <div className="home-hero-content">
           <h1 id="home-title" className="home-title">

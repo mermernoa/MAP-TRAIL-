@@ -202,6 +202,7 @@ export function RaceMap({ matches, selectedId, hoveredId, focusNonce, onSelect, 
   const [fastGpu] = useState(() => supportsWebGL() && hasFastWebGL());
   const explorerRef = useRef<MapExplorer | null>(null);
   const [view, setView] = useState({ bearing: 0, pitch: 0, altitude: null as number | null });
+  const [orbiting, setOrbiting] = useState(false);
 
   // Dernières valeurs des props, lues depuis les gestionnaires MapLibre.
   const latest = useRef({ matches, selectedId, hoveredId, onSelect, onHover, onBoundsChange, basemap, terrain, fastGpu: false });
@@ -235,7 +236,8 @@ export function RaceMap({ matches, selectedId, hoveredId, focusNonce, onSelect, 
     };
     map.on('move', report);
     map.on('idle', report);
-    explorerRef.current = new MapExplorer(map);
+    // En 3D, la carte garde ses gestes habituels ; les boutons à l'écran complètent.
+    explorerRef.current = new MapExplorer(map, { nativeGestures: true, onOrbitChange: setOrbiting });
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     let introDone = reduce || !latest.current.fastGpu;
     try {
@@ -382,7 +384,8 @@ export function RaceMap({ matches, selectedId, hoveredId, focusNonce, onSelect, 
       firstStyle.current = false;
       return;
     }
-    map.setStyle(basemapStyle(basemap));
+    // Rechargement complet : « style.load » remet le relief 3D et les courses sur le nouveau fond.
+    map.setStyle(basemapStyle(basemap), { diff: false });
   }, [basemap]);
 
   // Relief 3D et exploration.
@@ -454,7 +457,7 @@ export function RaceMap({ matches, selectedId, hoveredId, focusNonce, onSelect, 
           </button>
         )}
       </div>
-      {terrain && <ExplorePad explorer={explorerRef.current} bearing={view.bearing} pitch={view.pitch} altitude={view.altitude} helpKey="carte" />}
+      {terrain && <ExplorePad explorer={explorerRef.current} bearing={view.bearing} pitch={view.pitch} altitude={view.altitude} helpKey="carte-3d" variant="map" orbiting={orbiting} />}
       <div className="map-legend" aria-label="Légende : distance du plus long parcours">
         {DISTANCE_BANDS.map((b) => (
           <span key={b.id} className="map-legend-item">

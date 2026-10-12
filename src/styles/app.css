@@ -7,6 +7,7 @@
 
 html {
   -webkit-text-size-adjust: 100%;
+  overflow-x: clip;
 }
 
 body {
@@ -58,6 +59,8 @@ img {
 
 .sr-only {
   position: absolute !important;
+  top: 0;
+  left: 0;
   width: 1px;
   height: 1px;
   padding: 0;
@@ -1123,7 +1126,8 @@ textarea {
   left: 12px;
   display: flex;
   gap: 8px;
-  z-index: 2;
+  /* Au-dessus du bandeau 3D : le menu des fonds reste accessible en relief. */
+  z-index: 5;
 }
 
 .map-tool-group {
@@ -3623,6 +3627,82 @@ textarea {
   justify-self: start;
 }
 
+/* Carte 3D : boutons simples (tourner, incliner, zoomer) et survol automatique. */
+.map-pad {
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+}
+
+.map-pad-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 40px);
+  gap: 6px;
+  padding: 6px;
+  border-radius: var(--radius-l);
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 1px 4px rgba(7, 28, 63, 0.25);
+  backdrop-filter: blur(6px);
+}
+
+.map-pad-grid .explore-hold {
+  box-shadow: inset 0 0 0 1px rgba(7, 28, 63, 0.12);
+}
+
+.map-pad-orbit {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 36px;
+  padding: 0 14px 0 10px;
+  border: 0;
+  border-radius: 999px;
+  background: #ffffff;
+  color: #071c3f;
+  font-size: 13.5px;
+  font-weight: 700;
+  box-shadow: 0 1px 4px rgba(7, 28, 63, 0.25);
+}
+
+.map-pad-orbit.is-on {
+  background: #071c3f;
+  color: #ffffff;
+}
+
+/* Une orbite autour d'un point : elle tourne pendant le survol. */
+.map-pad-orbit-icon {
+  position: relative;
+  width: 18px;
+  height: 18px;
+  border: 2px solid currentColor;
+  border-radius: 50%;
+  border-right-color: transparent;
+}
+
+.map-pad-orbit-icon::after {
+  content: '';
+  position: absolute;
+  inset: 4px;
+  border-radius: 50%;
+  background: #fe66c4;
+}
+
+.map-pad-orbit.is-on .map-pad-orbit-icon {
+  animation: orbit-spin 1.6s linear infinite;
+}
+
+@keyframes orbit-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .map-pad-orbit.is-on .map-pad-orbit-icon {
+    animation: none;
+  }
+}
+
 /* Fiche de course ouverte (ordinateur) : les commandes passent à gauche de la fiche, au-dessus de la légende. */
 .map-page.has-preview .explore-pad {
   right: calc(min(380px, 100% - 80px) + 72px);
@@ -3685,6 +3765,22 @@ textarea {
   .explore-joystick {
     width: 96px;
     height: 96px;
+  }
+
+  /* Au-dessus de la légende, qui tient sur deux lignes. */
+  .race-map .map-pad {
+    bottom: 166px;
+  }
+
+  .map-pad-grid {
+    grid-template-columns: repeat(3, 36px);
+    gap: 5px;
+    padding: 5px;
+  }
+
+  .map-pad-grid .explore-hold {
+    width: 36px;
+    height: 36px;
   }
 
   .map-page.has-preview .explore-pad {

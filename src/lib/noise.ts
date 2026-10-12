@@ -1,6 +1,6 @@
 /**
  * Bruit de Perlin simplex 2D, avec graine : les mêmes reliefs à chaque visite.
- * Sert aux paysages dessinés (lignes de crête de l'accueil, silhouettes des massifs).
+ * Sert aux paysages dessinés (relief de l'accueil, silhouettes des massifs).
  */
 export function createNoise2D(seed = 1): (x: number, y: number) => number {
   // Générateur pseudo-aléatoire (mulberry32).

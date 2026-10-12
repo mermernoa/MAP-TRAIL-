@@ -97,7 +97,18 @@ interface Options {
   contained?: boolean;
   /** Molette ignorée parce que la carte n'a pas encore été activée d'un clic. */
   onWheelIgnored?: () => void;
+  /**
+   * Gestes habituels d'une carte (glisser pour se déplacer, molette pour zoomer,
+   * clic droit ou deux doigts pour tourner et incliner) au lieu du regard façon
+   * Street View. Les boutons à l'écran, le clavier et la manette restent actifs.
+   */
+  nativeGestures?: boolean;
+  /** Le survol automatique s'est arrêté (geste de l'utilisateur). */
+  onOrbitChange?: (on: boolean) => void;
 }
+
+/** Vitesse du survol automatique, en part de la vitesse de rotation maximale. */
+const ORBIT_TURN = 0.16;
 
 function isTyping(target: EventTarget | null): boolean {
   const el = target as HTMLElement | null;
@@ -120,6 +131,7 @@ export class MapExplorer {
   private gestureRotation = 0;
   private gestureScale = 1;
   private engaged = false;
+  private orbit = false;
   private cleanup: (() => void)[] = [];
 
   constructor(map: MapLibreMap, options: Options = {}) {
@@ -135,6 +147,21 @@ export class MapExplorer {
     if (this.active) return;
     this.active = true;
     const map = this.map;
+    if (this.options.nativeGestures) {
+      // Un geste de l'utilisateur interrompt le survol automatique.
+      const stopOrbit = (e: { originalEvent?: Event }) => {
+        if (e.originalEvent && this.orbit) this.setOrbit(false);
+      };
+      for (const type of ['dragstart', 'rotatestart', 'pitchstart', 'zoomstart'] as const) {
+        map.on(type, stopOrbit);
+        this.cleanup.push(() => map.off(type, stopOrbit));
+      }
+      const onPad = () => this.wake();
+      window.addEventListener('gamepadconnected', onPad);
+      this.cleanup.push(() => window.removeEventListener('gamepadconnected', onPad));
+      this.wake();
+      return;
+    }
     // On reprend la main sur les gestes qui, en 2D, déplacent ou zooment la carte.
     map.dragPan.disable();
     map.dragRotate.disable();
@@ -194,6 +221,11 @@ export class MapExplorer {
     this.drag = null;
     this.engaged = false;
     this.pointers.clear();
+    if (this.orbit) {
+      this.orbit = false;
+      this.options.onOrbitChange?.(false);
+    }
+    if (this.options.nativeGestures) return;
     const map = this.map;
     map.getCanvasContainer().classList.remove('explore-touch', 'explore-contained');
     map.dragPan.enable();
@@ -211,6 +243,18 @@ export class MapExplorer {
   setPad(input: Partial<ExploreInput>) {
     this.pad = { ...NO_INPUT, ...input };
     this.wake();
+  }
+
+  /** Survol automatique : la vue tourne lentement autour du point visé. */
+  setOrbit(on: boolean) {
+    if (this.orbit === on) return;
+    this.orbit = on;
+    this.options.onOrbitChange?.(on);
+    this.wake();
+  }
+
+  get isOrbiting() {
+    return this.orbit;
   }
 
   /** Remet le nord en haut. */
@@ -321,6 +365,7 @@ export class MapExplorer {
 
   private target(): ExploreInput {
     const t: ExploreInput = { ...this.pad };
+    if (this.orbit) t.turn = clamp(t.turn + ORBIT_TURN, -1, 1);
     for (const [axis, sign] of this.keys.values()) t[axis] = clamp(t[axis] + sign, -1, 1);
     const pads = typeof navigator !== 'undefined' && navigator.getGamepads ? navigator.getGamepads() : [];
     const gp = [...pads].find((g) => g && g.connected);
@@ -380,7 +425,7 @@ export class MapExplorer {
       this.emit();
     }
     const gamepad = typeof navigator !== 'undefined' && navigator.getGamepads && [...navigator.getGamepads()].some((g) => g && g.connected);
-    if (moving || this.keys.size || gamepad || Object.values(this.pad).some(Boolean)) {
+    if (moving || this.orbit || this.keys.size || gamepad || Object.values(this.pad).some(Boolean)) {
       this.raf = requestAnimationFrame((t) => this.step(t));
     }
   }

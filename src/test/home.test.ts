@@ -118,3 +118,27 @@ describe('formulaires sans Supabase', () => {
     expect(params.get('body')).toBe('Le prix a changé.\n\nRépondre à : coureur@example.fr');
   });
 });
+
+describe('relief de l’accueil', () => {
+  it('monte du départ, dans la vallée, jusqu’au sommet le plus haut', async () => {
+    const { buildTerrain, buildTrail, heightAt } = await import('../lib/topo');
+    const terrain = buildTerrain(90);
+    expect(Math.max(...terrain.heights)).toBeCloseTo(1, 5);
+    expect(Math.min(...terrain.heights)).toBeGreaterThanOrEqual(0);
+    const trail = buildTrail(terrain);
+    const start = trail[0];
+    const end = trail[trail.length - 1];
+    expect(end).toEqual(terrain.summit);
+    expect(heightAt(terrain, start.x, start.z)).toBeLessThan(0.4);
+    // Le sentier reste sur le massif, loin des bords fondus.
+    for (const p of trail) expect(Math.hypot(p.x, p.z)).toBeLessThan(0.8);
+  });
+
+  it('place les repères à l’écran avec la caméra', async () => {
+    const { lookAt, multiply, perspective, project } = await import('../lib/topo');
+    const mvp = multiply(perspective(0.6, 16 / 9, 0.1, 20), lookAt([0, 1, 3], [0, 0, 0]));
+    const center = project(mvp, [0, 0, 0], 1600, 900)!;
+    expect(center.x).toBeCloseTo(800, 0);
+    expect(project(mvp, [0, 0, 6], 1600, 900)).toBeNull();
+  });
+});
