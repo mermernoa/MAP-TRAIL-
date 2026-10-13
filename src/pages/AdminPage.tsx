@@ -196,7 +196,7 @@ function Overview({ stats }: { stats: Stats | null }) {
   if (!stats) return <p className="muted">Chargement des chiffres…</p>;
   const pageName = (path: string) => {
     if (path === '/') return 'Accueil';
-    const named: Record<string, string> = { '/carte': 'Carte', '/calendrier': 'Calendrier', '/compte': 'Mon compte', '/ma-saison': 'Ma saison', '/explorer': 'Explorer (ancienne page)' };
+    const named: Record<string, string> = { '/carte': 'Carte', '/calendrier': 'Calendrier', '/compte': 'Mon compte', '/ma-saison': 'Ma saison', '/explorer': 'Explorer (ancienne page)', '/trouver': 'Trouve ta course' };
     if (named[path]) return named[path];
     const race = path.match(/^\/course\/(.+)$/);
     if (race) return byId.get(race[1])?.name ?? path;
