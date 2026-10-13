@@ -4,7 +4,7 @@ import type { RaceEvent } from '../data/types';
 import { type Collection, COLLECTIONS, collectionItems } from '../lib/collections';
 import { MONTH_SHORT, parseYMD } from '../lib/dates';
 import { type Massif, MASSIFS, massifEvents } from '../lib/massifs';
-import { coverPhoto, massifCover, type Photo } from '../lib/photos';
+import { coverPhoto, MASSIF_PHOTO_CREDIT, massifCover, type Photo } from '../lib/photos';
 import { useSiteSettings } from '../store/siteSettings';
 import { RidgeProfile } from './RidgeProfile';
 
@@ -126,7 +126,7 @@ export function MassifIndex({ entries }: { entries: MassifEntry[] }) {
             <Link to={`/massif/${massif.slug}`} className="massif-line" style={{ '--pin-tilt': `${[-4, 3, -2, 4, -3][i % 5]}deg` } as React.CSSProperties}>
               <span className={`massif-pin ${photo ? '' : 'is-empty'}`} aria-hidden="true">
                 {photo ? (
-                  <img src={photo.src} alt="" loading="lazy" referrerPolicy="no-referrer" onError={() => markBroken(photo.src)} />
+                  <img src={photo.thumb ?? photo.src} alt="" loading="lazy" referrerPolicy="no-referrer" onError={() => markBroken(photo.src)} />
                 ) : (
                   <RidgeProfile kind={massif.relief} seed={i * 7 + 5} className="massif-pin-ridge" />
                 )}
@@ -141,7 +141,7 @@ export function MassifIndex({ entries }: { entries: MassifEntry[] }) {
                   )}
                   {longest > 0 && <span>Jusqu’à {longest} km</span>}
                 </span>
-                {photo && <span className="massif-line-credit">Photo : {photo.credit}</span>}
+                {photo && photo.credit !== MASSIF_PHOTO_CREDIT && <span className="massif-line-credit">Photo : {photo.credit}</span>}
               </span>
               <RidgeProfile kind={massif.relief} seed={i * 7 + 5} className="massif-line-ridge" />
               <span className="massif-line-count">{plural(count)}</span>

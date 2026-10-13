@@ -196,6 +196,8 @@ function Overview({ stats }: { stats: Stats | null }) {
   if (!stats) return <p className="muted">Chargement des chiffres…</p>;
   const pageName = (path: string) => {
     if (path === '/') return 'Accueil';
+    const named: Record<string, string> = { '/carte': 'Carte', '/calendrier': 'Calendrier', '/compte': 'Mon compte', '/ma-saison': 'Ma saison', '/explorer': 'Explorer' };
+    if (named[path]) return named[path];
     const race = path.match(/^\/course\/(.+)$/);
     if (race) return byId.get(race[1])?.name ?? path;
     return path;
@@ -212,20 +214,66 @@ function Overview({ stats }: { stats: Stats | null }) {
         <Tile label="Messages à traiter" value={stats.messages_open} hint={`${stats.messages_total} reçus`} />
         <Tile label="Courses en ligne" value={useCatalog.getState().events.length} />
       </section>
-      <DayBars title="Pages vues par jour" data={stats.views_by_day} unit="vue" />
-      <DayBars title="Inscriptions par jour" data={stats.signups_by_day} unit="inscription" />
+      <DayBars title="Pages vues par jour" data={stats.views_by_day} unit="vue" since="(le compteur tourne depuis le 13 octobre 2026)" />
+      <DayBars title="Inscriptions par jour" data={stats.signups_by_day} unit="inscription" since="sur la période" />
+      <RecentUsers />
       <section className="panel admin-list">
         <h2>Pages les plus vues (30 jours)</h2>
-        <RankList rows={stats.top_pages.map((p) => ({ label: pageName(p.path), sub: p.path, n: p.n }))} empty="Pas encore de visite comptée." />
+        <RankList rows={stats.top_pages.map((p) => ({ label: pageName(p.path), sub: p.path, n: p.n }))} empty="Pas encore de visite comptée (le compteur tourne depuis le 13 octobre 2026)." />
       </section>
       <section className="panel admin-list">
         <h2>Courses les plus ajoutées aux saisons</h2>
         <RankList
           rows={stats.top_races.map((r) => ({ label: byId.get(r.id)?.name ?? r.id, sub: `${r.n} ${r.n > 1 ? 'comptes' : 'compte'}`, n: r.n, to: `/course/${r.id}` }))}
-          empty="Aucune course ajoutée par un compte pour l’instant."
+          empty="Aucun compte n’a encore de course dans sa saison. Elles apparaîtront ici dès que les inscrits en ajouteront."
         />
       </section>
     </div>
+  );
+}
+
+/** Les dernières inscriptions, directement sur le tableau de bord. */
+function RecentUsers() {
+  const [users, setUsers] = useState<AdminUser[] | null>(null);
+  useEffect(() => {
+    void getSupabase()
+      .then((sb) => sb.rpc('admin_users'))
+      .then(({ data }) => setUsers((data as AdminUser[] | null) ?? []));
+  }, []);
+  return (
+    <section className="panel admin-list admin-recent">
+      <h2>Dernières inscriptions</h2>
+      {!users ? (
+        <p className="muted">Chargement…</p>
+      ) : !users.length ? (
+        <p className="muted">Aucun compte pour l’instant.</p>
+      ) : (
+        <div className="admin-table-wrap">
+          <table className="admin-table">
+            <thead>
+              <tr>
+                <th>Prénom</th>
+                <th>Inscription</th>
+                <th>Adresse confirmée</th>
+                <th>Dernière connexion</th>
+                <th>Courses dans sa saison</th>
+              </tr>
+            </thead>
+            <tbody>
+              {users.slice(0, 8).map((u) => (
+                <tr key={u.id}>
+                  <td>{u.name || '—'}</td>
+                  <td>{dateTime(u.created_at)}</td>
+                  <td>{u.confirmed ? 'Oui' : 'Non'}</td>
+                  <td>{dateTime(u.last_sign_in_at)}</td>
+                  <td>{u.races}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </section>
   );
 }
 
@@ -240,39 +288,62 @@ function Tile({ label, value, hint }: { label: string; value: number; hint?: str
 }
 
 /** Histogramme sur 30 jours : une barre par jour, valeur au survol. */
-function DayBars({ title, data, unit }: { title: string; data: { day: string; n: number }[]; unit: string }) {
+const dayKey = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+
+/**
+ * Histogramme par jour, du premier jour compté (au moins une semaine) à aujourd'hui,
+ * sur 30 jours au plus : avec peu d'historique, les barres restent lisibles.
+ */
+function DayBars({ title, data, unit, since }: { title: string; data: { day: string; n: number }[]; unit: string; since: string }) {
   const days = useMemo(() => {
     const map = new Map(data.map((d) => [d.day, Number(d.n)]));
-    const out: { day: string; n: number }[] = [];
     const now = new Date();
-    for (let i = 29; i >= 0; i--) {
-      const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() - i);
-      const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    const first = data.map((d) => d.day).sort()[0];
+    const span = first ? Math.round((new Date(`${dayKey(now)}T12:00:00`).getTime() - new Date(`${first}T12:00:00`).getTime()) / 864e5) : 0;
+    const count = Math.min(30, Math.max(7, span + 1));
+    const out: { day: string; n: number }[] = [];
+    for (let i = count - 1; i >= 0; i--) {
+      const key = dayKey(new Date(now.getFullYear(), now.getMonth(), now.getDate() - i));
       out.push({ day: key, n: map.get(key) ?? 0 });
     }
     return out;
   }, [data]);
   const max = Math.max(1, ...days.map((d) => d.n));
   const total = days.reduce((a, d) => a + d.n, 0);
+  const short = (day: string) => new Date(`${day}T12:00:00`).toLocaleDateString('fr-FR', { day: 'numeric', month: 'numeric' });
   const label = (d: { day: string; n: number }) =>
     `${new Date(`${d.day}T12:00:00`).toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric', month: 'short' })} : ${d.n} ${unit}${d.n > 1 ? 's' : ''}`;
+  const few = days.length <= 14;
   return (
     <section className="panel admin-chart">
       <h2>
-        {title} <small>{total.toLocaleString('fr-FR')} sur 30 jours</small>
+        {title}{' '}
+        <small>
+          {total.toLocaleString('fr-FR')} sur {days.length} jours
+        </small>
       </h2>
-      <div className="admin-bars" role="img" aria-label={`${title} : ${total} sur 30 jours, maximum ${max} en un jour`}>
+      <div className={`admin-bars ${few ? 'is-few' : ''}`} role="img" aria-label={`${title} : ${total} sur ${days.length} jours, maximum ${max} en un jour`}>
         {days.map((d) => (
           <span key={d.day} className="admin-bar" title={label(d)}>
+            {few && d.n > 0 && <b>{d.n}</b>}
             <span style={{ height: `${(d.n / max) * 100}%` }} />
           </span>
         ))}
       </div>
-      <div className="admin-bars-axis" aria-hidden="true">
-        <span>il y a 30 jours</span>
-        <span>max {max}</span>
-        <span>aujourd’hui</span>
-      </div>
+      {few ? (
+        <div className="admin-bars-days" aria-hidden="true">
+          {days.map((d) => (
+            <span key={d.day}>{short(d.day)}</span>
+          ))}
+        </div>
+      ) : (
+        <div className="admin-bars-axis" aria-hidden="true">
+          <span>{short(days[0].day)}</span>
+          <span>max {max}</span>
+          <span>aujourd’hui</span>
+        </div>
+      )}
+      {total === 0 && <p className="muted">Rien pour l’instant {since}.</p>}
     </section>
   );
 }
@@ -592,8 +663,8 @@ function MassifPhotos() {
     >
       <h2>Photos des massifs</h2>
       <p className="muted">
-        Adresse d’une image (https://…) et son crédit, obligatoire : auteur et licence. Sans photo choisie, le massif montre la meilleure photo de
-        course créditée. Wikimedia Commons propose des photos libres : clic droit sur l’image, « Copier l’adresse de l’image ».
+        Adresse d’une image (https://…) et son crédit, obligatoire : auteur et licence. Sans photo choisie ici, le massif montre la photo de
+        paysage fournie avec le site. Wikimedia Commons propose des photos libres : clic droit sur l’image, « Copier l’adresse de l’image ».
       </p>
       <div className="admin-massifs">
         {MASSIFS.map((m) => (

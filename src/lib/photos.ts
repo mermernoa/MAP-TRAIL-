@@ -5,8 +5,10 @@ export interface Photo {
   /** Auteur ou origine de la photo, tel que noté dans la feuille. */
   credit: string;
   event: RaceEvent;
-  /** Photo de paysage choisie dans l'espace admin, et non une photo de course. */
+  /** Photo de paysage du massif (fournie avec le site ou choisie dans l'espace admin), et non une photo de course. */
   chosen?: boolean;
+  /** Version légère, pour les vignettes. */
+  thumb?: string;
 }
 
 /** Image générique (ville, département) fournie par une plateforme, et non une photo de la course. */
@@ -38,9 +40,29 @@ export function coverPhoto(events: RaceEvent[], skip: Set<string> = new Set()): 
   return best?.photo ?? null;
 }
 
+/** Massifs dont la photo de paysage est fournie avec le site (public/massifs/). */
+const MASSIF_PHOTOS = new Set([
+  'alpes-du-nord',
+  'alpes-du-sud',
+  'provence',
+  'pyrenees',
+  'massif-central',
+  'vosges',
+  'jura',
+  'morvan',
+  'corse',
+  'bretagne',
+  'normandie',
+  'ile-de-france',
+  'outre-mer',
+  'littoral',
+  'plaines-et-campagnes',
+]);
+export const MASSIF_PHOTO_CREDIT = 'Take Ton Trail';
+
 /**
- * Photo d'un massif : celle choisie dans l'espace admin si elle existe, sinon la
- * meilleure photo de course créditée du massif.
+ * Photo d'un massif : celle choisie dans l'espace admin, sinon la photo de
+ * paysage fournie avec le site, sinon la meilleure photo de course créditée.
  */
 export function massifCover(
   slug: string,
@@ -49,5 +71,8 @@ export function massifCover(
 ): Photo | null {
   const pick = chosen[slug];
   if (pick && events[0]) return { src: pick.src, credit: pick.credit, event: events[0], chosen: true };
+  if (MASSIF_PHOTOS.has(slug) && events[0]) {
+    return { src: `massifs/${slug}.webp`, thumb: `massifs/${slug}-petit.webp`, credit: MASSIF_PHOTO_CREDIT, event: events[0], chosen: true };
+  }
   return coverPhoto(events);
 }

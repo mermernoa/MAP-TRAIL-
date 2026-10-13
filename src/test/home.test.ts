@@ -167,12 +167,17 @@ describe('réglages de l’espace admin', () => {
     expect(emailLinkToken('#/compte?type=email')).toBeNull();
   });
 
-  it('préfèrent la photo de massif choisie à une photo de course', async () => {
+  it('préfèrent la photo de massif choisie, puis celle du site, à une photo de course', async () => {
     const { massifCover } = await import('../lib/photos');
     const list = events.filter((e) => e.massif === 'Corse');
     const chosen = massifCover('corse', list, { corse: { src: 'https://exemple.fr/corse.jpg', credit: 'Auteur, CC BY-SA' } })!;
     expect(chosen.src).toBe('https://exemple.fr/corse.jpg');
     expect(chosen.chosen).toBe(true);
-    expect(massifCover('corse', list, {})?.chosen).toBeUndefined();
+    // Sans choix dans l'admin : la photo de paysage fournie avec le site.
+    const own = massifCover('corse', list, {})!;
+    expect(own.src).toBe('massifs/corse.webp');
+    expect(own.credit).toBeTruthy();
+    // Massif inconnu : retour à la meilleure photo de course.
+    expect(massifCover('inconnu', list, {})?.chosen).toBeUndefined();
   });
 });
