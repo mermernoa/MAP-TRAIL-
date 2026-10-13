@@ -1,11 +1,10 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { fmtKm, fmtM, fmtPrice } from '../components/bits';
-import { RidgeProfile } from '../components/RidgeProfile';
+import { TerrainHero } from '../components/TerrainHero';
 import type { Course, RaceEvent } from '../data/types';
 import { formatRange, MONTH_SHORT, parseYMD } from '../lib/dates';
 import { introDelay, prefersReducedMotion, useReveal, useTilt } from '../lib/motion';
-import { massifByName } from '../lib/massifs';
 import { cardPhoto } from '../lib/photos';
 import { type Spotlight, spotlights } from '../lib/spotlights';
 import { raceWeekend } from '../lib/weekend';
@@ -21,7 +20,7 @@ function mainCourse(e: RaceEvent, today: string): Course {
 
 /**
  * « À la une » : les courses mises en avant, sans filtre ni formulaire. En tête,
- * la course du moment sur le relief 3D de l'accueil ; puis nos coups de cœur
+ * la course du moment sur le relief 3D réel de son lieu ; puis nos coups de cœur
  * (espace admin), une course par thème et le prochain week-end de course.
  */
 export function HighlightsPage() {
@@ -107,17 +106,19 @@ function SectionBar({ id, title, text }: { id: string; title: string; text: stri
   );
 }
 
+/** Position du lieu dans l'en-tête : à droite du texte sur ordinateur, au-dessus sur mobile. */
+const leadFocus = () => (window.matchMedia('(max-width: 760px)').matches ? { x: 0.5, y: 0.3 } : { x: 0.68, y: 0.5 });
+
 /**
- * En tête : la photo de la course du moment en plein écran, qui avance doucement,
- * et des crêtes en premier plan qui glissent en profondeur avec la souris et au
- * défilement. La ligne de crête la plus proche se dessine en rose.
+ * En tête : le relief réel du lieu de départ, en 3D sous imagerie satellite,
+ * qui tourne lentement comme vu d'un drone. Une épingle rose marque le lieu ;
+ * la photo de la course flotte à côté comme une carte postale et suit la souris.
  */
 function LeadHero({ event, course, reason, today }: { event: RaceEvent; course: Course; reason: string; today: string }) {
   const heroRef = useRef<HTMLElement>(null);
   const [failed, setFailed] = useState(false);
   const photo = cardPhoto(event);
   const showPhoto = photo && !failed;
-  const relief = massifByName(event.massif)?.relief ?? 'collines';
   const days = Math.max(0, Math.round((Date.parse(`${course.start.slice(0, 10)}T12:00:00Z`) - Date.parse(`${today}T12:00:00Z`)) / 864e5));
   const minPrice = Math.min(...event.courses.map((c) => c.priceEur ?? Infinity));
 
@@ -159,15 +160,27 @@ function LeadHero({ event, course, reason, today }: { event: RaceEvent; course: 
 
   return (
     <section ref={heroRef} className="hl-hero" aria-labelledby="hl-title">
-      <div className="hl-photo" aria-hidden="true">
-        {showPhoto ? <img src={photo.src} alt="" referrerPolicy="no-referrer" onError={() => setFailed(true)} /> : <span className="hl-photo-blank" />}
+      <div className="hl-ground" aria-hidden="true">
+        {showPhoto ? <img className="hl-ground-photo" src={photo.src} alt="" referrerPolicy="no-referrer" /> : <span className="hl-ground-blank" />}
+        <TerrainHero lat={event.lat} lng={event.lng} track={null} focus={leadFocus} />
       </div>
       <div className="hl-shade" aria-hidden="true" />
-      <div className="hl-ridges" aria-hidden="true">
-        <RidgeProfile kind="hautes" seed={11} className="hl-ridge hl-ridge-far" />
-        <RidgeProfile kind="ballons" seed={23} className="hl-ridge hl-ridge-mid" />
-        <RidgeProfile kind={relief} seed={37} className="hl-ridge hl-ridge-near" />
+      <div className="hl-pin" aria-hidden="true">
+        <span className="hl-pin-ring" />
+        <span className="hl-pin-ring" />
+        <span className="hl-pin-dot" />
+        <span className="hl-pin-label">{event.city}</span>
       </div>
+      {showPhoto && (
+        <figure className="hl-postcard">
+          <img src={photo.thumb ?? photo.src} alt="" referrerPolicy="no-referrer" onError={() => setFailed(true)} />
+          <figcaption>
+            <a href={photo.src} target="_blank" rel="noreferrer">
+              Photo : {photo.credit}
+            </a>
+          </figcaption>
+        </figure>
+      )}
       <div className="hl-hero-inner">
         <p className="hl-eyebrow">
           <span>À la une</span> {reason}
@@ -177,6 +190,9 @@ function LeadHero({ event, course, reason, today }: { event: RaceEvent; course: 
         </h1>
         <p className="hl-place">
           {event.city}, {event.department ?? event.region} · {formatRange(event.dateStart, event.dateEnd)}
+        </p>
+        <p className="hl-countdown">
+          <b>J-{days}</b> avant le départ
         </p>
         <ul className="hl-stats" aria-label="En chiffres">
           <li>
@@ -188,7 +204,7 @@ function LeadHero({ event, course, reason, today }: { event: RaceEvent; course: 
             </li>
           )}
           <li>
-            <b>J-{days}</b> avant le départ
+            <b>{event.courses.length}</b> parcours
           </li>
           {Number.isFinite(minPrice) && (
             <li>
@@ -200,11 +216,6 @@ function LeadHero({ event, course, reason, today }: { event: RaceEvent; course: 
           Voir la course
         </Link>
       </div>
-      {showPhoto && (
-        <a className="hl-credit" href={photo.src} target="_blank" rel="noreferrer">
-          Photo : {photo.credit}
-        </a>
-      )}
     </section>
   );
 }

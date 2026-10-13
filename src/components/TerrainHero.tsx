@@ -7,6 +7,8 @@ interface Props {
   lat: number;
   lng: number;
   track: ParsedTrack | null;
+  /** Où placer le lieu à l'écran (fractions de la largeur et de la hauteur) ; centre par défaut. */
+  focus?: () => { x: number; y: number };
 }
 
 /**
@@ -14,8 +16,10 @@ interface Props {
  * imagerie satellite. La caméra tourne lentement autour du site, comme un
  * drone, tant que l'en-tête est à l'écran.
  */
-export function TerrainHero({ lat, lng, track }: Props) {
+export function TerrainHero({ lat, lng, track, focus }: Props) {
   const ref = useRef<HTMLDivElement>(null);
+  const focusRef = useRef(focus);
+  focusRef.current = focus;
   const mapRef = useRef<MapLibreMap | null>(null);
   const [ready, setReady] = useState(false);
   const [failed, setFailed] = useState(false);
@@ -47,6 +51,21 @@ export function TerrainHero({ lat, lng, track }: Props) {
       // En haut à droite : l'attribution ne recouvre pas le titre de la course.
       map.addControl(new maplibregl.AttributionControl({ compact: true }), 'top-right');
       mapRef.current = map;
+      // Décale le centre de la vue pour laisser la place au texte.
+      const applyFocus = () => {
+        const f = focusRef.current?.();
+        if (!f) return;
+        const w = container.clientWidth;
+        const h = container.clientHeight;
+        map.setPadding({
+          left: Math.max(0, 2 * f.x - 1) * w,
+          right: Math.max(0, 1 - 2 * f.x) * w,
+          top: Math.max(0, 2 * f.y - 1) * h,
+          bottom: Math.max(0, 1 - 2 * f.y) * h,
+        });
+      };
+      applyFocus();
+      map.on('resize', applyFocus);
       map.on('load', () => {
         if (!relief) {
           setReady(true);
