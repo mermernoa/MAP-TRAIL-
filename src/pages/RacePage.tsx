@@ -482,7 +482,7 @@ function CourseOverview({ event, course }: { event: RaceEvent; course: Course })
           </div>
         )}
       </dl>
-      {course.technicity != null && <p className="muted small">{TECHNICITY_LABELS[course.technicity].hint}</p>}
+      {course.technicity != null && !course.technicityEstimated && <p className="muted small">{TECHNICITY_LABELS[course.technicity].hint}</p>}
       {course.qualifierFor && <p className="small">Qualificative pour : {course.qualifierFor}</p>}
       {course.mandatoryGear && <p className="small">Matériel obligatoire : {course.mandatoryGear}</p>}
     </section>

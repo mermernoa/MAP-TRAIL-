@@ -49,6 +49,7 @@ export function RaceRow({ event, courses = event.courses, showPrice = false }: P
         <span className="race-item-meta">
           <PopularityLabel level={event.popularity} />
           <EventBadge event={event} />
+          {event.dateStatus === 'estimated' && <span className="tag tag-soft">Date prévisionnelle</span>}
           {courses.every((c) => c.full === 'yes') && <span className="tag tag-full">Complet</span>}
         </span>
       </Link>
