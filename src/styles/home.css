@@ -2225,196 +2225,219 @@ button.list-more {
 }
 
 /* ---------- Trouve ta course (#/trouver) ---------- */
-.finder-hero {
-  padding: 40px 32px 44px;
-  background:
-    radial-gradient(60% 80% at 85% 0%, rgba(197, 84, 165, 0.35), transparent 70%),
-    radial-gradient(50% 70% at 0% 100%, rgba(133, 65, 131, 0.35), transparent 70%),
-    #071c3f;
-  color: #ffffff;
-}
-
-.finder-hero-inner {
+.finder-page {
   display: grid;
-  gap: 14px;
+  gap: 56px;
   max-width: 1240px;
   margin: 0 auto;
+  padding: 56px 32px 88px;
 }
 
-.finder-hero h1 {
-  margin: 0;
-  font-family: var(--font-display);
-  font-weight: 400;
-  font-size: clamp(42px, 6vw, 76px);
-  line-height: 1;
-  -webkit-text-stroke: 0.05em #071c3f;
-  paint-order: stroke fill;
-}
-
-.finder-lede {
-  max-width: 52ch;
-  margin: 0 0 8px;
-  font-size: 17px;
-  color: rgba(255, 255, 255, 0.86);
-}
-
-.finder-steps {
-  display: grid;
-  gap: 16px;
-}
-
-.finder-question {
-  display: grid;
-  gap: 10px;
+.finder-page > * {
   min-width: 0;
-  margin: 0;
-  padding: 0;
-  border: 0;
 }
 
-.finder-question legend {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 0;
-  margin-bottom: 10px;
-  font-family: var(--font-display);
-  font-size: 22px;
-}
-
-.finder-question legend small {
-  font-family: var(--font);
-  font-size: 12.5px;
-  color: rgba(255, 255, 255, 0.6);
-}
-
-.finder-step {
+.finder-head {
   display: grid;
-  place-items: center;
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  background: #fe66c4;
-  color: #071c3f;
-  font-family: var(--font);
+  gap: 22px;
+}
+
+.finder-kicker {
+  margin: 0;
   font-weight: 800;
-  font-size: 14px;
+  font-size: 13px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--plum-light);
 }
 
-.finder-choices {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
+/* La phrase à compléter, en grand. */
+.finder-sentence {
+  max-width: 22ch;
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(34px, 4.6vw, 64px);
+  line-height: 1.25;
+  color: var(--ink);
+  text-wrap: pretty;
 }
 
-.finder-choice {
+.finder-slot {
+  position: relative;
+  display: inline-block;
+}
+
+.finder-blank {
+  display: inline;
+  padding: 0 0.12em;
+  border: 0;
+  border-bottom: 0.08em dashed currentColor;
+  border-radius: 0;
+  background: none;
+  color: #854183;
+  font: inherit;
+  line-height: inherit;
+  cursor: pointer;
+  transition: color 0.15s ease, background 0.15s ease;
+}
+
+.finder-blank:hover,
+.finder-blank.is-open {
+  color: var(--ink);
+  background: rgba(133, 65, 131, 0.1);
+}
+
+.finder-blank.is-set {
+  border-bottom-style: solid;
+  color: var(--ink);
+  background: linear-gradient(transparent 62%, rgba(133, 65, 131, 0.22) 62%);
+}
+
+.finder-x {
+  margin-left: 0.15em;
+  font-family: var(--font);
+  font-size: 0.5em;
+  vertical-align: middle;
+  color: var(--ink-3);
+}
+
+.finder-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  z-index: 20;
+  display: grid;
+  gap: 2px;
+  width: max-content;
+  min-width: 220px;
+  max-width: min(340px, calc(100vw - 32px));
+  max-height: 340px;
+  overflow-y: auto;
+  padding: 6px;
+  border: 2px solid var(--ink);
+  border-radius: 14px;
+  background: #ffffff;
+  box-shadow: 4px 6px 0 var(--ink);
+  font-family: var(--font);
+  font-size: 15px;
+  line-height: 1.3;
+  animation: finder-menu-in 0.18s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.finder-menu.is-wide {
+  min-width: 260px;
+}
+
+@keyframes finder-menu-in {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+}
+
+.finder-option {
   display: grid;
   gap: 1px;
-  min-height: 42px;
-  padding: 8px 16px;
-  border: 2px solid rgba(255, 255, 255, 0.28);
-  border-radius: 14px;
-  background: rgba(255, 255, 255, 0.06);
-  color: #ffffff;
+  padding: 9px 12px;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  color: var(--ink);
   font: inherit;
   font-weight: 700;
-  font-size: 14.5px;
   text-align: left;
   cursor: pointer;
-  transition:
-    background 0.15s ease,
-    border-color 0.15s ease,
-    transform 0.15s ease;
 }
 
-.finder-choice small {
+.finder-option small {
   font-weight: 500;
-  font-size: 12px;
-  color: rgba(255, 255, 255, 0.65);
+  font-size: 12.5px;
+  color: var(--ink-3);
 }
 
-.finder-choice:hover {
-  border-color: #fe66c4;
+.finder-option:hover,
+.finder-option:focus-visible {
+  background: #f3eaf4;
+}
+
+.finder-option.is-on {
+  background: var(--ink);
+  color: #ffffff;
+}
+
+.finder-option.is-on small {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.finder-extras {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: var(--ink-3);
+}
+
+.finder-add {
+  padding: 6px 12px;
+  border: 1.5px solid var(--line-strong);
+  border-radius: 999px;
+  background: #ffffff;
+  color: var(--ink);
+  font: inherit;
+  font-weight: 700;
+  font-size: 13.5px;
+  cursor: pointer;
+  transition: border-color 0.15s ease, transform 0.15s ease;
+}
+
+.finder-add:hover {
+  border-color: var(--ink);
   transform: translateY(-1px);
 }
 
-.finder-choice.is-on {
-  border-color: #071c3f;
-  background: #fe66c4;
-  color: #071c3f;
-  box-shadow: 3px 4px 0 #ffffff;
-}
-
-.finder-choice.is-on small {
-  color: rgba(7, 28, 63, 0.75);
-}
-
-.finder-select select {
-  min-height: 44px;
-  min-width: min(320px, 100%);
-  padding: 0 14px;
-  border: 2px solid rgba(255, 255, 255, 0.28);
-  border-radius: 14px;
-  background: #ffffff;
-  color: #071c3f;
-  font: inherit;
-  font-weight: 700;
-}
-
-.finder-body {
+.finder-section {
   display: grid;
-  gap: 48px;
-  max-width: 1240px;
-  margin: 0 auto;
-  padding: 36px 32px 80px;
+  gap: 18px;
 }
 
-.finder-body > * {
-  min-width: 0;
-}
-
-.finder-hint,
-.finder-empty {
-  margin: 0;
-  padding: 18px 20px;
-  border: 2px dashed var(--line-strong);
-  border-radius: 14px;
-  color: var(--ink-3);
-  font-size: 15px;
-}
-
-.finder-results {
-  display: grid;
-  gap: 14px;
-}
-
-.finder-results-head {
+.finder-bar {
   display: flex;
   flex-wrap: wrap;
-  align-items: center;
+  align-items: baseline;
   justify-content: space-between;
-  gap: 12px;
+  gap: 8px 16px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid var(--ink);
 }
 
-.finder-results-head h2 {
+.finder-bar h2 {
   margin: 0;
   font-family: var(--font-display);
   font-weight: 400;
   font-size: clamp(28px, 3vw, 38px);
 }
 
-.finder-results-actions {
+.finder-bar p {
+  margin: 0;
+  color: var(--ink-3);
+}
+
+.finder-bar-actions {
   display: flex;
   gap: 8px;
 }
 
-.finder-more {
-  justify-self: center;
+.finder-empty {
+  margin: 0;
+  padding: 18px 20px;
+  border: 2px dashed var(--line-strong);
+  border-radius: 14px;
+  color: var(--ink-3);
 }
 
-.finder-spots {
-  display: grid;
-  gap: 18px;
+.finder-more {
+  justify-self: center;
 }
 
 .spot-grid {
@@ -2442,12 +2465,10 @@ button.list-more {
   overflow: hidden;
   border: 2px solid #071c3f;
   border-radius: 18px;
-  background:
-    radial-gradient(80% 60% at 80% 10%, rgba(197, 84, 165, 0.5), transparent 70%),
-    #071c3f;
+  background: #071c3f;
   color: #ffffff;
   text-decoration: none;
-  box-shadow: 4px 6px 0 #c554a5;
+  box-shadow: 4px 6px 0 rgba(7, 28, 63, 0.35);
   isolation: isolate;
   transition:
     transform 0.25s cubic-bezier(0.3, 1.4, 0.5, 1),
@@ -2457,7 +2478,7 @@ button.list-more {
 .spot-card:hover,
 .spot-card:focus-visible {
   transform: translate(-2px, -3px);
-  box-shadow: 6px 9px 0 #fe66c4;
+  box-shadow: 6px 10px 0 rgba(7, 28, 63, 0.4);
 }
 
 .spot-card > img {
@@ -2509,7 +2530,7 @@ button.list-more {
   margin-bottom: 4px;
   padding: 3px 10px;
   border-radius: 999px;
-  background: #fe66c4;
+  background: #ffffff;
   color: #071c3f;
   font-size: 12px;
   font-weight: 800;
@@ -2556,22 +2577,25 @@ button.list-more {
 }
 
 @media (max-width: 760px) {
-  .finder-hero {
-    padding: 28px 16px 32px;
+  .finder-page {
+    padding: 32px 16px 64px;
+    gap: 40px;
   }
 
-  .finder-question legend {
-    font-size: 19px;
+  .finder-sentence {
+    font-size: clamp(28px, 8.4vw, 40px);
   }
 
-  .finder-choice {
-    padding: 7px 12px;
-    font-size: 14px;
-  }
-
-  .finder-body {
-    padding: 28px 16px 64px;
-    gap: 36px;
+  /* Sur téléphone, la liste s'ouvre en bas de l'écran, bien lisible. */
+  .finder-menu {
+    position: fixed;
+    top: auto;
+    left: 12px;
+    right: 12px;
+    bottom: 12px;
+    width: auto;
+    max-width: none;
+    max-height: 60vh;
   }
 
   .spot-card {

@@ -21,40 +21,40 @@ export interface Criteria {
 
 export const NO_CRITERIA: Criteria = { when: 'any', distance: 'any', terrain: 'any', extras: [], region: '' };
 
-export const WHEN_OPTIONS: { id: When; label: string; days?: [number, number] }[] = [
-  { id: 'any', label: 'Peu importe' },
-  { id: 'month', label: 'Dans le mois', days: [0, 30] },
-  { id: 'next', label: 'Le mois suivant', days: [30, 60] },
-  { id: 'season', label: 'Dans 2 à 4 mois', days: [60, 120] },
-  { id: 'later', label: 'Plus tard', days: [120, 400] },
+export const WHEN_OPTIONS: { id: When; label: string; phrase: string; days?: [number, number] }[] = [
+  { id: 'any', label: 'Peu importe', phrase: 'à n’importe quelle date' },
+  { id: 'month', label: 'Dans le mois', phrase: 'dans le mois', days: [0, 30] },
+  { id: 'next', label: 'Le mois suivant', phrase: 'le mois suivant', days: [30, 60] },
+  { id: 'season', label: 'Dans 2 à 4 mois', phrase: 'd’ici 2 à 4 mois', days: [60, 120] },
+  { id: 'later', label: 'Plus tard', phrase: 'plus tard dans la saison', days: [120, 400] },
 ];
 
-export const DISTANCE_OPTIONS: { id: Distance; label: string; hint: string; km?: [number, number] }[] = [
-  { id: 'any', label: 'Peu importe', hint: '' },
-  { id: 'short', label: 'Découverte', hint: 'moins de 15 km', km: [0, 15] },
-  { id: 'mid', label: 'Court', hint: '15 à 30 km', km: [15, 30] },
-  { id: 'marathon', label: 'Long', hint: '30 à 50 km', km: [30, 50] },
-  { id: 'long', label: 'Très long', hint: '50 à 80 km', km: [50, 80] },
-  { id: 'ultra', label: 'Ultra', hint: '80 km et plus', km: [80, Infinity] },
+export const DISTANCE_OPTIONS: { id: Distance; label: string; hint: string; phrase: string; km?: [number, number] }[] = [
+  { id: 'any', label: 'Peu importe', hint: '', phrase: 'de toute distance' },
+  { id: 'short', label: 'Découverte', hint: 'moins de 15 km', phrase: 'de moins de 15 km', km: [0, 15] },
+  { id: 'mid', label: 'Court', hint: '15 à 30 km', phrase: 'de 15 à 30 km', km: [15, 30] },
+  { id: 'marathon', label: 'Long', hint: '30 à 50 km', phrase: 'de 30 à 50 km', km: [30, 50] },
+  { id: 'long', label: 'Très long', hint: '50 à 80 km', phrase: 'de 50 à 80 km', km: [50, 80] },
+  { id: 'ultra', label: 'Ultra', hint: '80 km et plus', phrase: 'de plus de 80 km', km: [80, Infinity] },
 ];
 
 /** Terrain d'après le dénivelé par kilomètre (D+ connu seulement). */
-export const TERRAIN_OPTIONS: { id: Terrain; label: string; hint: string; slope?: [number, number] }[] = [
-  { id: 'any', label: 'Peu importe', hint: '' },
-  { id: 'flat', label: 'Roulant', hint: 'moins de 20 m de D+ par km', slope: [0, 20] },
-  { id: 'hilly', label: 'Vallonné', hint: '20 à 45 m par km', slope: [20, 45] },
-  { id: 'mountain', label: 'Montagne', hint: 'plus de 45 m par km', slope: [45, Infinity] },
+export const TERRAIN_OPTIONS: { id: Terrain; label: string; hint: string; phrase: string; slope?: [number, number] }[] = [
+  { id: 'any', label: 'Peu importe', hint: '', phrase: 'sur tout terrain' },
+  { id: 'flat', label: 'Roulant', hint: 'moins de 20 m de D+ par km', phrase: 'plutôt roulante', slope: [0, 20] },
+  { id: 'hilly', label: 'Vallonné', hint: '20 à 45 m par km', phrase: 'vallonnée', slope: [20, 45] },
+  { id: 'mountain', label: 'Montagne', hint: 'plus de 45 m par km', phrase: 'en montagne', slope: [45, Infinity] },
 ];
 
-export const EXTRA_OPTIONS: { id: Extra; label: string }[] = [
-  { id: 'night', label: 'De nuit' },
-  { id: 'duo', label: 'En duo ou en relais' },
-  { id: 'kv', label: 'Kilomètre vertical' },
-  { id: 'urban', label: 'En ville' },
-  { id: 'utmb', label: 'UTMB Index' },
-  { id: 'cheap', label: 'Petit prix (25 € max)' },
-  { id: 'mythic', label: 'Les mythiques' },
-  { id: 'confidential', label: 'Les pépites confidentielles' },
+export const EXTRA_OPTIONS: { id: Extra; label: string; phrase: string }[] = [
+  { id: 'night', label: 'De nuit', phrase: 'de nuit' },
+  { id: 'duo', label: 'En duo ou en relais', phrase: 'à faire à deux' },
+  { id: 'kv', label: 'Kilomètre vertical', phrase: 'en kilomètre vertical' },
+  { id: 'urban', label: 'En ville', phrase: 'en ville' },
+  { id: 'utmb', label: 'UTMB Index', phrase: 'qui rapporte des points UTMB Index' },
+  { id: 'cheap', label: 'Petit prix (25 € max)', phrase: 'à petit prix' },
+  { id: 'mythic', label: 'Les mythiques', phrase: 'mythique' },
+  { id: 'confidential', label: 'Les pépites confidentielles', phrase: 'confidentielle' },
 ];
 
 const day = (c: Course) => c.start.slice(0, 10);
