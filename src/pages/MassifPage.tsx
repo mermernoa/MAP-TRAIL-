@@ -46,7 +46,7 @@ export function MassifPage() {
       <div className="page-message">
         <h1>Massif introuvable</h1>
         <p>Cette adresse ne correspond à aucun massif.</p>
-        <Link to="/explorer" className="button button-primary">
+        <Link to="/" state={{ section: 'massifs' }} className="button button-primary">
           Voir tous les massifs
         </Link>
       </div>
@@ -73,7 +73,9 @@ export function MassifPage() {
           <nav className="breadcrumb" aria-label="Fil d’Ariane">
             <Link to="/">Accueil</Link>
             <span aria-hidden="true">/</span>
-            <Link to="/explorer">Massifs</Link>
+            <Link to="/" state={{ section: 'massifs' }}>
+              Massifs
+            </Link>
           </nav>
           <h1 className="race-title">{massif.title}</h1>
           <p className="race-hero-place">Vue en relief : {massif.view.place}</p>

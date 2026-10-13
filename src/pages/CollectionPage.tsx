@@ -43,7 +43,7 @@ export function CollectionPage() {
       <div className="page-message">
         <h1>Collection introuvable</h1>
         <p>Cette adresse ne correspond à aucune collection.</p>
-        <Link to="/explorer" className="button button-primary">
+        <Link to="/" state={{ section: 'collections' }} className="button button-primary">
           Voir toutes les collections
         </Link>
       </div>
@@ -77,7 +77,9 @@ export function CollectionPage() {
           <nav className="breadcrumb" aria-label="Fil d’Ariane">
             <Link to="/">Accueil</Link>
             <span aria-hidden="true">/</span>
-            <Link to="/explorer">Collections</Link>
+            <Link to="/" state={{ section: 'collections' }}>
+              Collections
+            </Link>
           </nav>
           <h1 className="race-title">{collection.title}</h1>
           <p className="collection-lede">{collection.text}</p>

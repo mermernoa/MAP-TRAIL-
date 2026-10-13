@@ -2,10 +2,12 @@ import { Link } from 'react-router-dom';
 import { CONTACT_EMAIL } from '../lib/messages';
 import { INFO_LINKS } from '../pages/InfoPages';
 
-const EXPLORE_LINKS = [
+const EXPLORE_LINKS: { to: string; label: string; section?: string }[] = [
   { to: '/carte', label: 'Carte' },
   { to: '/calendrier', label: 'Calendrier' },
-  { to: '/explorer', label: 'Collections et massifs' },
+  { to: '/trouver', label: 'Trouve ta course' },
+  { to: '/', label: 'Collections', section: 'collections' },
+  { to: '/', label: 'Massifs', section: 'massifs' },
   { to: '/ma-saison', label: 'Ma saison' },
   { to: '/compte', label: 'Mon compte' },
 ];
@@ -28,8 +30,10 @@ export function SiteFooter() {
           <h2>Explorer</h2>
           <ul>
             {EXPLORE_LINKS.map((l) => (
-              <li key={l.to}>
-                <Link to={l.to}>{l.label}</Link>
+              <li key={l.label}>
+                <Link to={l.to} state={l.section ? { section: l.section } : undefined}>
+                  {l.label}
+                </Link>
               </li>
             ))}
           </ul>

@@ -2223,3 +2223,358 @@ button.list-more {
     bottom: 12px;
   }
 }
+
+/* ---------- Trouve ta course (#/trouver) ---------- */
+.finder-hero {
+  padding: 40px 32px 44px;
+  background:
+    radial-gradient(60% 80% at 85% 0%, rgba(197, 84, 165, 0.35), transparent 70%),
+    radial-gradient(50% 70% at 0% 100%, rgba(133, 65, 131, 0.35), transparent 70%),
+    #071c3f;
+  color: #ffffff;
+}
+
+.finder-hero-inner {
+  display: grid;
+  gap: 14px;
+  max-width: 1240px;
+  margin: 0 auto;
+}
+
+.finder-hero h1 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(42px, 6vw, 76px);
+  line-height: 1;
+  -webkit-text-stroke: 0.05em #071c3f;
+  paint-order: stroke fill;
+}
+
+.finder-lede {
+  max-width: 52ch;
+  margin: 0 0 8px;
+  font-size: 17px;
+  color: rgba(255, 255, 255, 0.86);
+}
+
+.finder-steps {
+  display: grid;
+  gap: 16px;
+}
+
+.finder-question {
+  display: grid;
+  gap: 10px;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.finder-question legend {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0;
+  margin-bottom: 10px;
+  font-family: var(--font-display);
+  font-size: 22px;
+}
+
+.finder-question legend small {
+  font-family: var(--font);
+  font-size: 12.5px;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.finder-step {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #fe66c4;
+  color: #071c3f;
+  font-family: var(--font);
+  font-weight: 800;
+  font-size: 14px;
+}
+
+.finder-choices {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.finder-choice {
+  display: grid;
+  gap: 1px;
+  min-height: 42px;
+  padding: 8px 16px;
+  border: 2px solid rgba(255, 255, 255, 0.28);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.06);
+  color: #ffffff;
+  font: inherit;
+  font-weight: 700;
+  font-size: 14.5px;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease,
+    transform 0.15s ease;
+}
+
+.finder-choice small {
+  font-weight: 500;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.65);
+}
+
+.finder-choice:hover {
+  border-color: #fe66c4;
+  transform: translateY(-1px);
+}
+
+.finder-choice.is-on {
+  border-color: #071c3f;
+  background: #fe66c4;
+  color: #071c3f;
+  box-shadow: 3px 4px 0 #ffffff;
+}
+
+.finder-choice.is-on small {
+  color: rgba(7, 28, 63, 0.75);
+}
+
+.finder-select select {
+  min-height: 44px;
+  min-width: min(320px, 100%);
+  padding: 0 14px;
+  border: 2px solid rgba(255, 255, 255, 0.28);
+  border-radius: 14px;
+  background: #ffffff;
+  color: #071c3f;
+  font: inherit;
+  font-weight: 700;
+}
+
+.finder-body {
+  display: grid;
+  gap: 48px;
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 36px 32px 80px;
+}
+
+.finder-body > * {
+  min-width: 0;
+}
+
+.finder-hint,
+.finder-empty {
+  margin: 0;
+  padding: 18px 20px;
+  border: 2px dashed var(--line-strong);
+  border-radius: 14px;
+  color: var(--ink-3);
+  font-size: 15px;
+}
+
+.finder-results {
+  display: grid;
+  gap: 14px;
+}
+
+.finder-results-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.finder-results-head h2 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(28px, 3vw, 38px);
+}
+
+.finder-results-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.finder-more {
+  justify-self: center;
+}
+
+.finder-spots {
+  display: grid;
+  gap: 18px;
+}
+
+.spot-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+  gap: 18px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.spot-grid > li {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+}
+
+.spot-card {
+  position: relative;
+  display: grid;
+  align-content: end;
+  gap: 4px;
+  min-height: 300px;
+  padding: 18px;
+  overflow: hidden;
+  border: 2px solid #071c3f;
+  border-radius: 18px;
+  background:
+    radial-gradient(80% 60% at 80% 10%, rgba(197, 84, 165, 0.5), transparent 70%),
+    #071c3f;
+  color: #ffffff;
+  text-decoration: none;
+  box-shadow: 4px 6px 0 #c554a5;
+  isolation: isolate;
+  transition:
+    transform 0.25s cubic-bezier(0.3, 1.4, 0.5, 1),
+    box-shadow 0.25s ease;
+}
+
+.spot-card:hover,
+.spot-card:focus-visible {
+  transform: translate(-2px, -3px);
+  box-shadow: 6px 9px 0 #fe66c4;
+}
+
+.spot-card > img {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.6s ease;
+}
+
+.spot-card:hover > img {
+  transform: scale(1.05);
+}
+
+.spot-shade {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(to top, rgba(7, 28, 63, 0.96) 0%, rgba(7, 28, 63, 0.7) 45%, rgba(7, 28, 63, 0.1) 80%);
+}
+
+.spot-date {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  display: grid;
+  justify-items: center;
+  min-width: 48px;
+  padding: 6px 8px;
+  border: 2px solid #071c3f;
+  border-radius: 10px;
+  background: #ffffff;
+  color: #071c3f;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.spot-date b {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 400;
+}
+
+.spot-kicker {
+  justify-self: start;
+  margin-bottom: 4px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: #fe66c4;
+  color: #071c3f;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.spot-name {
+  font-family: var(--font-display);
+  font-size: 26px;
+  line-height: 1.08;
+}
+
+.spot-place {
+  font-size: 13.5px;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.spot-figures {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 6px 0 2px;
+}
+
+.spot-figures span {
+  padding: 2px 8px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.14);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.spot-reason {
+  font-size: 13.5px;
+  line-height: 1.45;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.spot-credit {
+  justify-self: start;
+  font-size: 11.5px;
+  color: var(--ink-3);
+}
+
+@media (max-width: 760px) {
+  .finder-hero {
+    padding: 28px 16px 32px;
+  }
+
+  .finder-question legend {
+    font-size: 19px;
+  }
+
+  .finder-choice {
+    padding: 7px 12px;
+    font-size: 14px;
+  }
+
+  .finder-body {
+    padding: 28px 16px 64px;
+    gap: 36px;
+  }
+
+  .spot-card {
+    min-height: 260px;
+  }
+}

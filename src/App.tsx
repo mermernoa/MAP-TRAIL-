@@ -1,5 +1,5 @@
 import { lazy, Suspense, useEffect, useState } from 'react';
-import { HashRouter, Link, NavLink, Route, Routes, useLocation } from 'react-router-dom';
+import { HashRouter, Link, Navigate, NavLink, Route, Routes, useLocation } from 'react-router-dom';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { UserIcon } from './components/Icons';
 import { LoadingGauge } from './components/LoadingGauge';
@@ -7,7 +7,7 @@ import { SiteFooter } from './components/SiteFooter';
 import { AccountPage } from './pages/AccountPage';
 import { CalendarPage } from './pages/CalendarPage';
 import { CollectionPage } from './pages/CollectionPage';
-import { ExplorePage } from './pages/ExplorePage';
+import { FinderPage } from './pages/FinderPage';
 import { HomePage } from './pages/HomePage';
 import { AboutPage, LegalPage, PrivacyPage } from './pages/InfoPages';
 import { MapPage } from './pages/MapPage';
@@ -54,8 +54,8 @@ function Header() {
       <nav className="app-nav" aria-label="Navigation principale">
         <NavLink to="/carte">Carte</NavLink>
         <NavLink to="/calendrier">Calendrier</NavLink>
-        <NavLink to="/explorer" className="nav-optional">
-          Explorer
+        <NavLink to="/trouver" className="nav-optional">
+          Trouve ta course
         </NavLink>
         <NavLink to="/ma-saison">
           Ma saison
@@ -180,7 +180,9 @@ function PageRoutes() {
         <Route path="/" element={<HomePage />} />
         <Route path="/carte" element={<MapPage />} />
         <Route path="/calendrier" element={<CalendarPage />} />
-        <Route path="/explorer" element={<ExplorePage />} />
+        <Route path="/trouver" element={<FinderPage />} />
+        {/* Ancienne page Explorer (collections et massifs, désormais sur l'accueil). */}
+        <Route path="/explorer" element={<Navigate to="/trouver" replace />} />
         <Route path="/collection/:slug" element={<CollectionPage />} />
         <Route path="/massif/:slug" element={<MassifPage />} />
         <Route path="/a-propos" element={<AboutPage />} />

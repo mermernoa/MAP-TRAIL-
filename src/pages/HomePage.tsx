@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { CollectionRail, MassifIndex, useCollectionEntries, useMassifEntries } from '../components/Explore';
 import { HomeSearch } from '../components/HomeSearch';
 import { TopoScene } from '../components/TopoScene';
@@ -25,6 +25,8 @@ export function HomePage() {
   const events = useAllRaces();
   const today = useToday();
   const navigate = useNavigate();
+  const { state } = useLocation();
+  const section = (state as { section?: string } | null)?.section;
   const heroRef = useRef<HTMLElement>(null);
   const bodyRef = useReveal<HTMLDivElement>('.reveal-item', [events.length]);
   const [locating, setLocating] = useState(false);
@@ -33,7 +35,7 @@ export function HomePage() {
   const upcoming = useMemo(() => events.filter((e) => !e.custom && e.dateEnd >= today), [events, today]);
   const weekend = useMemo(() => raceWeekend(events, today), [events, today]);
   const mythics = useMemo(() => upcoming.filter((e) => e.popularity >= 4).length, [upcoming]);
-  const collections = useCollectionEntries(events, today);
+  const collections = useCollectionEntries(events, today, 1);
   const massifs = useMassifEntries(events, today);
   const featuredIds = useSiteSettings((s) => s.featured);
   const featured = useMemo(
@@ -49,6 +51,13 @@ export function HomePage() {
       document.title = 'Take Ton Trail';
     };
   }, []);
+
+  // Retour depuis une collection ou un massif : on descend directement à la bonne section.
+  useEffect(() => {
+    if (!section) return;
+    const timer = window.setTimeout(() => document.getElementById(section)?.scrollIntoView({ block: 'start' }), 60);
+    return () => window.clearTimeout(timer);
+  }, [section]);
 
   const openMap = (patch: Partial<Filters>) => {
     const store = useFilterStore.getState();
@@ -156,12 +165,12 @@ export function HomePage() {
             </ul>
           </section>
         )}
-        <section className="home-section" aria-labelledby="collections-title">
+        <section id="collections" className="home-section" aria-labelledby="collections-title">
           <div className="home-section-head reveal-item">
             <h2 id="collections-title">Par envie</h2>
             <p>Des sélections thématiques, toujours à jour avec la base.</p>
-            <Link to="/explorer" className="home-section-link">
-              Toutes les collections
+            <Link to="/trouver" className="home-section-link">
+              Trouve ta course sur mesure
             </Link>
           </div>
           <div className="reveal-item">
@@ -169,7 +178,7 @@ export function HomePage() {
           </div>
         </section>
 
-        <section className="home-section" aria-labelledby="massifs-title">
+        <section id="massifs" className="home-section" aria-labelledby="massifs-title">
           <div className="home-section-head reveal-item">
             <h2 id="massifs-title">Par massif</h2>
             <p>Du Mont-Blanc aux landes bretonnes, chaque massif a son terrain et sa saison.</p>
