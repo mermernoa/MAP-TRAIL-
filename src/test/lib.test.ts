@@ -19,13 +19,20 @@ describe('index', () => {
     expect(utmbCategory(20)).toBeNull();
   });
 
-  it('attribue des Running Stones hors finales uniquement', () => {
+  it('n’affiche que les points et catégories publiés, jamais d’estimation', async () => {
+    const { courseUtmbCategory, itraPoints } = await import('../lib/metrics');
     const utmb = race('utmb-mont-blanc');
-    expect(runningStones(utmb, utmb.courses[0])).toBe(0);
+    const main = utmb.courses.find((c) => c.id === 'utmb')!;
+    expect(itraPoints({ ...main, itraPoints: undefined })).toBeNull();
+    expect(itraPoints({ ...main, itraPoints: 6 })).toBe(6);
+    expect(courseUtmbCategory({ ...main, utmbCategory: undefined })).toBeNull();
+    expect(courseUtmbCategory({ ...main, utmbCategory: '100M' })).toBe('100M');
+    // Running Stones : publiées, et seulement pour une course UTMB World Series hors finale.
     const lavaredo = race('lavaredo');
-    expect(runningStones(lavaredo, lavaredo.courses[0])).toBe(3); // 120 km, 5 800 m : catégorie 100K
+    expect(runningStones(lavaredo, { ...lavaredo.courses[0], runningStones: undefined })).toBe(0);
+    expect(runningStones(lavaredo, { ...lavaredo.courses[0], runningStones: 3 })).toBe(3);
     const zegama = race('zegama');
-    expect(runningStones(zegama, zegama.courses[0])).toBe(0);
+    expect(runningStones(zegama, { ...zegama.courses[0], runningStones: 2 })).toBe(0);
   });
 });
 

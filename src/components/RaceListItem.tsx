@@ -1,3 +1,4 @@
+import { EventBadge } from './Badges';
 import type { Course, RaceEvent } from '../data/types';
 import { formatRange, MONTH_SHORT, parseYMD } from '../lib/dates';
 import { countryFlag, distanceBand } from '../lib/metrics';
@@ -53,6 +54,7 @@ export function RaceListItem({ event, courses, selected, onSelect, onHover }: Pr
         </span>
         <span className="race-item-meta">
           <PopularityLabel level={event.popularity} />
+          <EventBadge event={event} />
           {event.massif && event.massif !== 'Plaine / campagne' && <span className="tag">{event.massif}</span>}
           {courses.every((c) => c.full === 'yes') && <span className="tag tag-full">Complet</span>}
           {event.custom && <span className="tag">Ajoutée par vous</span>}

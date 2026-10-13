@@ -37,8 +37,8 @@ describe('filtres', () => {
     expect(run({ query: 'REUNION diagonale' }).map((m) => m.event.id)).toEqual(['grand-raid-reunion']);
   });
 
-  it('combine technicité, dénivelé et points ITRA', () => {
-    const matches = run({ technicity: [5], elevation: [10000, Infinity], itraMin: 6 });
+  it('combine technicité et dénivelé', () => {
+    const matches = run({ technicity: [5], elevation: [10000, Infinity] });
     expect(matches.length).toBeGreaterThan(0);
     for (const m of matches)
       for (const c of m.courses) {

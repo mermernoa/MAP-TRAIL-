@@ -2,7 +2,8 @@ import { Link } from 'react-router-dom';
 import type { RaceEvent } from '../data/types';
 import { formatRange, formatShortDate, relativeDays } from '../lib/dates';
 import { registrationState } from '../lib/filters';
-import { countryFlag, countryName, courseUtmbCategory, itraPoints } from '../lib/metrics';
+import { countryFlag, countryName } from '../lib/metrics';
+import { CourseBadges, WorldSeriesBadge } from './Badges';
 import { useToday } from '../store/useToday';
 import { BandSwatch, fmtDplus, fmtKm, fmtPrice, PopularityLabel, TechnicityMeter } from './bits';
 import { CloseIcon } from './Icons';
@@ -56,18 +57,20 @@ export function RacePreview({ event, matchingIds, onClose }: Props) {
           {reg === 'upcoming' && event.registration.opens && ` le ${formatShortDate(event.registration.opens)}`}
           {reg === 'open' && event.registration.closes && ` jusqu'au ${formatShortDate(event.registration.closes)}`}
         </span>
-        {event.circuits.map((c) => (
-          <span key={c} className="tag">
-            {c}
-          </span>
-        ))}
+        {event.circuits.map((c) =>
+          c === 'UTMB World Series' ? (
+            <WorldSeriesBadge key={c} size="sm" />
+          ) : (
+            <span key={c} className="tag">
+              {c}
+            </span>
+          ),
+        )}
       </div>
 
       <ul className="preview-courses">
         {courses.map((c) => {
           const dim = matchingIds && !matchingIds.includes(c.id);
-          const cat = courseUtmbCategory(c);
-          const points = itraPoints(c);
           return (
             <li key={c.id} className={dim ? 'is-dim' : ''}>
               <div className="preview-course-main">
@@ -79,11 +82,7 @@ export function RacePreview({ event, matchingIds, onClose }: Props) {
                 <span className="num">{fmtDplus(c.elevationGain)}</span>
                 <TechnicityMeter level={c.technicity} />
                 {c.priceEur != null && <span className="num">{fmtPrice(c.priceEur)}</span>}
-                {(points != null || cat) && (
-                  <span className="muted small" title="Points ITRA et catégorie UTMB Index">
-                    {[points != null ? `${points} pts ITRA` : null, cat].filter(Boolean).join(', ')}
-                  </span>
-                )}
+                <CourseBadges course={c} />
                 {c.full === 'yes' && <span className="tag tag-full">Complet</span>}
                 {c.full === 'waitlist' && <span className="tag tag-soft">Liste d’attente</span>}
               </div>

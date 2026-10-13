@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import type { Course, RaceEvent } from '../data/types';
 import { formatRange, MONTH_SHORT, parseYMD } from '../lib/dates';
 import { countryFlag, distanceBand } from '../lib/metrics';
+import { EventBadge } from './Badges';
 import { fmtKm, fmtM, fmtPrice, PopularityLabel } from './bits';
 
 interface Props {
@@ -47,6 +48,7 @@ export function RaceRow({ event, courses = event.courses, showPrice = false }: P
         </span>
         <span className="race-item-meta">
           <PopularityLabel level={event.popularity} />
+          <EventBadge event={event} />
           {courses.every((c) => c.full === 'yes') && <span className="tag tag-full">Complet</span>}
         </span>
       </Link>

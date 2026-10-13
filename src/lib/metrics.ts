@@ -6,8 +6,8 @@ export function kmEffort(course: Pick<Course, 'distanceKm' | 'elevationGain'>): 
 }
 
 /**
- * Points ITRA estimés à partir des km-effort (barème ITRA : 25, 45, 75, 115, 155, 210).
- * La valeur officielle est publiée par l'ITRA pour chaque édition.
+ * Barème ITRA des km-effort (25, 45, 75, 115, 155, 210). Sert d'ordre de grandeur
+ * seulement : le site n'affiche que les points publiés par l'ITRA.
  */
 export function estimateItraPoints(effort: number): number {
   if (effort >= 210) return 6;
@@ -19,7 +19,7 @@ export function estimateItraPoints(effort: number): number {
   return 0;
 }
 
-/** Catégorie UTMB Index correspondant aux km-effort. */
+/** Catégorie UTMB Index correspondant aux km-effort (ordre de grandeur, non affiché). */
 export function utmbCategory(effort: number): UtmbCategory | null {
   if (effort >= 210) return '100M';
   if (effort >= 115) return '100K';
@@ -28,32 +28,28 @@ export function utmbCategory(effort: number): UtmbCategory | null {
   return null;
 }
 
-const STONES: Record<UtmbCategory, number> = { '20K': 1, '50K': 2, '100K': 3, '100M': 4 };
 
 export function isUtmbSeries(event: Pick<RaceEvent, 'circuits'>): boolean {
   return event.circuits.includes('UTMB World Series');
 }
 
-/** Catégorie publiée dans la base, sinon calculée depuis les km-effort (D+ connu). */
+/**
+ * Catégorie UTMB Index publiée dans la base. Jamais estimée : une catégorie
+ * déduite des km-effort pourrait être fausse, on préfère ne rien afficher.
+ */
 export function courseUtmbCategory(course: Course): UtmbCategory | null {
-  if (course.utmbCategory) return course.utmbCategory;
-  if (course.elevationGain == null) return null;
-  return utmbCategory(kmEffort(course));
+  return course.utmbCategory ?? null;
 }
 
-/** Running Stones gagnées en finissant une course UTMB World Series (hors finales). */
+/** Running Stones publiées pour une course UTMB World Series (jamais estimées). */
 export function runningStones(event: RaceEvent, course: Course): number {
-  if (course.runningStones != null) return course.runningStones;
   if (!isUtmbSeries(event) || event.circuits.includes('Finale UTMB World Series')) return 0;
-  const cat = courseUtmbCategory(course);
-  return cat ? STONES[cat] : 0;
+  return course.runningStones ?? 0;
 }
 
-/** Points ITRA publiés, sinon estimés ; inconnus si le D+ n'est pas communiqué. */
+/** Points ITRA publiés par l'ITRA, sinon inconnus (jamais estimés). */
 export function itraPoints(course: Course): number | null {
-  if (course.itraPoints != null) return course.itraPoints;
-  if (course.elevationGain == null) return null;
-  return estimateItraPoints(kmEffort(course));
+  return course.itraPoints != null && course.itraPoints > 0 ? course.itraPoints : null;
 }
 
 /** Tranches de distance utilisées pour la couleur des repères de la carte. */

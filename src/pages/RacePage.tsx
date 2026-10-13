@@ -1,3 +1,4 @@
+import { ItraBadge, UtmbBadge, WorldSeriesBadge } from '../components/Badges';
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useParams, useSearchParams } from 'react-router-dom';
 import { fmtDplus, fmtHours, fmtKm, fmtM, fmtNum, fmtPrice, PopularityLabel, TechnicityMeter } from '../components/bits';
@@ -152,11 +153,15 @@ function RaceDetail({ event }: { event: RaceEvent }) {
           <div className="race-hero-tags">
             <PopularityLabel level={event.popularity} />
             {event.dateStatus === 'estimated' && <span className="tag tag-on-dark">Date prévisionnelle</span>}
-            {event.circuits.map((c) => (
-              <span key={c} className="tag tag-on-dark">
-                {c}
-              </span>
-            ))}
+            {event.circuits.map((c) =>
+              c === 'UTMB World Series' ? (
+                <WorldSeriesBadge key={c} size="md" plate />
+              ) : (
+                <span key={c} className="tag tag-on-dark">
+                  {c}
+                </span>
+              ),
+            )}
           </div>
         </div>
         {profile && <ProfileHorizon points={profile.points} />}
@@ -431,18 +436,19 @@ function CourseOverview({ event, course }: { event: RaceEvent; course: Course })
           </div>
         )}
         {points != null && (
-          <div className="stat">
+          <div className="stat stat-badge">
             <dt>Points ITRA</dt>
-            <dd title={course.itraPoints == null ? 'Estimés d’après les km-effort' : undefined}>
-              {points}
-              {course.itraPoints == null && <span className="muted small"> (estimés)</span>}
+            <dd>
+              <ItraBadge points={points} size="lg" />
             </dd>
           </div>
         )}
-        {cat && (
-          <div className="stat">
-            <dt>{course.utmbIndex ? 'Catégorie UTMB Index' : 'Catégorie (estimée)'}</dt>
-            <dd>{cat}</dd>
+        {(cat || course.utmbIndex) && (
+          <div className="stat stat-badge">
+            <dt>{cat ? 'Catégorie UTMB Index' : 'UTMB Index'}</dt>
+            <dd>
+              <UtmbBadge category={cat} size="lg" />
+            </dd>
           </div>
         )}
         {stones > 0 && (

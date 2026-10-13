@@ -4232,3 +4232,39 @@ textarea {
     transform: none;
   }
 }
+
+/* ---------- Logos ITRA, UTMB Index, UTMB World Series ---------- */
+.brand-badges {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  vertical-align: middle;
+}
+
+.brand-badge {
+  display: inline-block;
+  width: auto;
+  vertical-align: middle;
+}
+
+.brand-badge-sm {
+  height: 16px;
+}
+
+.brand-badge-md {
+  height: 26px;
+}
+
+.brand-badge-lg {
+  height: 40px;
+}
+
+/* Sur fond sombre, le logo bleu nuit des World Series repose sur une plaque blanche. */
+.brand-plate {
+  display: inline-flex;
+  align-items: center;
+  padding: 5px 9px;
+  border-radius: 8px;
+  background: #ffffff;
+}

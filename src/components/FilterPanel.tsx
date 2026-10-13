@@ -1,3 +1,4 @@
+import { UtmbBadge, WorldSeriesBadge } from './Badges';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { distinctValues } from '../data';
 import type { Popularity, RaceEvent, Technicity, UtmbCategory } from '../data/types';
@@ -194,22 +195,7 @@ export function FilterPanel({ open, onClose, races, resultCount }: Props) {
           </section>
 
           <section className="filter-section">
-            <h3 className="filter-title">Index</h3>
-            <p className="filter-hint">Points ITRA minimum (estimés d’après les km-effort)</p>
-            <div className="segmented" role="radiogroup" aria-label="Points ITRA minimum">
-              {[0, 1, 2, 3, 4, 5, 6].map((n) => (
-                <button
-                  key={n}
-                  type="button"
-                  role="radio"
-                  aria-checked={filters.itraMin === n}
-                  className={filters.itraMin === n ? 'is-on' : ''}
-                  onClick={() => set({ itraMin: n })}
-                >
-                  {n === 0 ? 'Tous' : `${n}+`}
-                </button>
-              ))}
-            </div>
+            <h3 className="filter-title">UTMB</h3>
             <p className="filter-hint">Catégorie UTMB Index</p>
             <div className="chips">
               {(['20K', '50K', '100K', '100M'] as UtmbCategory[]).map((c) => (
@@ -217,16 +203,17 @@ export function FilterPanel({ open, onClose, races, resultCount }: Props) {
                   key={c}
                   on={filters.utmbCategories.includes(c)}
                   onClick={() => set({ utmbCategories: toggle(filters.utmbCategories, c) })}
+                  title={`UTMB Index ${c}`}
                 >
-                  {c}
+                  <UtmbBadge category={c} />
                 </Chip>
               ))}
             </div>
             {options.circuits.length > 0 && <p className="filter-hint">Circuits</p>}
             <div className="chips">
               {options.circuits.map(({ value: c, count }) => (
-                <Chip key={c} on={filters.circuits.includes(c)} onClick={() => set({ circuits: toggle(filters.circuits, c) })}>
-                  {c} <span className="chip-count">{count}</span>
+                <Chip key={c} on={filters.circuits.includes(c)} onClick={() => set({ circuits: toggle(filters.circuits, c) })} title={c}>
+                  {c === 'UTMB World Series' ? <WorldSeriesBadge size="sm" /> : c} <span className="chip-count">{count}</span>
                 </Chip>
               ))}
             </div>

@@ -187,18 +187,22 @@ export function SeasonPage() {
                 <CountUp value={totals.elevationGain} format={fmtM} />
               </dd>
             </div>
-            <div>
-              <dt>Points ITRA</dt>
-              <dd>
-                <CountUp value={totals.itraPoints} format={fmtNum} />
-              </dd>
-            </div>
-            <div>
-              <dt>Running Stones</dt>
-              <dd>
-                <CountUp value={totals.runningStones} format={fmtNum} />
-              </dd>
-            </div>
+            {totals.itraPoints > 0 && (
+              <div>
+                <dt>Points ITRA</dt>
+                <dd>
+                  <CountUp value={totals.itraPoints} format={fmtNum} />
+                </dd>
+              </div>
+            )}
+            {totals.runningStones > 0 && (
+              <div>
+                <dt>Running Stones</dt>
+                <dd>
+                  <CountUp value={totals.runningStones} format={fmtNum} />
+                </dd>
+              </div>
+            )}
           </dl>
 
           {(deadlines.length > 0 || warnings.length > 0) && (
