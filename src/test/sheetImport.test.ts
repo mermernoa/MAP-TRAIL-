@@ -127,6 +127,8 @@ describe('conversion de la feuille', () => {
     expect(b).toMatchObject({ id: 'b', format: 'Relais', startPlace: 'Le Poizat', lat: 46.14707, lng: 5.696 });
     expect(b.elevationGain).toBeUndefined();
     expect(b.technicity).toBeUndefined();
+    expect(b.technicityEstimated).toBeUndefined();
+    expect(a.technicityEstimated).toBe(true);
     expect(stats.pricesInCents).toBe(1);
   });
 

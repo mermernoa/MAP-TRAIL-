@@ -41,7 +41,7 @@ Règles d'import (`src/lib/sheetImport.ts`) :
 
 - seules les lignes aux statuts **Validé**, **Prêt** ou **En ligne** sont publiées ;
 - les lignes d'un même événement (EVT001-A, EVT001-B…) forment une fiche ; son identifiant (`evt001-nom-de-la-course`) reste valable si le nom change ;
-- une technicité vide est estimée depuis le D+ par km (barème du Guide) ; un D+ vide reste « non communiqué » ;
+- une technicité vide est estimée depuis le D+ par km (barème du Guide) et marquée « estimée » sur la fiche ; un D+ vide reste « non communiqué » ;
 - les prix saisis en centimes (1 200,00 € pour 12 €) sont corrigés et listés dans le rapport ;
 - les liens photo qui ne pointent pas vers une image (pages web, vignettes Google) sont ignorés.
 

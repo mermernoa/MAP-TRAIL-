@@ -406,8 +406,8 @@ function CourseOverview({ event, course }: { event: RaceEvent; course: Course })
           </dd>
         </div>
         <div className="stat">
-          <dt>Technicité</dt>
-          <dd>
+          <dt>{course.technicityEstimated ? 'Technicité (estimée)' : 'Technicité'}</dt>
+          <dd title={course.technicityEstimated ? 'Estimée d’après le dénivelé par kilomètre, en attendant l’information de l’organisation.' : undefined}>
             <TechnicityMeter level={course.technicity} showLabel />
           </dd>
         </div>

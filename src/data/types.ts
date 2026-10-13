@@ -32,6 +32,8 @@ export interface Course {
   /** Barrière horaire finale, en heures. */
   timeLimitH?: number;
   technicity?: Technicity;
+  /** Technicité absente de la feuille, estimée d'après le D+ par km. */
+  technicityEstimated?: boolean;
   /** Trail court, Trail long, Ultra-trail, Trail nocturne, Trail urbain, Kilomètre vertical… */
   type?: string;
   /** Solo, Duo, Relais, Équipe. */

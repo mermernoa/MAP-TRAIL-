@@ -370,6 +370,7 @@ export function convertSheet(input: string[][], publishedStatuses: string[] = PU
         start: day,
         timeLimitH: parseNumber(get(row, 'Temps limite (h)')),
         technicity,
+        technicityEstimated: sheetTech == null && technicity != null ? true : undefined,
         type: get(row, 'Type') || undefined,
         format: get(row, 'Format') || undefined,
         courseShape: get(row, 'Parcours') || undefined,
