@@ -1,11 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { fmtKm, fmtM, fmtPrice } from '../components/bits';
-import { TopoScene } from '../components/TopoScene';
+import { RidgeProfile } from '../components/RidgeProfile';
 import type { Course, RaceEvent } from '../data/types';
 import { formatRange, MONTH_SHORT, parseYMD } from '../lib/dates';
 import { introDelay, prefersReducedMotion, useReveal, useTilt } from '../lib/motion';
-import { eventPhoto } from '../lib/photos';
+import { massifByName } from '../lib/massifs';
+import { cardPhoto } from '../lib/photos';
 import { type Spotlight, spotlights } from '../lib/spotlights';
 import { raceWeekend } from '../lib/weekend';
 import { useAllRaces } from '../store/races';
@@ -16,12 +17,6 @@ import { useToday } from '../store/useToday';
 function mainCourse(e: RaceEvent, today: string): Course {
   const upcoming = e.courses.filter((c) => c.start.slice(0, 10) >= today);
   return [...(upcoming.length ? upcoming : e.courses)].sort((a, b) => b.distanceKm - a.distanceKm)[0];
-}
-
-/** « 31 oct. », « 1er nov. » */
-function shortDate(iso: string) {
-  const { d, m } = parseYMD(iso);
-  return `${d === 1 ? '1er' : d} ${MONTH_SHORT[m - 1]}`;
 }
 
 /**
@@ -53,16 +48,6 @@ export function HighlightsPage() {
     () => (weekend ? [...weekend.events].sort((a, b) => b.popularity - a.popularity || (b.image ? 1 : 0) - (a.image ? 1 : 0)).slice(0, 4) : []),
     [weekend],
   );
-  // Bande défilante : les prochaines courses connues.
-  const ticker = useMemo(
-    () =>
-      events
-        .filter((e) => !e.custom && e.dateStart >= today && e.popularity >= 3)
-        .sort((a, b) => a.dateStart.localeCompare(b.dateStart))
-        .slice(0, 16),
-    [events, today],
-  );
-
   // En tête : le premier coup de cœur, sinon la prochaine mythique.
   const lead = featured[0] ?? spots.find((s) => s.id === 'mythique')?.event ?? spots[0]?.event;
   const leadReason = featured[0] ? 'Notre coup de cœur du moment' : 'La prochaine course de légende';
@@ -73,15 +58,13 @@ export function HighlightsPage() {
     <div className="highlights-page">
       {lead && <LeadHero event={lead} course={mainCourse(lead, today)} reason={leadReason} today={today} />}
 
-      {ticker.length > 0 && <Ticker events={ticker} />}
-
       <div ref={bodyRef} className="highlights-body">
         {others.length > 0 && (
           <section className="highlights-section" aria-labelledby="hl-favs">
             <SectionBar id="hl-favs" title="Nos coups de cœur" text="Choisies à la main par l’équipe Take Ton Trail." />
             <ul className="spot-grid">
-              {others.map((e, i) => (
-                <RaceCard key={e.id} event={e} course={mainCourse(e, today)} kicker="Coup de cœur" index={i} />
+              {others.map((e) => (
+                <RaceCard key={e.id} event={e} course={mainCourse(e, today)} kicker="Coup de cœur" />
               ))}
             </ul>
           </section>
@@ -90,8 +73,8 @@ export function HighlightsPage() {
         <section className="highlights-section" aria-labelledby="hl-spots">
           <SectionBar id="hl-spots" title="Coups de projecteur" text="Une course par thème, choisie dans la base et renouvelée au fil des jours." />
           <ul className="spot-grid">
-            {spotList.map((s, i) => (
-              <RaceCard key={s.id} event={s.event} course={s.course} spot={s} index={i} />
+            {spotList.map((s) => (
+              <RaceCard key={s.id} event={s.event} course={s.course} spot={s} />
             ))}
           </ul>
         </section>
@@ -104,8 +87,8 @@ export function HighlightsPage() {
               text={`${formatRange(weekend.saturday, weekend.sunday)} : ${weekend.events.length} courses, voici les plus attendues.`}
             />
             <ul className="spot-grid">
-              {weekendTop.map((e, i) => (
-                <RaceCard key={e.id} event={e} course={mainCourse(e, today)} index={i} />
+              {weekendTop.map((e) => (
+                <RaceCard key={e.id} event={e} course={mainCourse(e, today)} />
               ))}
             </ul>
           </section>
@@ -124,81 +107,97 @@ function SectionBar({ id, title, text }: { id: string; title: string; text: stri
   );
 }
 
-/** En tête : la course du moment, sur le relief 3D, sa photo dans un cadre qui suit la souris. */
+/**
+ * En tête : la photo de la course du moment en plein écran, qui avance doucement,
+ * et des crêtes en premier plan qui glissent en profondeur avec la souris et au
+ * défilement. La ligne de crête la plus proche se dessine en rose.
+ */
 function LeadHero({ event, course, reason, today }: { event: RaceEvent; course: Course; reason: string; today: string }) {
   const heroRef = useRef<HTMLElement>(null);
   const [failed, setFailed] = useState(false);
-  const photo = eventPhoto(event);
+  const photo = cardPhoto(event);
   const showPhoto = photo && !failed;
+  const relief = massifByName(event.massif)?.relief ?? 'collines';
   const days = Math.max(0, Math.round((Date.parse(`${course.start.slice(0, 10)}T12:00:00Z`) - Date.parse(`${today}T12:00:00Z`)) / 864e5));
+  const minPrice = Math.min(...event.courses.map((c) => c.priceEur ?? Infinity));
 
   useEffect(() => {
     const hero = heroRef.current;
     if (!hero) return;
     hero.style.setProperty('--intro', `${Math.round(introDelay())}ms`);
     if (prefersReducedMotion()) return;
+    let raf = 0;
+    const target = { x: 0, y: 0 };
+    const cur = { x: 0, y: 0 };
+    const tick = () => {
+      raf = 0;
+      cur.x += (target.x - cur.x) * 0.08;
+      cur.y += (target.y - cur.y) * 0.08;
+      hero.style.setProperty('--px', cur.x.toFixed(4));
+      hero.style.setProperty('--py', cur.y.toFixed(4));
+      if (Math.abs(target.x - cur.x) > 0.001 || Math.abs(target.y - cur.y) > 0.001) raf = requestAnimationFrame(tick);
+    };
     const onMove = (e: PointerEvent) => {
       if (e.pointerType !== 'mouse') return;
-      const r = hero.getBoundingClientRect();
-      hero.style.setProperty('--px', ((e.clientX - r.left) / r.width - 0.5).toFixed(3));
-      hero.style.setProperty('--py', ((e.clientY - r.top) / r.height - 0.5).toFixed(3));
+      target.x = e.clientX / window.innerWidth - 0.5;
+      target.y = e.clientY / window.innerHeight - 0.5;
+      if (!raf) raf = requestAnimationFrame(tick);
     };
-    hero.addEventListener('pointermove', onMove, { passive: true });
-    return () => hero.removeEventListener('pointermove', onMove);
+    const onScroll = () => {
+      const h = hero.offsetHeight || 1;
+      hero.style.setProperty('--scroll', Math.min(1, Math.max(0, window.scrollY / h)).toFixed(3));
+    };
+    window.addEventListener('pointermove', onMove, { passive: true });
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener('pointermove', onMove);
+      window.removeEventListener('scroll', onScroll);
+    };
   }, []);
 
   return (
     <section ref={heroRef} className="hl-hero" aria-labelledby="hl-title">
-      <TopoScene host={heroRef} />
-      <div className="hl-hero-scrim" aria-hidden="true" />
+      <div className="hl-photo" aria-hidden="true">
+        {showPhoto ? <img src={photo.src} alt="" referrerPolicy="no-referrer" onError={() => setFailed(true)} /> : <span className="hl-photo-blank" />}
+      </div>
+      <div className="hl-shade" aria-hidden="true" />
+      <div className="hl-ridges" aria-hidden="true">
+        <RidgeProfile kind="hautes" seed={11} className="hl-ridge hl-ridge-far" />
+        <RidgeProfile kind="ballons" seed={23} className="hl-ridge hl-ridge-mid" />
+        <RidgeProfile kind={relief} seed={37} className="hl-ridge hl-ridge-near" />
+      </div>
       <div className="hl-hero-inner">
-        <div className="hl-hero-text">
-          <p className="hl-eyebrow">
-            <span>À la une</span> {reason}
-          </p>
-          <h1 id="hl-title" className="hl-name">
-            {event.name}
-          </h1>
-          <p className="hl-place">
-            {event.city}, {event.department ?? event.region} · {formatRange(event.dateStart, event.dateEnd)}
-          </p>
-          {event.highlights && <p className="hl-desc">{event.highlights.slice(0, 200)}</p>}
-          <ul className="hl-stats" aria-label="En chiffres">
+        <p className="hl-eyebrow">
+          <span>À la une</span> {reason}
+        </p>
+        <h1 id="hl-title" className="hl-name">
+          {event.name}
+        </h1>
+        <p className="hl-place">
+          {event.city}, {event.department ?? event.region} · {formatRange(event.dateStart, event.dateEnd)}
+        </p>
+        <ul className="hl-stats" aria-label="En chiffres">
+          <li>
+            <b>{fmtKm(course.distanceKm)}</b> le plus long
+          </li>
+          {course.elevationGain != null && (
             <li>
-              <b>{fmtKm(course.distanceKm)}</b>
-              <span>le plus long</span>
+              <b>{fmtM(course.elevationGain)}</b> de D+
             </li>
-            {course.elevationGain != null && (
-              <li>
-                <b>{fmtM(course.elevationGain)}</b>
-                <span>de D+</span>
-              </li>
-            )}
+          )}
+          <li>
+            <b>J-{days}</b> avant le départ
+          </li>
+          {Number.isFinite(minPrice) && (
             <li>
-              <b>J-{days}</b>
-              <span>avant le départ</span>
+              dès <b>{fmtPrice(minPrice)}</b>
             </li>
-          </ul>
-          <div className="hl-actions">
-            <Link to={`/course/${event.id}`} className="button button-primary hl-cta">
-              Voir la course
-            </Link>
-            {course.priceEur != null && <span className="hl-price">dès {fmtPrice(Math.min(...event.courses.map((c) => c.priceEur ?? Infinity)))}</span>}
-          </div>
-        </div>
-        <Link to={`/course/${event.id}`} className="hl-frame" tabIndex={-1} aria-hidden="true">
-          <span className="hl-frame-card">
-            {showPhoto ? (
-              <img src={photo.src} alt="" referrerPolicy="no-referrer" onError={() => setFailed(true)} />
-            ) : (
-              <span className="hl-frame-blank" />
-            )}
-            <span className="hl-frame-date">
-              <b>{parseYMD(course.start.slice(0, 10)).d}</b>
-              {MONTH_SHORT[parseYMD(course.start.slice(0, 10)).m - 1]}
-            </span>
-          </span>
-          <span className="hl-frame-back" />
+          )}
+        </ul>
+        <Link to={`/course/${event.id}`} className="button button-primary hl-cta">
+          Voir la course
         </Link>
       </div>
       {showPhoto && (
@@ -210,42 +209,18 @@ function LeadHero({ event, course, reason, today }: { event: RaceEvent; course: 
   );
 }
 
-/** Bande rose qui défile : les prochaines courses connues. */
-function Ticker({ events }: { events: RaceEvent[] }) {
-  // Deux copies côte à côte : la bande boucle sans couture.
-  const run = (copy: boolean) =>
-    events.map((e) => (
-      <Link key={e.id} to={`/course/${e.id}`} className="hl-ticker-item" tabIndex={copy ? -1 : undefined}>
-        <b>{shortDate(e.dateStart)}</b> {e.name}
-      </Link>
-    ));
-  return (
-    <nav className="hl-ticker" aria-label="Prochaines courses">
-      <div className="hl-ticker-track">
-        <div className="hl-ticker-run">{run(false)}</div>
-        <div className="hl-ticker-run" aria-hidden="true">
-          {run(true)}
-        </div>
-      </div>
-    </nav>
-  );
-}
-
-function RaceCard({ event, course, spot, kicker, index }: { event: RaceEvent; course: Course; spot?: Spotlight; kicker?: string; index: number }) {
+function RaceCard({ event, course, spot, kicker }: { event: RaceEvent; course: Course; spot?: Spotlight; kicker?: string }) {
   const [failed, setFailed] = useState(false);
-  const photo = eventPhoto(event);
+  const photo = cardPhoto(event);
   const showPhoto = photo && !failed;
   const { d, m } = parseYMD(course.start.slice(0, 10));
   const label = spot?.title ?? kicker;
   return (
     <li className="reveal-item">
       <Link to={`/course/${event.id}?parcours=${course.id}`} className={`spot-card ${showPhoto ? 'has-photo' : ''}`}>
-        {showPhoto && <img src={photo.src} alt="" loading="lazy" referrerPolicy="no-referrer" onError={() => setFailed(true)} />}
+        {showPhoto && <img src={photo.thumb ?? photo.src} alt="" loading="lazy" referrerPolicy="no-referrer" onError={() => setFailed(true)} />}
         <span className="spot-shade" aria-hidden="true" />
         <span className="spot-glare" aria-hidden="true" />
-        <span className="spot-index" aria-hidden="true">
-          {String(index + 1).padStart(2, '0')}
-        </span>
         <span className="spot-date" aria-hidden="true">
           <b>{d}</b>
           {MONTH_SHORT[m - 1]}

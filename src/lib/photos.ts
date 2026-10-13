@@ -1,4 +1,5 @@
 import type { RaceEvent } from '../data/types';
+import { massifByName } from './massifs';
 
 export interface Photo {
   src: string;
@@ -75,4 +76,18 @@ export function massifCover(
     return { src: `massifs/${slug}.webp`, thumb: `massifs/${slug}-petit.webp`, credit: MASSIF_PHOTO_CREDIT, event: events[0], chosen: true };
   }
   return coverPhoto(events);
+}
+
+/**
+ * Photo d'une vignette de course : la photo créditée de la course, sinon la
+ * photo de paysage de son massif. Aucune vignette ne reste vide.
+ */
+export function cardPhoto(event: RaceEvent): Photo | null {
+  const own = eventPhoto(event);
+  if (own) return own;
+  const massif = massifByName(event.massif);
+  if (massif && MASSIF_PHOTOS.has(massif.slug)) {
+    return { src: `massifs/${massif.slug}.webp`, thumb: `massifs/${massif.slug}-petit.webp`, credit: MASSIF_PHOTO_CREDIT, event, chosen: true };
+  }
+  return null;
 }

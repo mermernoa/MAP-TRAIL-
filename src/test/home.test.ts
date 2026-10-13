@@ -183,6 +183,17 @@ describe('réglages de l’espace admin', () => {
 });
 
 describe('à la une', () => {
+  it('donne une photo à chaque vignette : celle de la course, sinon celle du massif', async () => {
+    const { cardPhoto } = await import('../lib/photos');
+    for (const e of events) {
+      const p = cardPhoto(e);
+      expect(p, e.name).not.toBeNull();
+      expect(p!.credit).toBeTruthy();
+    }
+    const bare = { ...events.find((e) => e.massif === 'Corse')!, image: undefined, imageCredit: undefined };
+    expect(cardPhoto(bare)!.src).toBe('massifs/corse.webp');
+  });
+
   it('met en avant une course différente par thème, toutes à venir', async () => {
     const { spotlights } = await import('../lib/spotlights');
     const spots = spotlights(events, today);
