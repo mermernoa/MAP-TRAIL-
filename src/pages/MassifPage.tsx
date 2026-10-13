@@ -9,7 +9,8 @@ import { TerrainHero } from '../components/TerrainHero';
 import { formatDate } from '../lib/dates';
 import { MASSIFS, massifBySlug, massifEvents } from '../lib/massifs';
 import { useParallax, useReveal } from '../lib/motion';
-import { coverPhoto } from '../lib/photos';
+import { massifCover } from '../lib/photos';
+import { useSiteSettings } from '../store/siteSettings';
 import { useFilterStore } from '../store/filters';
 import { useAllRaces } from '../store/races';
 import { useToday } from '../store/useToday';
@@ -25,7 +26,8 @@ export function MassifPage() {
   const [shown, setShown] = useState(PAGE);
   const [photoFailed, setPhotoFailed] = useState(false);
   const list = useMemo(() => (massif ? massifEvents(massif, events, today) : []), [massif, events, today]);
-  const photo = useMemo(() => coverPhoto(list), [list]);
+  const chosen = useSiteSettings((s) => s.massif_photos);
+  const photo = useMemo(() => (massif ? massifCover(massif.slug, list, chosen) : null), [massif, list, chosen]);
   const heroRef = useParallax<HTMLElement>(0.35);
   const bodyRef = useReveal<HTMLDivElement>('.panel, .massif-intro', [slug]);
 
@@ -115,11 +117,17 @@ export function MassifPage() {
           </div>
           {photo && !photoFailed && (
             <figure className="massif-photo">
-              <Link to={`/course/${photo.event.id}`} className="massif-photo-frame">
-                <img src={photo.src} alt="" loading="lazy" referrerPolicy="no-referrer" onError={() => setPhotoFailed(true)} />
-              </Link>
+              {photo.chosen ? (
+                <span className="massif-photo-frame">
+                  <img src={photo.src} alt={massif.title} loading="lazy" referrerPolicy="no-referrer" onError={() => setPhotoFailed(true)} />
+                </span>
+              ) : (
+                <Link to={`/course/${photo.event.id}`} className="massif-photo-frame">
+                  <img src={photo.src} alt="" loading="lazy" referrerPolicy="no-referrer" onError={() => setPhotoFailed(true)} />
+                </Link>
+              )}
               <figcaption>
-                <Link to={`/course/${photo.event.id}`}>{photo.event.name}</Link>
+                {photo.chosen ? <span>{massif.title}</span> : <Link to={`/course/${photo.event.id}`}>{photo.event.name}</Link>}
                 <PhotoCredit credit={photo.credit} src={photo.src} />
               </figcaption>
             </figure>

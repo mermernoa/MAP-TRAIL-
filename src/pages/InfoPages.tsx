@@ -177,7 +177,7 @@ export function PrivacyPage() {
   return (
     <InfoLayout
       title="Confidentialité"
-      lede="Le site fonctionne sans compte, sans publicité et sans mesure d’audience. Voici exactement ce qui est conservé, où, et comment l’effacer."
+      lede="Le site fonctionne sans compte, sans publicité et sans traceur. Voici exactement ce qui est conservé, où, et comment l’effacer."
     >
       <section>
         <h2>Sans compte</h2>
@@ -217,6 +217,11 @@ export function PrivacyPage() {
         <p>
           Le site ne dépose aucun cookie publicitaire ni de mesure d’audience. Le seul stockage utilisé est celui nécessaire au
           fonctionnement (saison, réglages, connexion au compte) : il ne demande pas de consentement.
+        </p>
+        <p>
+          Pour savoir quelles pages servent, le site compte les pages vues : un simple total par jour et par page (par
+          exemple « fiche SaintéLyon : 42 vues le 12 octobre »), sans cookie, sans adresse IP et sans aucun identifiant. Ce
+          compteur ne permet de reconnaître personne.
         </p>
         <p>
           Pour s’afficher, les cartes et le relief chargent des images depuis OpenFreeMap, OpenTopoMap, Esri et Amazon Web

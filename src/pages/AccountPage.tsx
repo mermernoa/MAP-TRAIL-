@@ -15,6 +15,7 @@ export function AccountPage() {
   const user = useAccount((s) => s.user);
   const ensure = useAccount((s) => s.ensure);
   const [confirmed] = useState(() => /[?&]code=/.test(window.location.search));
+  const linkResult = useAccount((s) => s.linkResult);
 
   useEffect(() => {
     document.title = 'Mon compte – Take Ton Trail';
@@ -47,7 +48,12 @@ export function AccountPage() {
             </section>
           )}
           {recovery && (status === 'signedIn' || status === 'signedOut') && <NewPasswordForm />}
-          {!recovery && status === 'signedOut' && <AuthForms confirmed={confirmed} />}
+          {linkResult === 'invalid' && (
+            <p className="form-error" role="alert">
+              Ce lien a expiré ou a déjà servi. Connectez-vous, ou demandez un nouveau lien avec « Mot de passe oublié ».
+            </p>
+          )}
+          {!recovery && status === 'signedOut' && <AuthForms confirmed={confirmed || linkResult === 'confirmed'} />}
           {!recovery && status === 'signedIn' && <Profile />}
         </div>
         <Suggestions />
@@ -147,7 +153,7 @@ function AuthForms({ confirmed }: { confirmed: boolean }) {
               type="password"
               autoComplete={mode === 'signup' ? 'new-password' : 'current-password'}
               minLength={8}
-              placeholder={mode === 'signup' ? '8 caractères minimum' : undefined}
+              placeholder={mode === 'signup' ? '8 caractères, lettres et chiffres' : undefined}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required

@@ -92,9 +92,20 @@ Les comptes reposent sur [Supabase](https://supabase.com) (offre gratuite). Mise
 
 Sans ces réglages, la page indique que les comptes arrivent bientôt et la saison reste enregistrée dans le navigateur.
 
+### E-mails des comptes
+
+Les e-mails (confirmation, mot de passe oublié, changement d'adresse…) sont en français, aux couleurs du site : `supabase/templates/`. Leurs liens ramènent sur `#/compte?token_hash=…&type=…`, valides même ouverts sur un autre appareil que celui de l'inscription. Ces réglages, l'adresse du site et les règles de mot de passe (`supabase/config.toml`) sont envoyés à Supabase par le workflow **Réglages Supabase** (`.github/workflows/supabase-config.yml`), à chaque modification ou à la demande (« Run workflow »). Il lui faut deux secrets GitHub (Settings → Secrets and variables → Actions) :
+
+- `SUPABASE_ACCESS_TOKEN` (obligatoire) : jeton d'accès personnel créé sur supabase.com → Account → Access Tokens ;
+- `SMTP_PASSWORD` (facultatif) : mot de passe d'application Google de taketontrail@gmail.com ; les e-mails partent alors de « Take Ton Trail » au lieu de l'adresse par défaut de Supabase, limitée aux membres de l'équipe.
+
+### Espace admin
+
+`#/admin`, relié nulle part et non indexé, n'est accessible qu'aux comptes inscrits dans la table `admins` (vérifié par la base, pas seulement par la page) : tableau de bord (visites, comptes, saisons, courses les plus vues et les plus ajoutées), messages des formulaires à traiter, liste des comptes (export CSV), réglages du site sans toucher au code (bandeau d'annonce, coups de cœur de l'accueil, courses masquées, photo de chaque massif) et liens vers la feuille, Supabase et les déploiements. Les réglages sont dans la table `site_settings`, lue par tous les visiteurs. Les pages vues sont comptées sans cookie ni identifiant (table `page_views`, un total par jour et par page).
+
 ### Formulaires
 
-Contact, signaler une erreur et proposer une course enregistrent les messages dans la table `messages` de Supabase (créée par la migration de `supabase/migrations/`, envoi possible sans compte, lecture impossible par l'API : on les lit dans le tableau de bord). Sans Supabase, les formulaires ouvrent la messagerie du visiteur avec le message prêt à partir vers l'adresse de contact, taketontrail@gmail.com (`VITE_CONTACT_EMAIL` dans `.env.production`).
+Contact, signaler une erreur et proposer une course enregistrent les messages dans la table `messages` de Supabase (envoi possible sans compte ; seuls les administrateurs les lisent, dans l'espace admin, onglet Messages). Sans Supabase, les formulaires ouvrent la messagerie du visiteur avec le message prêt à partir vers l'adresse de contact, taketontrail@gmail.com (`VITE_CONTACT_EMAIL` dans `.env.production`).
 
 L'identité de l'éditeur affichée dans les mentions légales (raison sociale, adresse, SIRET, responsable de la publication) se règle dans `src/lib/site.ts` : les champs vides ne s'affichent pas.
 

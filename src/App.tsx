@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { lazy, Suspense, useEffect, useState } from 'react';
 import { HashRouter, Link, NavLink, Route, Routes, useLocation } from 'react-router-dom';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { UserIcon } from './components/Icons';
@@ -19,6 +19,10 @@ import { useTilt } from './lib/motion';
 import { startAccount, useAccount } from './store/account';
 import { useCatalog } from './store/catalog';
 import { useSeasonStore } from './store/season';
+import { trackView, useSiteSettings } from './store/siteSettings';
+
+// Espace admin : chargé seulement quand on l'ouvre.
+const AdminPage = lazy(() => import('./pages/AdminPage'));
 
 /** Sur l'accueil, l'en-tête se fond dans la nuit du décor tant qu'on ne l'a pas quitté. */
 function useOverHero(active: boolean) {
@@ -108,6 +112,56 @@ function CatalogGate({ children }: { children: React.ReactNode }) {
   );
 }
 
+/** Compteur de pages vues anonyme (voir la page Confidentialité). */
+function TrackViews() {
+  const { pathname } = useLocation();
+  useEffect(() => {
+    trackView(pathname);
+  }, [pathname]);
+  return null;
+}
+
+/** Bandeau d'annonce réglé depuis l'espace admin. */
+function SiteBanner() {
+  const banner = useSiteSettings((s) => s.banner);
+  const { pathname } = useLocation();
+  const [closed, setClosed] = useState(() => {
+    try {
+      return sessionStorage.getItem('ttt-bandeau') === banner.text;
+    } catch {
+      return false;
+    }
+  });
+  if (!banner.active || !banner.text || closed || pathname === '/carte' || pathname.startsWith('/admin')) return null;
+  const close = () => {
+    setClosed(true);
+    try {
+      sessionStorage.setItem('ttt-bandeau', banner.text);
+    } catch {
+      /* stockage indisponible */
+    }
+  };
+  const internal = banner.link.startsWith('#/') || banner.link.startsWith('/');
+  return (
+    <div className="site-banner" role="status">
+      <p>
+        {banner.text}{' '}
+        {banner.link &&
+          (internal ? (
+            <Link to={banner.link.replace(/^#/, '')}>En savoir plus</Link>
+          ) : (
+            <a href={banner.link} target="_blank" rel="noreferrer">
+              En savoir plus
+            </a>
+          ))}
+      </p>
+      <button type="button" onClick={close} aria-label="Fermer l’annonce">
+        ×
+      </button>
+    </div>
+  );
+}
+
 function ScrollToTop() {
   const { pathname } = useLocation();
   // Accolades obligatoires : Chrome récent renvoie une promesse depuis scrollTo, que React
@@ -138,6 +192,14 @@ function PageRoutes() {
         <Route path="/course/:id" element={<RacePage />} />
         <Route path="/ma-saison" element={<SeasonPage />} />
         <Route path="/compte" element={<AccountPage />} />
+        <Route
+          path="/admin"
+          element={
+            <Suspense fallback={<div className="page-message"><p>Chargement…</p></div>}>
+              <AdminPage />
+            </Suspense>
+          }
+        />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </ErrorBoundary>
@@ -169,12 +231,20 @@ export function App() {
   useTilt('.course-tab', 4);
   useEffect(() => {
     startAccount();
+    // Réglages du site (bandeau, coups de cœur, courses masquées) : les courses masquées
+    // sont retirées du catalogue dès qu'ils arrivent.
+    const unsubscribe = useSiteSettings.subscribe((s, prev) => {
+      if (s.hidden !== prev.hidden) useCatalog.getState().setHidden(s.hidden);
+    });
+    void useSiteSettings.getState().load();
+    return unsubscribe;
   }, []);
   return (
     // Changements de page immédiats : en mode « transition », React attendait que le
     // navigateur soit libre, ce que les cartes WebGL retardaient parfois de plusieurs secondes.
     <HashRouter useTransitions={false}>
       <ScrollToTop />
+      <TrackViews />
       <a
         className="skip-link"
         href="#main"
@@ -187,6 +257,7 @@ export function App() {
         Aller au contenu
       </a>
       <Header />
+      <SiteBanner />
       <main id="main" className="app-main" tabIndex={-1}>
         <CatalogGate>
           <PageRoutes />

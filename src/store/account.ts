@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import type { Session, SupabaseClient } from '@supabase/supabase-js';
-import { accountReturnUrl, accountsEnabled, authErrorMessage, getSupabase, hasStoredSession } from '../lib/supabase';
+import { accountReturnUrl, accountsEnabled, authErrorMessage, emailLinkToken, getSupabase, hasEmailReturn, hasStoredSession } from '../lib/supabase';
 import { mergeSeasons, sameSeason, type SeasonSnapshot } from '../lib/seasonSync';
 import { useSeasonStore } from './season';
 
@@ -22,6 +22,8 @@ interface AccountState {
   syncedAt: string | null;
   /** Retour depuis l'e-mail « mot de passe oublié » : on propose d'en choisir un nouveau. */
   recovery: boolean;
+  /** Résultat du lien reçu par e-mail, pour l'afficher sur la page compte. */
+  linkResult: 'confirmed' | 'recovery' | 'invalid' | null;
   /** Charge le client et restaure la session (à l'ouverture de la page compte). */
   ensure: () => Promise<void>;
   signUp: (email: string, password: string, name: string) => Promise<{ error?: string; confirm?: boolean }>;
@@ -123,6 +125,7 @@ export const useAccount = create<AccountState>()((set, get) => {
     sync: 'idle',
     syncedAt: null,
     recovery: false,
+    linkResult: null,
 
     ensure: () => {
       if (!accountsEnabled) return Promise.resolve();
@@ -135,6 +138,14 @@ export const useAccount = create<AccountState>()((set, get) => {
             // Les appels Supabase dans ce rappel peuvent bloquer le client : on les diffère.
             setTimeout(() => onSession(session), 0);
           });
+          // Lien d'e-mail (confirmation, mot de passe oublié, changement d'adresse) : on valide le jeton.
+          const link = emailLinkToken();
+          if (link) {
+            const { error } = await sb.auth.verifyOtp({ token_hash: link.tokenHash, type: link.type === 'signup' ? 'email' : link.type });
+            if (!error && link.type === 'recovery') set({ recovery: true });
+            set({ linkResult: error ? 'invalid' : link.type === 'recovery' ? 'recovery' : 'confirmed' });
+            window.history.replaceState(null, '', `${window.location.pathname}${window.location.search}#/compte`);
+          }
           const { data } = await sb.auth.getSession();
           onSession(data.session);
           // Chaque modification de la saison part vers le compte, regroupée sur une seconde.
@@ -225,5 +236,5 @@ export const useAccount = create<AccountState>()((set, get) => {
 /** Au démarrage : on ne charge Supabase que si une session existe ou qu'un e-mail ramène ici. */
 export function startAccount() {
   if (!accountsEnabled) return;
-  if (hasStoredSession() || /[?&]code=/.test(window.location.search)) void useAccount.getState().ensure();
+  if (hasStoredSession() || hasEmailReturn()) void useAccount.getState().ensure();
 }

@@ -69,3 +69,24 @@ export function authErrorMessage(error: unknown): string {
   }
   return 'Une erreur est survenue. Réessayez dans un instant.';
 }
+
+export type EmailLinkType = 'email' | 'signup' | 'recovery' | 'email_change' | 'invite' | 'magiclink';
+
+/**
+ * Lien d'e-mail au format « #/compte?token_hash=…&type=… » (voir supabase/templates/) :
+ * il fonctionne même ouvert sur un autre appareil que celui de l'inscription.
+ */
+export function emailLinkToken(hash = window.location.hash): { tokenHash: string; type: EmailLinkType } | null {
+  const query = hash.split('?')[1];
+  if (!query) return null;
+  const params = new URLSearchParams(query);
+  const tokenHash = params.get('token_hash');
+  const type = params.get('type') as EmailLinkType | null;
+  if (!tokenHash || !type) return null;
+  return { tokenHash, type };
+}
+
+/** Vrai si l'adresse arrive d'un e-mail du compte (code PKCE ou jeton). */
+export function hasEmailReturn(): boolean {
+  return /[?&]code=/.test(window.location.search) || emailLinkToken() != null;
+}

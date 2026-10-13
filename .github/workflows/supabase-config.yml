@@ -1,0 +1,65 @@
+name: Réglages Supabase
+
+# Envoie au projet Supabase les réglages de supabase/config.toml : adresse du site,
+# règles de mot de passe, e-mails en français (supabase/templates/) et, si le secret
+# SMTP_PASSWORD existe, l'envoi depuis taketontrail@gmail.com.
+# Secret requis : SUPABASE_ACCESS_TOKEN (jeton d'accès personnel Supabase).
+
+on:
+  push:
+    branches: [main, claude/interactive-trails-map-rxpucs]
+    paths:
+      - 'supabase/config.toml'
+      - 'supabase/templates/**'
+      - '.github/workflows/supabase-config.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: supabase-config
+  cancel-in-progress: false
+
+jobs:
+  push-config:
+    runs-on: ubuntu-latest
+    env:
+      SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+      SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
+      PROJECT_REF: lmlafljyqfmargqlbdsf
+    steps:
+      - uses: actions/checkout@v4
+      - name: Jeton Supabase présent ?
+        id: token
+        run: |
+          if [ -z "$SUPABASE_ACCESS_TOKEN" ]; then
+            echo "::warning::Ajoutez le secret SUPABASE_ACCESS_TOKEN (Settings > Secrets and variables > Actions) pour envoyer les réglages à Supabase."
+            echo "ok=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "ok=true" >> "$GITHUB_OUTPUT"
+          fi
+      - uses: supabase/setup-cli@v1
+        if: steps.token.outputs.ok == 'true'
+        with:
+          version: 2.120.0
+      - name: Serveur d'envoi Gmail (si SMTP_PASSWORD existe)
+        if: steps.token.outputs.ok == 'true' && env.SMTP_PASSWORD != ''
+        run: |
+          cat >> supabase/config.toml <<'TOML'
+
+          [auth.email.smtp]
+          enabled = true
+          host = "smtp.gmail.com"
+          port = 465
+          user = "taketontrail@gmail.com"
+          pass = "env(SMTP_PASSWORD)"
+          admin_email = "taketontrail@gmail.com"
+          sender_name = "Take Ton Trail"
+          TOML
+      - name: Différences avec le projet
+        if: steps.token.outputs.ok == 'true'
+        run: supabase config diff --project-ref "$PROJECT_REF"
+      - name: Envoi des réglages
+        if: steps.token.outputs.ok == 'true'
+        run: supabase config push --project-ref "$PROJECT_REF" --yes

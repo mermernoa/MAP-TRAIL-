@@ -5,6 +5,8 @@ export interface Photo {
   /** Auteur ou origine de la photo, tel que noté dans la feuille. */
   credit: string;
   event: RaceEvent;
+  /** Photo de paysage choisie dans l'espace admin, et non une photo de course. */
+  chosen?: boolean;
 }
 
 /** Image générique (ville, département) fournie par une plateforme, et non une photo de la course. */
@@ -34,4 +36,18 @@ export function coverPhoto(events: RaceEvent[], skip: Set<string> = new Set()): 
     if (!best || score > best.score) best = { photo, score };
   }
   return best?.photo ?? null;
+}
+
+/**
+ * Photo d'un massif : celle choisie dans l'espace admin si elle existe, sinon la
+ * meilleure photo de course créditée du massif.
+ */
+export function massifCover(
+  slug: string,
+  events: RaceEvent[],
+  chosen: Record<string, { src: string; credit: string }>,
+): Photo | null {
+  const pick = chosen[slug];
+  if (pick && events[0]) return { src: pick.src, credit: pick.credit, event: events[0], chosen: true };
+  return coverPhoto(events);
 }

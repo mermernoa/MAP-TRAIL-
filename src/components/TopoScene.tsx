@@ -243,11 +243,11 @@ export function TopoScene({ host }: Props) {
       const narrow = mobile();
       const yaw = -0.55 + Math.sin(clock * 0.06) * 0.42 + px * 0.28;
       const pitch = 0.64 + py * 0.08 + lift * 0.3;
-      const dist = (narrow ? 4.1 : 2.8) - lift * 0.5;
+      const dist = (narrow ? 4.1 : 1.95) - lift * 0.45;
       const target = [0, 0.12, 0];
       const eye = [target[0] + Math.sin(yaw) * Math.cos(pitch) * dist, target[1] + Math.sin(pitch) * dist, target[2] + Math.cos(yaw) * Math.cos(pitch) * dist];
       const mvp = multiply(perspective(narrow ? 0.62 : 0.56, W / H, 0.1, 20), lookAt(eye, target));
-      const shift: [number, number] = narrow ? [0, 0.46] : [0.36, -0.04];
+      const shift: [number, number] = narrow ? [0, 0.46] : [0.24, -0.12];
 
       gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
       gl.uniformMatrix4fv(uMVP, false, mvp);

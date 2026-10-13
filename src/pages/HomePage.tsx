@@ -8,6 +8,8 @@ import type { Filters } from '../lib/filters';
 import { introDelay, useReveal } from '../lib/motion';
 import { raceWeekend } from '../lib/weekend';
 import { useFilterStore } from '../store/filters';
+import { useSiteSettings } from '../store/siteSettings';
+import { RaceRow } from '../components/RaceRow';
 import { useAllRaces } from '../store/races';
 import { useToday } from '../store/useToday';
 
@@ -33,6 +35,11 @@ export function HomePage() {
   const mythics = useMemo(() => upcoming.filter((e) => e.popularity >= 4).length, [upcoming]);
   const collections = useCollectionEntries(events, today);
   const massifs = useMassifEntries(events, today);
+  const featuredIds = useSiteSettings((s) => s.featured);
+  const featured = useMemo(
+    () => featuredIds.map((id) => events.find((e) => e.id === id)).filter((e): e is NonNullable<typeof e> => !!e && e.dateEnd >= today),
+    [featuredIds, events, today],
+  );
 
   useEffect(() => {
     document.title = 'Take Ton Trail : toutes les courses de trail, du plus confidentiel au plus mythique';
@@ -136,6 +143,19 @@ export function HomePage() {
       </section>
 
       <div ref={bodyRef} className="home-body">
+        {featured.length > 0 && (
+          <section className="home-section" aria-labelledby="featured-title">
+            <div className="home-section-head reveal-item">
+              <h2 id="featured-title">Nos coups de cœur</h2>
+              <p>Les courses qu’on vous recommande en ce moment.</p>
+            </div>
+            <ul className="race-list home-featured reveal-item">
+              {featured.map((e) => (
+                <RaceRow key={e.id} event={e} showPrice />
+              ))}
+            </ul>
+          </section>
+        )}
         <section className="home-section" aria-labelledby="collections-title">
           <div className="home-section-head reveal-item">
             <h2 id="collections-title">Par envie</h2>

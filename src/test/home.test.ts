@@ -142,3 +142,37 @@ describe('relief de l’accueil', () => {
     expect(project(mvp, [0, 0, 6], 1600, 900)).toBeNull();
   });
 });
+
+describe('réglages de l’espace admin', () => {
+  it('ignorent les valeurs mal formées sans casser le site', async () => {
+    const { parseSettings } = await import('../store/siteSettings');
+    const s = parseSettings([
+      { key: 'banner', value: { text: 'Inscriptions ouvertes', link: '/course/x', active: true } },
+      { key: 'featured', value: ['evt1', 3, null, 'evt2'] },
+      { key: 'hidden', value: 'pas une liste' },
+      { key: 'massif_photos', value: { corse: { src: 'https://exemple.fr/a.jpg', credit: 'Auteur, CC BY' }, jura: { src: 'http://x', credit: 'A' }, vosges: { src: 'https://x', credit: '' } } },
+      { key: 'inconnu', value: 1 },
+    ]);
+    expect(s.banner).toEqual({ text: 'Inscriptions ouvertes', link: '/course/x', active: true });
+    expect(s.featured).toEqual(['evt1', 'evt2']);
+    expect(s.hidden).toEqual([]);
+    // Jamais de photo sans crédit ni en http.
+    expect(Object.keys(s.massif_photos)).toEqual(['corse']);
+  });
+
+  it('lisent le jeton des e-mails dans l’adresse en #/compte', async () => {
+    const { emailLinkToken } = await import('../lib/supabase');
+    expect(emailLinkToken('#/compte?token_hash=abc123&type=recovery')).toEqual({ tokenHash: 'abc123', type: 'recovery' });
+    expect(emailLinkToken('#/compte')).toBeNull();
+    expect(emailLinkToken('#/compte?type=email')).toBeNull();
+  });
+
+  it('préfèrent la photo de massif choisie à une photo de course', async () => {
+    const { massifCover } = await import('../lib/photos');
+    const list = events.filter((e) => e.massif === 'Corse');
+    const chosen = massifCover('corse', list, { corse: { src: 'https://exemple.fr/corse.jpg', credit: 'Auteur, CC BY-SA' } })!;
+    expect(chosen.src).toBe('https://exemple.fr/corse.jpg');
+    expect(chosen.chosen).toBe(true);
+    expect(massifCover('corse', list, {})?.chosen).toBeUndefined();
+  });
+});
