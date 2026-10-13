@@ -2561,6 +2561,7 @@ button.list-more {
 
 /* Cartes : inclinaison 3D au survol, reflet qui suit la souris, numéro rose. */
 .highlights-page .spot-card {
+  padding-top: 72px;
   transform: perspective(900px) rotateX(var(--tilt-y, 0deg)) rotateY(var(--tilt-x, 0deg));
   transition:
     transform 0.2s ease-out,
