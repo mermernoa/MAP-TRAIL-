@@ -182,35 +182,15 @@ describe('réglages de l’espace admin', () => {
   });
 });
 
-describe('trouve ta course', () => {
-  it('ne garde que les parcours qui cochent tous les critères', async () => {
-    const { findRaces, NO_CRITERIA } = await import('../lib/finder');
-    const res = findRaces(events, { ...NO_CRITERIA, distance: 'mid', terrain: 'mountain', when: 'season' }, today);
-    expect(res.length).toBeGreaterThan(0);
-    for (const r of res) {
-      for (const c of r.courses) {
-        expect(c.distanceKm >= 15 && c.distanceKm < 30).toBe(true);
-        expect(c.elevationGain! / c.distanceKm).toBeGreaterThanOrEqual(45);
-        expect(c.start.slice(0, 10) >= '2026-12-06' && c.start.slice(0, 10) < '2027-02-04').toBe(true);
-      }
-    }
-    // Les plus connues d'abord.
-    expect(res[0].event.popularity).toBeGreaterThanOrEqual(res[res.length - 1].event.popularity);
-  });
-
-  it('garde ses critères dans une adresse partageable', async () => {
-    const { criteriaFromParams, criteriaToParams } = await import('../lib/finder');
-    const k = { when: 'month', distance: 'ultra', terrain: 'any', extras: ['night', 'cheap'], region: 'Bretagne' } as const;
-    const back = criteriaFromParams(criteriaToParams({ ...k, extras: [...k.extras] }));
-    expect(back).toEqual({ ...k, extras: ['night', 'cheap'] });
-    expect(criteriaFromParams(new URLSearchParams('km=n-importe-quoi&envies=night,xx')).distance).toBe('any');
-  });
-
-  it('met en avant une course différente par thème', async () => {
-    const { spotlights } = await import('../lib/finder');
+describe('à la une', () => {
+  it('met en avant une course différente par thème, toutes à venir', async () => {
+    const { spotlights } = await import('../lib/spotlights');
     const spots = spotlights(events, today);
     expect(spots.length).toBeGreaterThanOrEqual(6);
     expect(new Set(spots.map((s) => s.event.id)).size).toBe(spots.length);
-    for (const s of spots) expect(s.course.start.slice(0, 10) >= today).toBe(true);
+    for (const s of spots) {
+      expect(s.course.start.slice(0, 10) >= today).toBe(true);
+      expect(s.reason.length).toBeGreaterThan(10);
+    }
   });
 });

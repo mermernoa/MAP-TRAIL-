@@ -7,7 +7,7 @@ import { SiteFooter } from './components/SiteFooter';
 import { AccountPage } from './pages/AccountPage';
 import { CalendarPage } from './pages/CalendarPage';
 import { CollectionPage } from './pages/CollectionPage';
-import { FinderPage } from './pages/FinderPage';
+import { HighlightsPage } from './pages/HighlightsPage';
 import { HomePage } from './pages/HomePage';
 import { AboutPage, LegalPage, PrivacyPage } from './pages/InfoPages';
 import { MapPage } from './pages/MapPage';
@@ -54,8 +54,8 @@ function Header() {
       <nav className="app-nav" aria-label="Navigation principale">
         <NavLink to="/carte">Carte</NavLink>
         <NavLink to="/calendrier">Calendrier</NavLink>
-        <NavLink to="/trouver" className="nav-optional">
-          Trouve ta course
+        <NavLink to="/a-la-une" className="nav-optional">
+          À la une
         </NavLink>
         <NavLink to="/ma-saison">
           Ma saison
@@ -180,9 +180,10 @@ function PageRoutes() {
         <Route path="/" element={<HomePage />} />
         <Route path="/carte" element={<MapPage />} />
         <Route path="/calendrier" element={<CalendarPage />} />
-        <Route path="/trouver" element={<FinderPage />} />
-        {/* Ancienne page Explorer (collections et massifs, désormais sur l'accueil). */}
-        <Route path="/explorer" element={<Navigate to="/trouver" replace />} />
+        <Route path="/a-la-une" element={<HighlightsPage />} />
+        {/* Anciennes adresses (Explorer, Trouve ta course). */}
+        <Route path="/explorer" element={<Navigate to="/a-la-une" replace />} />
+        <Route path="/trouver" element={<Navigate to="/a-la-une" replace />} />
         <Route path="/collection/:slug" element={<CollectionPage />} />
         <Route path="/massif/:slug" element={<MassifPage />} />
         <Route path="/a-propos" element={<AboutPage />} />

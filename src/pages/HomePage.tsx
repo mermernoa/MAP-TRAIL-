@@ -169,8 +169,8 @@ export function HomePage() {
           <div className="home-section-head reveal-item">
             <h2 id="collections-title">Par envie</h2>
             <p>Des sélections thématiques, toujours à jour avec la base.</p>
-            <Link to="/trouver" className="home-section-link">
-              Trouve ta course sur mesure
+            <Link to="/a-la-une" className="home-section-link">
+              Voir les courses à la une
             </Link>
           </div>
           <div className="reveal-item">
