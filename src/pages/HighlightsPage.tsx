@@ -107,11 +107,14 @@ function SectionBar({ id, title, text }: { id: string; title: string; text: stri
 }
 
 /**
- * En tête : la course du moment sur le relief en courbes de niveau de l'accueil
- * (un massif différent pour chaque course), ses chiffres en autocollants.
+ * En tête : la course du moment sur un relief en courbes de niveau (une ligne
+ * de crête, différente pour chaque course), sa photo épinglée à l'arrivée du
+ * sentier et ses chiffres en autocollants.
  */
 function LeadHero({ event, course, reason, today }: { event: RaceEvent; course: Course; reason: string; today: string }) {
   const heroRef = useRef<HTMLElement>(null);
+  const [failed, setFailed] = useState(false);
+  const photo = cardPhoto(event);
   const days = Math.max(0, Math.round((Date.parse(`${course.start.slice(0, 10)}T12:00:00Z`) - Date.parse(`${today}T12:00:00Z`)) / 864e5));
   const minPrice = Math.min(...event.courses.map((c) => c.priceEur ?? Infinity));
 
@@ -121,7 +124,22 @@ function LeadHero({ event, course, reason, today }: { event: RaceEvent; course: 
 
   return (
     <section ref={heroRef} className="hl-hero" aria-labelledby="hl-title">
-      <TopoScene host={heroRef} seed={seedFrom(event.id)} />
+      <TopoScene
+        host={heroRef}
+        seed={seedFrom(event.id)}
+        shape="crete"
+        summit={
+          photo && !failed ? (
+            <span className="hl-summit-photo">
+              <img src={photo.thumb ?? photo.src} alt="" referrerPolicy="no-referrer" onError={() => setFailed(true)} />
+              <span className="hl-summit-caption">
+                <b>Arrivée</b>
+                <span>Photo : {photo.credit}</span>
+              </span>
+            </span>
+          ) : undefined
+        }
+      />
       <div className="home-hero-scrim" aria-hidden="true" />
       <div className="hl-hero-inner">
         <p className="hl-eyebrow">

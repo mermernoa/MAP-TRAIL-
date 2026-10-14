@@ -26,17 +26,35 @@ const smoothstep = (a: number, b: number, v: number) => {
   return t * t * (3 - 2 * t);
 };
 
-function rawHeight(noise: (x: number, y: number) => number, x: number, z: number): number {
+/** Silhouette du massif : un sommet dominant (accueil) ou une longue ligne de crête. */
+export type TerrainShape = 'sommet' | 'crete';
+
+function rawHeight(noise: (x: number, y: number) => number, x: number, z: number, shape: TerrainShape = 'sommet'): number {
   const r = Math.hypot(x, z);
   // Le massif s'efface vers les bords : pas de coupure franche.
   const envelope = 1 - smoothstep(0.5, 0.98, r);
+  if (shape === 'crete') {
+    // Crête en diagonale, de l'arrière-gauche à l'avant-droite, avec trois pointes.
+    const ax = -0.62;
+    const az = -0.42;
+    const bx = 0.58;
+    const bz = 0.3;
+    const lx = bx - ax;
+    const lz = bz - az;
+    const t = Math.min(1, Math.max(0, ((x - ax) * lx + (z - az) * lz) / (lx * lx + lz * lz)));
+    const d = Math.hypot(x - (ax + lx * t), z - (az + lz * t));
+    const tops = Math.max(0.55, Math.exp(-((t - 0.42) ** 2) / 0.012), 0.82 * Math.exp(-((t - 0.72) ** 2) / 0.008), 0.7 * Math.exp(-((t - 0.16) ** 2) / 0.01));
+    const crest = Math.exp(-(d * d) / (2 * 0.13 ** 2)) * tops;
+    const ridges = ridged(noise, x * 2.6 - 3.3, z * 2.6 + 2.2, 5);
+    return envelope * (0.62 * crest + 0.38 * ridges * (0.4 + 0.6 * envelope));
+  }
   const peak = Math.exp(-((x - 0.1) ** 2 + (z + 0.06) ** 2) / (2 * 0.2 ** 2));
   const shoulder = 0.62 * Math.exp(-((x + 0.42) ** 2 + (z + 0.38) ** 2) / (2 * 0.17 ** 2));
   const ridges = ridged(noise, x * 2.3 + 4.1, z * 2.3 - 1.7, 5);
   return envelope * (0.58 * Math.max(peak, shoulder) + 0.42 * ridges * (0.45 + 0.55 * envelope));
 }
 
-export function buildTerrain(n: number, seed = 7): Terrain {
+export function buildTerrain(n: number, seed = 7, shape: TerrainShape = 'sommet'): Terrain {
   const noise = createNoise2D(seed);
   const heights = new Float32Array(n * n);
   let max = 0;
@@ -45,7 +63,7 @@ export function buildTerrain(n: number, seed = 7): Terrain {
     for (let i = 0; i < n; i++) {
       const x = (i / (n - 1)) * 2 - 1;
       const z = (j / (n - 1)) * 2 - 1;
-      const h = rawHeight(noise, x, z);
+      const h = rawHeight(noise, x, z, shape);
       heights[j * n + i] = h;
       if (h > max) {
         max = h;

@@ -1,12 +1,16 @@
 import { useEffect, useRef } from 'react';
 import { introDelay, prefersReducedMotion } from '../lib/motion';
-import { buildTerrain, buildTrail, heightAt, lookAt, multiply, perspective, project, RELIEF_HEIGHT } from '../lib/topo';
+import { buildTerrain, buildTrail, heightAt, lookAt, multiply, perspective, project, RELIEF_HEIGHT, type TerrainShape } from '../lib/topo';
 
 interface Props {
   /** Élément qui reçoit les variables CSS du défilement et du pointeur. */
   host: React.RefObject<HTMLElement | null>;
   /** Graine du massif : un relief différent par graine (celui de l'accueil par défaut). */
   seed?: number;
+  /** Silhouette du massif (sommet unique par défaut). */
+  shape?: TerrainShape;
+  /** Contenu du repère d'arrivée, à la place de l'étiquette « Arrivée » (une photo, par exemple). */
+  summit?: React.ReactNode;
 }
 
 const VERTEX = `#version 300 es
@@ -126,7 +130,7 @@ function trailTexture(points: { x: number; z: number }[]): HTMLCanvasElement {
  * contourne lentement. Le sentier se trace du départ au sommet, puis une
  * frontale le parcourt. Sans WebGL 2, le fond dégradé reste seul.
  */
-export function TopoScene({ host, seed = 7 }: Props) {
+export function TopoScene({ host, seed = 7, shape = 'sommet', summit: summitContent }: Props) {
   const ref = useRef<HTMLCanvasElement>(null);
   const startRef = useRef<HTMLSpanElement>(null);
   const summitRef = useRef<HTMLSpanElement>(null);
@@ -140,7 +144,7 @@ export function TopoScene({ host, seed = 7 }: Props) {
     const reduce = prefersReducedMotion();
     const mobile = () => canvas.clientWidth < 760;
 
-    const terrain = buildTerrain(mobile() ? 130 : 170, seed);
+    const terrain = buildTerrain(mobile() ? 130 : 170, seed, shape);
     const trail = buildTrail(terrain);
     const n = terrain.n;
 
@@ -243,13 +247,14 @@ export function TopoScene({ host, seed = 7 }: Props) {
       const rise = ease(t / 1.8);
       const progress = reduce ? 1 : ease((t - 1.2) / 2.6);
       const narrow = mobile();
-      const yaw = -0.55 + Math.sin(clock * 0.06) * 0.42 + px * 0.28;
+      const yaw = (shape === 'crete' ? 0.35 : -0.55) + Math.sin(clock * 0.06) * 0.42 + px * 0.28;
       const pitch = 0.64 + py * 0.08 + lift * 0.3;
       const dist = (narrow ? 4.1 : 1.95) - lift * 0.45;
       const target = [0, 0.12, 0];
       const eye = [target[0] + Math.sin(yaw) * Math.cos(pitch) * dist, target[1] + Math.sin(pitch) * dist, target[2] + Math.cos(yaw) * Math.cos(pitch) * dist];
       const mvp = multiply(perspective(narrow ? 0.62 : 0.56, W / H, 0.1, 20), lookAt(eye, target));
-      const shift: [number, number] = narrow ? [0, 0.46] : [0.24, -0.12];
+      // Avec un repère d'arrivée en carte (plus haut qu'une étiquette), le relief descend un peu.
+      const shift: [number, number] = narrow ? [0, summitContent ? 0.3 : 0.46] : [0.24, summitContent ? -0.3 : -0.12];
 
       gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
       gl.uniformMatrix4fv(uMVP, false, mvp);
@@ -335,7 +340,7 @@ export function TopoScene({ host, seed = 7 }: Props) {
       window.removeEventListener('scroll', onScroll);
       gl.getExtension('WEBGL_lose_context')?.loseContext();
     };
-  }, [host, seed]);
+  }, [host, seed, shape, !!summitContent]);
 
   return (
     <div className="topo-scene" aria-hidden="true">
@@ -343,8 +348,8 @@ export function TopoScene({ host, seed = 7 }: Props) {
       <span ref={startRef} className="topo-pin topo-pin-start">
         Départ
       </span>
-      <span ref={summitRef} className="topo-pin topo-pin-summit">
-        Arrivée
+      <span ref={summitRef} className={`topo-pin topo-pin-summit ${summitContent ? 'topo-pin-custom' : ''}`}>
+        {summitContent ?? 'Arrivée'}
       </span>
     </div>
   );
