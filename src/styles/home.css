@@ -1676,9 +1676,7 @@ button.list-more {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .hl-pin,
-  .hl-pin-ring,
-  .hl-postcard {
+  .hl-hero-inner > * {
     animation: none;
   }
 
@@ -2239,208 +2237,113 @@ button.list-more {
   min-width: 0;
 }
 
-/* En tête : le relief réel du lieu en 3D, une épingle au départ, la photo en carte postale. */
+/* En tête : le relief en courbes de niveau de l'accueil, la course et ses chiffres en autocollants. */
 .hl-hero {
-  --px: 0;
-  --py: 0;
-  --scroll: 0;
-  --fx: 68%;
-  --fy: 50%;
   position: relative;
   display: grid;
   align-items: center;
-  min-height: min(820px, calc(100svh - var(--header-h)));
+  min-height: min(780px, calc(100svh - var(--header-h)));
   overflow: hidden;
   isolation: isolate;
   color: #ffffff;
-  background: #071c3f;
+  background:
+    radial-gradient(70% 75% at 70% 46%, #142a5c 0%, rgba(20, 42, 92, 0) 70%),
+    radial-gradient(120% 90% at 20% 110%, #1b1440 0%, rgba(27, 20, 64, 0) 60%),
+    #071c3f;
 }
 
-.hl-ground {
+/* Quadrillage de carte, comme sur l'accueil. */
+.hl-hero::before {
+  content: '';
   position: absolute;
   inset: 0;
   z-index: 0;
-  transform: translate3d(0, calc(var(--scroll) * 90px), 0);
-}
-
-/* Sous le relief, la photo floutée occupe l'écran le temps qu'il se charge (ou s'il ne peut pas l'être). */
-.hl-ground-photo,
-.hl-ground-blank {
-  position: absolute;
-  inset: -6%;
-  width: 112%;
-  height: 112%;
-  object-fit: cover;
-  filter: blur(18px) saturate(1.1);
-}
-
-.hl-ground-blank {
-  background:
-    radial-gradient(60% 70% at var(--fx) var(--fy), rgba(197, 84, 165, 0.55), transparent 70%),
-    linear-gradient(160deg, #472f61, #071c3f 70%);
-  filter: none;
-}
-
-.hl-hero .terrain-hero {
-  z-index: 1;
-}
-
-.hl-hero .terrain-hero.is-fallback {
-  background: none;
-}
-
-.hl-hero .terrain-hero .maplibregl-ctrl-attrib {
-  opacity: 0.75;
-}
-
-.hl-shade {
-  position: absolute;
-  inset: 0;
-  z-index: 1;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.045) 1px, transparent 1px);
+  background-size: 64px 64px;
+  -webkit-mask: radial-gradient(75% 70% at 65% 50%, #000 0%, transparent 75%);
+  mask: radial-gradient(75% 70% at 65% 50%, #000 0%, transparent 75%);
   pointer-events: none;
-  background:
-    radial-gradient(38% 46% at var(--fx) var(--fy), rgba(254, 102, 196, 0.16), transparent 70%),
-    linear-gradient(to right, rgba(7, 28, 63, 0.92) 0%, rgba(7, 28, 63, 0.7) 32%, rgba(7, 28, 63, 0.1) 58%, rgba(7, 28, 63, 0) 100%),
-    linear-gradient(to top, rgba(7, 28, 63, 0.85) 0%, rgba(7, 28, 63, 0) 30%),
-    linear-gradient(to bottom, rgba(71, 47, 97, 0.45) 0%, rgba(71, 47, 97, 0) 22%);
 }
 
-/* L'épingle du départ, posée au centre de l'orbite : elle ne bouge pas quand la caméra tourne. */
-.hl-pin {
-  position: absolute;
-  left: var(--fx);
-  top: var(--fy);
-  z-index: 2;
-  width: 0;
-  height: 0;
-  pointer-events: none;
-  animation: hl-pin-in 0.9s cubic-bezier(0.2, 0.8, 0.2, 1) calc(var(--intro, 0ms) + 900ms) backwards;
+/* Les chiffres clés : des autocollants blancs, comme les portes de l'accueil. */
+.hl-facts {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  width: 100%;
+  max-width: 600px;
+  margin: 8px 0 6px;
+  padding: 0;
+  list-style: none;
 }
 
-.hl-pin-dot {
-  position: absolute;
-  left: -11px;
-  top: -11px;
-  width: 22px;
-  height: 22px;
-  border: 4px solid #ffffff;
-  border-radius: 50%;
-  background: #fe66c4;
-  box-shadow: 0 0 0 3px #071c3f, 0 0 32px 8px rgba(254, 102, 196, 0.7);
-}
-
-.hl-pin-ring {
-  position: absolute;
-  left: -40px;
-  top: -40px;
-  width: 80px;
-  height: 80px;
-  border: 2px solid #fe66c4;
-  border-radius: 50%;
-  animation: hl-pin-pulse 2.8s cubic-bezier(0.2, 0.6, 0.3, 1) infinite;
-}
-
-.hl-pin-ring + .hl-pin-ring {
-  animation-delay: 1.4s;
-}
-
-.hl-pin-label {
-  position: absolute;
-  left: 22px;
-  top: -44px;
-  padding: 6px 12px;
+.hl-fact {
+  display: grid;
+  align-content: center;
+  gap: 4px;
+  min-width: 0;
+  padding: 14px 16px;
   border: 2px solid #071c3f;
-  border-radius: 10px 10px 10px 2px;
+  border-radius: 16px;
   background: #ffffff;
   color: #071c3f;
-  font-weight: 800;
-  font-size: 13.5px;
+  box-shadow: 4px 5px 0 #071c3f;
+  transform: rotate(var(--fact-tilt, 0deg));
+}
+
+.hl-fact:nth-child(1) {
+  --fact-tilt: -1.5deg;
+}
+
+.hl-fact:nth-child(2) {
+  --fact-tilt: 1deg;
+}
+
+.hl-fact:nth-child(3) {
+  --fact-tilt: -0.6deg;
+}
+
+.hl-fact b {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(26px, 2.6vw, 34px);
+  line-height: 1;
   white-space: nowrap;
-  box-shadow: 3px 3px 0 #071c3f;
 }
 
-@keyframes hl-pin-in {
-  from {
-    opacity: 0;
-    transform: translateY(-60px);
-  }
+.hl-fact:nth-child(1) b {
+  color: #c554a5;
 }
 
-@keyframes hl-pin-pulse {
-  from {
-    opacity: 0.9;
-    transform: scale(0.3);
-  }
-  to {
-    opacity: 0;
-    transform: scale(2.4);
-  }
-}
-
-/* La photo en carte postale : inclinée, elle flotte et suit la souris. */
-.hl-postcard {
-  position: absolute;
-  right: max(32px, calc((100% - 1240px) / 2 + 32px));
-  bottom: 56px;
-  z-index: 3;
-  width: clamp(200px, 19vw, 280px);
-  margin: 0;
-  padding: 10px 10px 8px;
-  border-radius: 6px;
-  background: #ffffff;
-  box-shadow: 8px 10px 0 #c554a5, 0 24px 60px rgba(4, 15, 36, 0.5);
-  transform: perspective(900px) translate3d(calc(var(--px) * 30px), calc(var(--py) * 20px + var(--scroll) * -60px), 0) rotate(4deg)
-    rotateY(calc(var(--px) * -14deg)) rotateX(calc(var(--py) * 10deg));
-  animation: hl-postcard-in 1.1s cubic-bezier(0.2, 0.8, 0.2, 1) calc(var(--intro, 0ms) + 1100ms) backwards;
-}
-
-.hl-postcard img {
-  display: block;
-  width: 100%;
-  aspect-ratio: 4 / 3;
-  object-fit: cover;
-  border-radius: 3px;
-}
-
-.hl-postcard figcaption {
-  padding-top: 6px;
-  font-size: 11px;
+.hl-fact span {
+  font-size: 13.5px;
   color: #472f61;
-}
-
-.hl-postcard a {
-  color: inherit;
-}
-
-@keyframes hl-postcard-in {
-  from {
-    opacity: 0;
-    translate: 0 80px;
-    rotate: 14deg;
-  }
 }
 
 .hl-hero-inner {
   position: relative;
-  z-index: 3;
+  z-index: 4;
   display: grid;
   justify-items: start;
   gap: 14px;
   width: 100%;
   max-width: 1240px;
   margin: 0 auto;
-  padding: 80px 32px 96px;
+  padding: 72px 32px 88px;
 }
 
 .hl-hero-inner > * {
+  max-width: 640px;
   animation: page-in 0.9s cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
 }
 
 .hl-hero-inner > :nth-child(1) { animation-delay: calc(var(--intro, 0ms) + 200ms); }
 .hl-hero-inner > :nth-child(2) { animation-delay: calc(var(--intro, 0ms) + 320ms); }
 .hl-hero-inner > :nth-child(3) { animation-delay: calc(var(--intro, 0ms) + 440ms); }
-.hl-hero-inner > :nth-child(4) { animation-delay: calc(var(--intro, 0ms) + 560ms); }
-.hl-hero-inner > :nth-child(5) { animation-delay: calc(var(--intro, 0ms) + 680ms); }
+.hl-hero-inner > :nth-child(4) { animation-delay: calc(var(--intro, 0ms) + 600ms); }
+.hl-hero-inner > :nth-child(5) { animation-delay: calc(var(--intro, 0ms) + 760ms); }
 
 .hl-eyebrow {
   display: flex;
@@ -2466,7 +2369,7 @@ button.list-more {
 }
 
 .hl-name {
-  max-width: 12ch;
+  max-width: 13ch;
   margin: 0;
   font-family: var(--font-display);
   font-weight: 400;
@@ -2484,57 +2387,10 @@ button.list-more {
   color: rgba(255, 255, 255, 0.9);
 }
 
-/* Chiffres clés en pastilles de verre, lisibles sur n'importe quelle photo. */
-.hl-stats {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin: 4px 0 6px;
-  padding: 0;
-  list-style: none;
-}
-
-.hl-stats li {
-  padding: 8px 14px;
-  border: 1px solid rgba(255, 255, 255, 0.25);
-  border-radius: 12px;
-  background: rgba(7, 28, 63, 0.55);
-  backdrop-filter: blur(8px);
-  font-size: 14px;
-  color: rgba(255, 255, 255, 0.85);
-}
-
-.hl-stats b {
-  margin-right: 4px;
-  font-size: 17px;
-  color: #ffffff;
-}
-
 .hl-cta {
   min-height: 52px;
   padding: 0 28px;
   font-size: 16.5px;
-}
-
-/* Le compte à rebours, en grand dans la police du titre. */
-.hl-countdown {
-  display: flex;
-  align-items: baseline;
-  gap: 10px;
-  margin: 2px 0 0;
-  font-weight: 700;
-  font-size: 15px;
-  color: rgba(255, 255, 255, 0.85);
-}
-
-.hl-countdown b {
-  font-family: var(--font-display);
-  font-weight: 400;
-  font-size: clamp(40px, 4.6vw, 60px);
-  line-height: 1;
-  color: #fe66c4;
-  -webkit-text-stroke: 0.06em #071c3f;
-  paint-order: stroke fill;
 }
 
 .highlights-body {
@@ -2753,30 +2609,23 @@ button.list-more {
   }
 
   .hl-hero {
-    --fx: 50%;
-    --fy: 30%;
     align-items: end;
   }
 
-  .hl-shade {
-    background:
-      radial-gradient(50% 30% at var(--fx) var(--fy), rgba(254, 102, 196, 0.16), transparent 70%),
-      linear-gradient(to top, rgba(7, 28, 63, 0.97) 0%, rgba(7, 28, 63, 0.85) 42%, rgba(7, 28, 63, 0) 68%);
+  .hl-facts {
+    gap: 8px;
   }
 
-  .hl-pin-label {
-    left: auto;
-    right: 22px;
-    border-radius: 10px 10px 2px 10px;
+  .hl-fact {
+    padding: 10px;
   }
 
-  .hl-postcard {
-    display: none;
+  .hl-fact b {
+    font-size: 21px;
   }
 
-  .hl-stats li {
-    padding: 6px 10px;
-    font-size: 13px;
+  .hl-fact span {
+    font-size: 12px;
   }
 
   .highlights-body {

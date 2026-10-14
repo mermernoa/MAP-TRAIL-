@@ -1,10 +1,10 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { fmtKm, fmtM, fmtPrice } from '../components/bits';
-import { TerrainHero } from '../components/TerrainHero';
+import { TopoScene } from '../components/TopoScene';
 import type { Course, RaceEvent } from '../data/types';
 import { formatRange, MONTH_SHORT, parseYMD } from '../lib/dates';
-import { introDelay, prefersReducedMotion, useReveal, useTilt } from '../lib/motion';
+import { introDelay, useReveal, useTilt } from '../lib/motion';
 import { cardPhoto } from '../lib/photos';
 import { type Spotlight, spotlights } from '../lib/spotlights';
 import { raceWeekend } from '../lib/weekend';
@@ -20,7 +20,7 @@ function mainCourse(e: RaceEvent, today: string): Course {
 
 /**
  * « À la une » : les courses mises en avant, sans filtre ni formulaire. En tête,
- * la course du moment sur le relief 3D réel de son lieu ; puis nos coups de cœur
+ * la course du moment sur le relief en courbes de niveau de l'accueil ; puis nos coups de cœur
  * (espace admin), une course par thème et le prochain week-end de course.
  */
 export function HighlightsPage() {
@@ -106,81 +106,23 @@ function SectionBar({ id, title, text }: { id: string; title: string; text: stri
   );
 }
 
-/** Position du lieu dans l'en-tête : à droite du texte sur ordinateur, au-dessus sur mobile. */
-const leadFocus = () => (window.matchMedia('(max-width: 760px)').matches ? { x: 0.5, y: 0.3 } : { x: 0.68, y: 0.5 });
-
 /**
- * En tête : le relief réel du lieu de départ, en 3D sous imagerie satellite,
- * qui tourne lentement comme vu d'un drone. Une épingle rose marque le lieu ;
- * la photo de la course flotte à côté comme une carte postale et suit la souris.
+ * En tête : la course du moment sur le relief en courbes de niveau de l'accueil
+ * (un massif différent pour chaque course), ses chiffres en autocollants.
  */
 function LeadHero({ event, course, reason, today }: { event: RaceEvent; course: Course; reason: string; today: string }) {
   const heroRef = useRef<HTMLElement>(null);
-  const [failed, setFailed] = useState(false);
-  const photo = cardPhoto(event);
-  const showPhoto = photo && !failed;
   const days = Math.max(0, Math.round((Date.parse(`${course.start.slice(0, 10)}T12:00:00Z`) - Date.parse(`${today}T12:00:00Z`)) / 864e5));
   const minPrice = Math.min(...event.courses.map((c) => c.priceEur ?? Infinity));
 
   useEffect(() => {
-    const hero = heroRef.current;
-    if (!hero) return;
-    hero.style.setProperty('--intro', `${Math.round(introDelay())}ms`);
-    if (prefersReducedMotion()) return;
-    let raf = 0;
-    const target = { x: 0, y: 0 };
-    const cur = { x: 0, y: 0 };
-    const tick = () => {
-      raf = 0;
-      cur.x += (target.x - cur.x) * 0.08;
-      cur.y += (target.y - cur.y) * 0.08;
-      hero.style.setProperty('--px', cur.x.toFixed(4));
-      hero.style.setProperty('--py', cur.y.toFixed(4));
-      if (Math.abs(target.x - cur.x) > 0.001 || Math.abs(target.y - cur.y) > 0.001) raf = requestAnimationFrame(tick);
-    };
-    const onMove = (e: PointerEvent) => {
-      if (e.pointerType !== 'mouse') return;
-      target.x = e.clientX / window.innerWidth - 0.5;
-      target.y = e.clientY / window.innerHeight - 0.5;
-      if (!raf) raf = requestAnimationFrame(tick);
-    };
-    const onScroll = () => {
-      const h = hero.offsetHeight || 1;
-      hero.style.setProperty('--scroll', Math.min(1, Math.max(0, window.scrollY / h)).toFixed(3));
-    };
-    window.addEventListener('pointermove', onMove, { passive: true });
-    window.addEventListener('scroll', onScroll, { passive: true });
-    onScroll();
-    return () => {
-      cancelAnimationFrame(raf);
-      window.removeEventListener('pointermove', onMove);
-      window.removeEventListener('scroll', onScroll);
-    };
+    heroRef.current?.style.setProperty('--intro', `${Math.round(introDelay())}ms`);
   }, []);
 
   return (
     <section ref={heroRef} className="hl-hero" aria-labelledby="hl-title">
-      <div className="hl-ground" aria-hidden="true">
-        {showPhoto ? <img className="hl-ground-photo" src={photo.src} alt="" referrerPolicy="no-referrer" /> : <span className="hl-ground-blank" />}
-        <TerrainHero lat={event.lat} lng={event.lng} track={null} focus={leadFocus} />
-      </div>
-      <div className="hl-shade" aria-hidden="true" />
-      <div className="hl-pin" aria-hidden="true">
-        <span className="hl-pin-ring" />
-        <span className="hl-pin-ring" />
-        <span className="hl-pin-dot" />
-        <span className="hl-pin-label">{event.city}</span>
-      </div>
-      {showPhoto && (
-        <figure className="hl-postcard">
-          <img src={photo.thumb ?? photo.src} alt="" referrerPolicy="no-referrer" onError={() => setFailed(true)} />
-          <figcaption>
-            <a href={photo.src} target="_blank" rel="noreferrer">
-              Photo : {photo.credit}
-            </a>
-          </figcaption>
-        </figure>
-      )}
+      <TopoScene host={heroRef} seed={seedFrom(event.id)} />
+      <div className="home-hero-scrim" aria-hidden="true" />
       <div className="hl-hero-inner">
         <p className="hl-eyebrow">
           <span>À la une</span> {reason}
@@ -191,26 +133,19 @@ function LeadHero({ event, course, reason, today }: { event: RaceEvent; course: 
         <p className="hl-place">
           {event.city}, {event.department ?? event.region} · {formatRange(event.dateStart, event.dateEnd)}
         </p>
-        <p className="hl-countdown">
-          <b>J-{days}</b> avant le départ
-        </p>
-        <ul className="hl-stats" aria-label="En chiffres">
-          <li>
-            <b>{fmtKm(course.distanceKm)}</b> le plus long
+        <ul className="hl-facts" aria-label="En chiffres">
+          <li className="hl-fact">
+            <b>J-{days}</b>
+            <span>avant le départ</span>
           </li>
-          {course.elevationGain != null && (
-            <li>
-              <b>{fmtM(course.elevationGain)}</b> de D+
-            </li>
-          )}
-          <li>
-            <b>{event.courses.length}</b> parcours
+          <li className="hl-fact">
+            <b>{fmtKm(course.distanceKm)}</b>
+            <span>{course.elevationGain != null ? `${fmtM(course.elevationGain)} de D+` : 'le plus long'}</span>
           </li>
-          {Number.isFinite(minPrice) && (
-            <li>
-              dès <b>{fmtPrice(minPrice)}</b>
-            </li>
-          )}
+          <li className="hl-fact">
+            <b>{Number.isFinite(minPrice) ? `dès ${fmtPrice(minPrice)}` : event.courses.length}</b>
+            <span>{Number.isFinite(minPrice) ? `${event.courses.length} parcours` : 'parcours'}</span>
+          </li>
         </ul>
         <Link to={`/course/${event.id}`} className="button button-primary hl-cta">
           Voir la course
@@ -218,6 +153,13 @@ function LeadHero({ event, course, reason, today }: { event: RaceEvent; course: 
       </div>
     </section>
   );
+}
+
+/** Graine stable tirée d'un identifiant, pour donner à chaque course son massif. */
+function seedFrom(id: string): number {
+  let x = 7;
+  for (let i = 0; i < id.length; i++) x = (x * 31 + id.charCodeAt(i)) % 100003;
+  return x;
 }
 
 function RaceCard({ event, course, spot, kicker }: { event: RaceEvent; course: Course; spot?: Spotlight; kicker?: string }) {

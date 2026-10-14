@@ -5,6 +5,8 @@ import { buildTerrain, buildTrail, heightAt, lookAt, multiply, perspective, proj
 interface Props {
   /** Élément qui reçoit les variables CSS du défilement et du pointeur. */
   host: React.RefObject<HTMLElement | null>;
+  /** Graine du massif : un relief différent par graine (celui de l'accueil par défaut). */
+  seed?: number;
 }
 
 const VERTEX = `#version 300 es
@@ -124,7 +126,7 @@ function trailTexture(points: { x: number; z: number }[]): HTMLCanvasElement {
  * contourne lentement. Le sentier se trace du départ au sommet, puis une
  * frontale le parcourt. Sans WebGL 2, le fond dégradé reste seul.
  */
-export function TopoScene({ host }: Props) {
+export function TopoScene({ host, seed = 7 }: Props) {
   const ref = useRef<HTMLCanvasElement>(null);
   const startRef = useRef<HTMLSpanElement>(null);
   const summitRef = useRef<HTMLSpanElement>(null);
@@ -138,7 +140,7 @@ export function TopoScene({ host }: Props) {
     const reduce = prefersReducedMotion();
     const mobile = () => canvas.clientWidth < 760;
 
-    const terrain = buildTerrain(mobile() ? 130 : 170);
+    const terrain = buildTerrain(mobile() ? 130 : 170, seed);
     const trail = buildTrail(terrain);
     const n = terrain.n;
 
@@ -333,7 +335,7 @@ export function TopoScene({ host }: Props) {
       window.removeEventListener('scroll', onScroll);
       gl.getExtension('WEBGL_lose_context')?.loseContext();
     };
-  }, [host]);
+  }, [host, seed]);
 
   return (
     <div className="topo-scene" aria-hidden="true">
