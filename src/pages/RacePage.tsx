@@ -232,11 +232,13 @@ function RaceDetail({ event }: { event: RaceEvent }) {
               </div>
               {!trackState.loading && (
                 <GpxPanel
+                  eventId={event.id}
                   course={course}
                   track={trackState.track}
                   fileName={trackState.fileName}
                   text={trackState.text}
                   remote={trackState.remote}
+                  source={trackState.source}
                   error={trackState.error}
                   onFile={trackState.save}
                   onRemove={trackState.remove}

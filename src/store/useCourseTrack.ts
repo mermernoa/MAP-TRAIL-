@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { GpxError, parseGpx, type ParsedTrack } from '../lib/gpx';
+import { fetchApprovedGpx } from '../lib/gpxSubmissions';
 import { idbDelete, idbGet, idbSet } from '../lib/idb';
 
 interface StoredTrack {
@@ -10,15 +11,17 @@ interface StoredTrack {
 
 interface TrackState {
   loading: boolean;
-  /** Trace chargée depuis le lien GPX de la base (et non importée par l'utilisateur). */
+  /** Trace chargée depuis la base (et non importée par l'utilisateur). */
   remote: boolean;
+  /** D'où vient la trace : importée ici, proposée par un coureur et validée, ou lien officiel. */
+  source: 'local' | 'validee' | 'officielle' | null;
   track: ParsedTrack | null;
   fileName: string | null;
   text: string | null;
   error: string | null;
 }
 
-const EMPTY: TrackState = { loading: false, remote: false, track: null, fileName: null, text: null, error: null };
+const EMPTY: TrackState = { loading: false, remote: false, source: null, track: null, fileName: null, text: null, error: null };
 
 /** Télécharge le GPX officiel quand le serveur l'autorise (CORS) ; sinon null. */
 async function fetchRemote(url: string): Promise<{ text: string; fileName: string } | null> {
@@ -36,7 +39,8 @@ async function fetchRemote(url: string): Promise<{ text: string; fileName: strin
 
 /**
  * Trace GPX d'un parcours : celle importée par l'utilisateur (IndexedDB) en
- * priorité, sinon le GPX officiel référencé dans la base quand il est lisible.
+ * priorité, sinon une trace proposée par un coureur et validée dans l'espace
+ * admin, sinon le GPX officiel référencé dans la base quand il est lisible.
  */
 export function useCourseTrack(key: string, gpxUrl?: string) {
   const [state, setState] = useState<TrackState>({ ...EMPTY, loading: true });
@@ -45,10 +49,20 @@ export function useCourseTrack(key: string, gpxUrl?: string) {
     let cancelled = false;
     setState({ ...EMPTY, loading: true });
     const loadRemote = async () => {
+      const [eventId, courseId] = key.split('/');
+      const validated = eventId && courseId ? await fetchApprovedGpx(eventId, courseId) : null;
+      if (cancelled) return;
+      if (validated) {
+        try {
+          return setState({ loading: false, remote: true, source: 'validee', track: parseGpx(validated.text), fileName: validated.fileName, text: validated.text, error: null });
+        } catch {
+          // Trace validée illisible : on passe au lien officiel.
+        }
+      }
       const remote = gpxUrl ? await fetchRemote(gpxUrl) : null;
       if (cancelled) return;
       if (!remote) return setState(EMPTY);
-      setState({ loading: false, remote: true, track: parseGpx(remote.text), fileName: remote.fileName, text: remote.text, error: null });
+      setState({ loading: false, remote: true, source: 'officielle', track: parseGpx(remote.text), fileName: remote.fileName, text: remote.text, error: null });
     };
     idbGet<StoredTrack>(`gpx:${key}`)
       .then((stored) => {
@@ -58,7 +72,7 @@ export function useCourseTrack(key: string, gpxUrl?: string) {
           return;
         }
         try {
-          setState({ loading: false, remote: false, track: parseGpx(stored.text), fileName: stored.fileName, text: stored.text, error: null });
+          setState({ loading: false, remote: false, source: 'local', track: parseGpx(stored.text), fileName: stored.fileName, text: stored.text, error: null });
         } catch {
           setState({ ...EMPTY, error: 'La trace enregistrée est illisible. Importez-la à nouveau.' });
         }
@@ -77,7 +91,7 @@ export function useCourseTrack(key: string, gpxUrl?: string) {
         const text = await file.text();
         const track = parseGpx(text);
         await idbSet(`gpx:${key}`, { fileName: file.name, text, importedAt: new Date().toISOString() } satisfies StoredTrack);
-        setState({ loading: false, remote: false, track, fileName: file.name, text, error: null });
+        setState({ loading: false, remote: false, source: 'local', track, fileName: file.name, text, error: null });
       } catch (err) {
         const message =
           err instanceof GpxError ? err.message : "Impossible d'enregistrer ce fichier. Vérifiez qu'il s'agit bien d'un GPX.";

@@ -2,6 +2,8 @@ import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import type { RaceEvent } from '../data/types';
 import { formatRange } from '../lib/dates';
+import { GPX_BUCKET } from '../lib/gpxSubmissions';
+import { downloadFile } from '../lib/ical';
 import { MASSIFS } from '../lib/massifs';
 import { normalize } from '../lib/filters';
 import { accountsEnabled, getSupabase } from '../lib/supabase';
@@ -59,11 +61,34 @@ interface Message {
 const TABS = [
   { id: 'bord', label: 'Tableau de bord' },
   { id: 'messages', label: 'Messages' },
+  { id: 'gpx', label: 'Tracés GPX' },
   { id: 'comptes', label: 'Comptes' },
   { id: 'site', label: 'Site' },
   { id: 'liens', label: 'Outils' },
 ] as const;
 type Tab = (typeof TABS)[number]['id'];
+
+interface GpxSubmission {
+  id: string;
+  event_id: string;
+  course_id: string;
+  file_path: string;
+  file_name: string;
+  distance_km: number | null;
+  elevation_gain: number | null;
+  note: string | null;
+  author_email: string | null;
+  status: 'pending' | 'approved' | 'rejected' | 'replaced';
+  created_at: string;
+  reviewed_at: string | null;
+}
+
+const GPX_STATUS: Record<GpxSubmission['status'], string> = {
+  pending: 'À vérifier',
+  approved: 'En ligne',
+  rejected: 'Refusé',
+  replaced: 'Remplacé',
+};
 
 const KIND_LABEL: Record<Message['kind'], string> = { contact: 'Contact', erreur: 'Erreur signalée', course: 'Course proposée' };
 
@@ -180,6 +205,7 @@ function Dashboard() {
       <div className="admin-panel" role="tabpanel">
         {tab === 'bord' && <Overview stats={stats} />}
         {tab === 'messages' && <Messages onChange={loadStats} />}
+        {tab === 'gpx' && <GpxReview />}
         {tab === 'comptes' && <Users />}
         {tab === 'site' && <SiteSettingsPanel />}
         {tab === 'liens' && <Tools />}
@@ -437,6 +463,139 @@ function Messages({ onChange }: { onChange: () => void }) {
             </div>
           </li>
         ))}
+      </ul>
+    </section>
+  );
+}
+
+// ---------- Tracés GPX proposés
+
+function GpxReview() {
+  const [list, setList] = useState<GpxSubmission[] | null>(null);
+  const [showAll, setShowAll] = useState(false);
+  const [error, setError] = useState('');
+  const all = useCatalog((s) => s.allEvents);
+  const byId = useMemo(() => new Map(all.map((e) => [e.id, e])), [all]);
+
+  const load = async () => {
+    const sb = await getSupabase();
+    const { data, error: e } = await sb.rpc('admin_gpx_submissions');
+    if (e) setError(e.message);
+    else setList(data as GpxSubmission[]);
+  };
+  useEffect(() => {
+    void load();
+  }, []);
+
+  const download = async (g: GpxSubmission) => {
+    const sb = await getSupabase();
+    const { data, error: e } = await sb.storage.from(GPX_BUCKET).download(g.file_path);
+    if (e || !data) return setError(e?.message ?? 'Téléchargement impossible.');
+    downloadFile(g.file_name, await data.text(), 'application/gpx+xml');
+  };
+  const setStatus = async (g: GpxSubmission, status: GpxSubmission['status']) => {
+    const sb = await getSupabase();
+    const now = new Date().toISOString();
+    // Une seule trace en ligne par parcours : la précédente passe en « remplacée ».
+    if (status === 'approved') {
+      const { error: e } = await sb
+        .from('gpx_submissions')
+        .update({ status: 'replaced', reviewed_at: now })
+        .eq('event_id', g.event_id)
+        .eq('course_id', g.course_id)
+        .eq('status', 'approved');
+      if (e) return setError(e.message);
+    }
+    const { error: e } = await sb.from('gpx_submissions').update({ status, reviewed_at: now }).eq('id', g.id);
+    if (e) return setError(e.message);
+    void load();
+  };
+  const remove = async (g: GpxSubmission) => {
+    if (!window.confirm('Supprimer définitivement ce fichier ?')) return;
+    const sb = await getSupabase();
+    await sb.storage.from(GPX_BUCKET).remove([g.file_path]);
+    const { error: e } = await sb.from('gpx_submissions').delete().eq('id', g.id);
+    if (e) return setError(e.message);
+    setList((l) => l?.filter((x) => x.id !== g.id) ?? null);
+  };
+
+  if (!list) return error ? <p className="form-error">{error}</p> : <p className="muted">Chargement des tracés…</p>;
+  const shown = list.filter((g) => showAll || g.status === 'pending');
+  return (
+    <section className="admin-messages">
+      <p className="muted">
+        Traces déposées par les visiteurs depuis le bloc « Trace GPX » des fiches. Une trace validée s’affiche sur la fiche pour tout le
+        monde (profil, carte et survol 3D). Compare la distance et le D+ du fichier avec ceux de la course avant de valider.
+      </p>
+      <label className="form-choice admin-toggle">
+        <input type="checkbox" checked={showAll} onChange={(e) => setShowAll(e.target.checked)} /> Afficher aussi les traces déjà traitées
+      </label>
+      {error && <p className="form-error">{error}</p>}
+      {!shown.length && <p className="muted">Aucune trace à vérifier.</p>}
+      <ul>
+        {shown.map((g) => {
+          const event = byId.get(g.event_id);
+          const course = event?.courses.find((c) => c.id === g.course_id);
+          const gap = course && g.distance_km != null ? Math.round(((g.distance_km - course.distanceKm) / course.distanceKm) * 100) : null;
+          return (
+            <li key={g.id} className={`panel admin-message ${g.status !== 'pending' ? 'is-done' : ''}`}>
+              <div className="admin-message-head">
+                <span className={`admin-kind gpx-${g.status}`}>{GPX_STATUS[g.status]}</span>
+                <strong>
+                  {event ? event.name : g.event_id} · {course ? course.name : `parcours ${g.course_id}`}
+                </strong>
+                <time dateTime={g.created_at}>{dateTime(g.created_at)}</time>
+              </div>
+              <p className="admin-message-body">
+                Fichier : {g.file_name}
+                <br />
+                Trace : {g.distance_km != null ? `${g.distance_km} km` : '?'}
+                {g.elevation_gain != null ? `, ${g.elevation_gain} m D+` : ''}
+                {course && (
+                  <>
+                    {' '}
+                    · Course : {course.distanceKm} km{course.elevationGain != null ? `, ${course.elevationGain} m D+` : ''}
+                    {gap != null && Math.abs(gap) >= 10 && <strong> · écart de {gap > 0 ? '+' : ''}{gap} % sur la distance</strong>}
+                  </>
+                )}
+                {g.note && (
+                  <>
+                    <br />
+                    Note : {g.note}
+                  </>
+                )}
+                <br />
+                Déposé par : {g.author_email ?? 'visiteur sans compte'}
+              </p>
+              <div className="admin-message-meta">
+                <button type="button" className="button" onClick={() => download(g)}>
+                  Télécharger
+                </button>
+                <Link className="button" to={`/course/${g.event_id}?parcours=${g.course_id}`}>
+                  Voir la course
+                </Link>
+                {g.status !== 'approved' && (
+                  <button type="button" className="button button-primary" onClick={() => setStatus(g, 'approved')}>
+                    Valider et mettre en ligne
+                  </button>
+                )}
+                {g.status === 'pending' && (
+                  <button type="button" className="button" onClick={() => setStatus(g, 'rejected')}>
+                    Refuser
+                  </button>
+                )}
+                {g.status === 'approved' && (
+                  <button type="button" className="button" onClick={() => setStatus(g, 'rejected')}>
+                    Retirer de la fiche
+                  </button>
+                )}
+                <button type="button" className="button admin-danger" onClick={() => remove(g)}>
+                  Supprimer
+                </button>
+              </div>
+            </li>
+          );
+        })}
       </ul>
     </section>
   );

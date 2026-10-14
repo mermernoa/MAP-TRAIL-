@@ -1,24 +1,28 @@
 import { useRef, useState } from 'react';
 import type { Course } from '../data/types';
 import type { ParsedTrack } from '../lib/gpx';
+import { submitGpx } from '../lib/gpxSubmissions';
 import { downloadFile } from '../lib/ical';
+import { accountsEnabled } from '../lib/supabase';
 import { fmtKm, fmtM } from './bits';
 import { DownloadIcon, ExternalIcon, TrashIcon, UploadIcon } from './Icons';
 
 interface Props {
+  eventId: string;
   course: Course;
   track: ParsedTrack | null;
   fileName: string | null;
   text: string | null;
-  /** Trace officielle chargée depuis la base (pas de suppression possible). */
+  /** Trace chargée depuis la base (pas de suppression possible). */
   remote?: boolean;
+  source?: 'local' | 'validee' | 'officielle' | null;
   error: string | null;
   onFile: (file: File) => void;
   onRemove: () => void;
 }
 
 /** Import d'un GPX (glisser-déposer ou sélection) et téléchargement. */
-export function GpxPanel({ course, track, fileName, text, remote = false, error, onFile, onRemove }: Props) {
+export function GpxPanel({ eventId, course, track, fileName, text, remote = false, source = null, error, onFile, onRemove }: Props) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [dragging, setDragging] = useState(false);
 
@@ -50,9 +54,11 @@ export function GpxPanel({ course, track, fileName, text, remote = false, error,
             </div>
           </dl>
           <p className="muted small">
-            {remote
-              ? `Trace officielle (${fileName}).`
-              : `Fichier : ${fileName}. Enregistré dans ce navigateur uniquement.`}{' '}
+            {source === 'validee'
+              ? `Trace proposée par un coureur et vérifiée par Take Ton Trail (${fileName}).`
+              : remote
+                ? `Trace officielle (${fileName}).`
+                : `Fichier : ${fileName}. Enregistré dans ce navigateur uniquement.`}{' '}
             Le D+ calculé depuis un GPX diffère souvent de quelques pourcents du chiffre officiel.
           </p>
           <div className="button-row">
@@ -74,6 +80,9 @@ export function GpxPanel({ course, track, fileName, text, remote = false, error,
               </button>
             )}
           </div>
+          {source === 'local' && accountsEnabled && text && (
+            <ShareGpx key={`${eventId}/${course.id}/${fileName}`} eventId={eventId} courseId={course.id} fileName={fileName ?? `${course.id}.gpx`} text={text} track={track} />
+          )}
         </>
       ) : (
         <div
@@ -94,7 +103,7 @@ export function GpxPanel({ course, track, fileName, text, remote = false, error,
             <strong>Déposez le GPX du parcours ici</strong>
             <br />
             <span className="muted">
-              Le tracé s’affiche sur la carte et le profil devient détaillé. Récupérez-le sur le site officiel de la course.
+              Le tracé s’affiche sur la carte et le profil devient détaillé. Tu peux ensuite le proposer pour qu’il s’affiche pour tout le monde.
             </span>
           </p>
           <button type="button" className="button" onClick={() => inputRef.current?.click()}>
@@ -123,6 +132,55 @@ export function GpxPanel({ course, track, fileName, text, remote = false, error,
           e.target.value = '';
         }}
       />
+    </div>
+  );
+}
+
+/**
+ * Proposer la trace importée à Take Ton Trail : elle est vérifiée dans l'espace
+ * admin avant d'apparaître sur la fiche pour tous les visiteurs.
+ */
+function ShareGpx({ eventId, courseId, fileName, text, track }: { eventId: string; courseId: string; fileName: string; text: string; track: ParsedTrack }) {
+  const [note, setNote] = useState('');
+  const [state, setState] = useState<'idle' | 'sending' | 'sent'>('idle');
+  const [error, setError] = useState('');
+
+  if (state === 'sent') {
+    return (
+      <p className="gpx-share-done" role="status">
+        Merci ! Ta trace part en vérification. Une fois validée, elle s’affichera sur la fiche pour tout le monde.
+      </p>
+    );
+  }
+  const send = async () => {
+    setState('sending');
+    setError('');
+    try {
+      await submitGpx({ eventId, courseId, fileName, text, track, note });
+      setState('sent');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Envoi impossible. Réessaie dans un instant.');
+      setState('idle');
+    }
+  };
+  return (
+    <div className="gpx-share">
+      <p>
+        <strong>C’est le bon tracé ?</strong> Propose-le à Take Ton Trail : après vérification, tous les coureurs verront le profil et le
+        survol 3D de ce parcours.
+      </p>
+      <label className="gpx-share-note">
+        <span className="muted small">Un mot pour nous (facultatif) : édition, source du fichier…</span>
+        <input type="text" maxLength={500} value={note} onChange={(e) => setNote(e.target.value)} placeholder="Ex. : GPX officiel 2026, pris sur le site de la course" />
+      </label>
+      <button type="button" className="button button-primary" onClick={send} disabled={state === 'sending'}>
+        <UploadIcon size={16} /> {state === 'sending' ? 'Envoi…' : 'Proposer ce tracé'}
+      </button>
+      {error && (
+        <p className="form-error" role="alert">
+          {error}
+        </p>
+      )}
     </div>
   );
 }

@@ -2132,6 +2132,15 @@ button.list-more {
   color: #ffffff;
 }
 
+.gpx-pending {
+  background: #ffe1f2;
+}
+
+.gpx-approved {
+  background: #e3f5e9;
+  color: #1d5b34;
+}
+
 .admin-danger {
   color: #a1124f;
 }

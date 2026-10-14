@@ -104,6 +104,10 @@ Les e-mails (confirmation, mot de passe oublié, changement d'adresse…) sont e
 
 `#/admin`, relié nulle part et non indexé, n'est accessible qu'aux comptes inscrits dans la table `admins` (vérifié par la base, pas seulement par la page) : tableau de bord (visites, comptes, saisons, courses les plus vues et les plus ajoutées), messages des formulaires à traiter, liste des comptes (export CSV), réglages du site sans toucher au code (bandeau d'annonce, coups de cœur de l'accueil, courses masquées, photo de chaque massif) et liens vers la feuille, Supabase et les déploiements. Les réglages sont dans la table `site_settings`, lue par tous les visiteurs. Les pages vues sont comptées sans cookie ni identifiant (table `page_views`, un total par jour et par page).
 
+### Traces GPX proposées
+
+Sur une fiche, un visiteur qui importe un GPX peut le proposer (« Proposer ce tracé »). Le fichier part dans l'espace privé `gpx` de Supabase, en attente. Dans l'espace admin, onglet **Tracés GPX**, on compare distance et D+ avec la course, on télécharge le fichier, puis on le valide ou le refuse. Une trace validée s'affiche sur la fiche pour tout le monde (profil, carte, survol 3D) ; une seule trace en ligne par parcours. Règles d'accès : `supabase/migrations/20261014074958_depots_gpx.sql`.
+
 ### Formulaires
 
 Contact, signaler une erreur et proposer une course enregistrent les messages dans la table `messages` de Supabase (envoi possible sans compte ; seuls les administrateurs les lisent, dans l'espace admin, onglet Messages). Sans Supabase, les formulaires ouvrent la messagerie du visiteur avec le message prêt à partir vers l'adresse de contact, taketontrail@gmail.com (`VITE_CONTACT_EMAIL` dans `.env.production`).

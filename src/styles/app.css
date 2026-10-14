@@ -2319,6 +2319,46 @@ textarea {
   animation: fade-in 0.2s ease-out;
 }
 
+/* Proposer sa trace : encadré rose pâle sous les chiffres du GPX. */
+.gpx-share {
+  display: grid;
+  justify-items: start;
+  gap: 10px;
+  padding: 14px 16px;
+  border: 2px dashed #fe66c4;
+  border-radius: var(--radius-m, 12px);
+  background: #fff3fa;
+}
+
+.gpx-share p {
+  margin: 0;
+}
+
+.gpx-share-note {
+  display: grid;
+  gap: 4px;
+  width: 100%;
+}
+
+.gpx-share-note input {
+  width: 100%;
+  min-height: 40px;
+  padding: 0 12px;
+  border: 1px solid var(--line, #d8d2e2);
+  border-radius: 10px;
+  background: #ffffff;
+  font: inherit;
+}
+
+.gpx-share-done {
+  margin: 0;
+  padding: 12px 16px;
+  border-radius: 12px;
+  background: #e9f7ee;
+  color: #1d5b34;
+  font-weight: 600;
+}
+
 .gpx-panel {
   display: grid;
   gap: 14px;
