@@ -76,6 +76,11 @@ export function CourseMap({ event, track, hoverKm, onFlyKm }: Props) {
       zoom: 10,
       maxPitch: 85,
       cooperativeGestures: true,
+      locale: {
+        'CooperativeGesturesHandler.WindowsHelpText': 'Ctrl + molette pour zoomer sur la carte',
+        'CooperativeGesturesHandler.MacHelpText': '⌘ + molette pour zoomer sur la carte',
+        'CooperativeGesturesHandler.MobileHelpText': 'Deux doigts pour déplacer la carte',
+      },
       attributionControl: { compact: true },
     });
     map.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-right');
