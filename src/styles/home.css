@@ -1394,6 +1394,30 @@ button.list-more {
   color: var(--ink-2);
 }
 
+/* Tableau des données conservées : une carte par donnée, durée en dessous. */
+.legal-data {
+  gap: 10px;
+}
+
+.legal-data div {
+  display: grid;
+  gap: 4px;
+  padding: 12px 14px;
+  border: 1px solid var(--line, #e3dcea);
+  border-radius: 12px;
+  background: #ffffff;
+}
+
+.legal-data dt::after {
+  content: none;
+}
+
+.legal-data dd .muted {
+  display: block;
+  margin-top: 4px;
+  font-size: 0.92em;
+}
+
 .site-footer-mail {
   justify-self: start;
   font-weight: 700;

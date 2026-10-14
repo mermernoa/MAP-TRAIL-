@@ -510,8 +510,9 @@ function GpxReview() {
     if (e) return setError(e.message);
     void load();
   };
-  const remove = async (g: GpxSubmission) => {
-    if (!window.confirm('Supprimer définitivement ce fichier ?')) return;
+  // Refuser ou retirer une trace la supprime (fichier et ligne), comme l'annonce la page Confidentialité.
+  const remove = async (g: GpxSubmission, question = 'Supprimer définitivement ce fichier ?') => {
+    if (!window.confirm(question)) return;
     const sb = await getSupabase();
     await sb.storage.from(GPX_BUCKET).remove([g.file_path]);
     const { error: e } = await sb.from('gpx_submissions').delete().eq('id', g.id);
@@ -580,12 +581,12 @@ function GpxReview() {
                   </button>
                 )}
                 {g.status === 'pending' && (
-                  <button type="button" className="button" onClick={() => setStatus(g, 'rejected')}>
+                  <button type="button" className="button" onClick={() => remove(g, 'Refuser cette trace ? Le fichier sera supprimé.')}>
                     Refuser
                   </button>
                 )}
                 {g.status === 'approved' && (
-                  <button type="button" className="button" onClick={() => setStatus(g, 'rejected')}>
+                  <button type="button" className="button" onClick={() => remove(g, 'Retirer cette trace de la fiche ? Le fichier sera supprimé.')}>
                     Retirer de la fiche
                   </button>
                 )}

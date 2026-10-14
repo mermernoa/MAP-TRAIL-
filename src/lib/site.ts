@@ -1,7 +1,9 @@
 /**
  * Identité de l'éditeur du site, pour les mentions légales et le contact.
- * Les champs vides ne s'affichent pas : complétez-les dès que Take Ton Trail
- * est immatriculé (raison sociale, adresse du siège, SIRET, responsable de la publication).
+ * Tant que legalName est vide, les mentions légales présentent un éditeur particulier
+ * non professionnel (anonyme, identité connue de l'hébergeur, LCEN art. 6 III 2).
+ * Dès que Take Ton Trail a une structure, remplir raison sociale, adresse du siège,
+ * SIRET (ou RNA pour une association) et responsable de la publication.
  */
 export const SITE = {
   name: 'Take Ton Trail',
