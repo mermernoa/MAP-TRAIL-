@@ -1,6 +1,6 @@
 # Rapport d’import de la base des courses
 
-Import du 06/10/2026 14:13:19 depuis 4 fichier(s) JSON de l'API Sheets.
+Import du 14/10/2026 10:11:19 depuis export CSV de la feuille.
 
 - 2248 lignes lues, 2248 publiées (statuts Validé, Prêt, En ligne).
 - 906 événements et 2245 parcours sur le site.
@@ -12,7 +12,7 @@ Import du 06/10/2026 14:13:19 depuis 4 fichier(s) JSON de l'API Sheets.
 - **EVT040-A** Trail des Hautes Vosges : Date de début manquante ou illisible : ligne ignorée.
 - **EVT460** Trail De Noel By Rossignol : Aucune coordonnée pour cet événement : il n’apparaît pas sur le site.
 
-## À vérifier (54)
+## À vérifier (53)
 
 - **EVT001** La Foulée Des Monts D'Ain : Photo : le lien ouvre une page web, pas une image (photo ignorée).
 - **EVT002** Val'Oween Trail : Photo : vignette de recherche Google, à remplacer par le lien de l’image d’origine (photo ignorée).
@@ -27,7 +27,6 @@ Import du 06/10/2026 14:13:19 depuis 4 fichier(s) JSON de l'API Sheets.
 - **EVT034** Hivernale des Templiers : Photo : vignette de recherche Google, à remplacer par le lien de l’image d’origine (photo ignorée).
 - **EVT036** Mimo Trail : Photo : vignette de recherche Google, à remplacer par le lien de l’image d’origine (photo ignorée).
 - **EVT038** Les Courses du Père Noel : Photo : vignette de recherche Google, à remplacer par le lien de l’image d’origine (photo ignorée).
-- **EVT041** Championnat du Canigou : Dates étalées sur 218 jours (du 01/01/2027 au 07/08/2027) : date de fin ou dates des parcours à vérifier.
 - **EVT044** Trail D2B : Photo : vignette de recherche Google, à remplacer par le lien de l’image d’origine (photo ignorée).
 - **EVT047** La Trace des Maquisards : Photo : vignette de recherche Google, à remplacer par le lien de l’image d’origine (photo ignorée).
 - **EVT050** La Navennoise : Photo : vignette de recherche Google, à remplacer par le lien de l’image d’origine (photo ignorée).
