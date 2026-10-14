@@ -74,7 +74,7 @@ export function useCourseTrack(key: string, gpxUrl?: string) {
         try {
           setState({ loading: false, remote: false, source: 'local', track: parseGpx(stored.text), fileName: stored.fileName, text: stored.text, error: null });
         } catch {
-          setState({ ...EMPTY, error: 'La trace enregistrée est illisible. Importez-la à nouveau.' });
+          setState({ ...EMPTY, error: 'La trace enregistrée est illisible. Importe-la à nouveau.' });
         }
       })
       .catch(() => {
@@ -94,7 +94,7 @@ export function useCourseTrack(key: string, gpxUrl?: string) {
         setState({ loading: false, remote: false, source: 'local', track, fileName: file.name, text, error: null });
       } catch (err) {
         const message =
-          err instanceof GpxError ? err.message : "Impossible d'enregistrer ce fichier. Vérifiez qu'il s'agit bien d'un GPX.";
+          err instanceof GpxError ? err.message : "Impossible d'enregistrer ce fichier. Vérifie qu'il s'agit bien d'un GPX.";
         setState((s) => ({ ...s, error: message }));
       }
     },

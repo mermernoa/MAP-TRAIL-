@@ -32,7 +32,7 @@ function SendFeedback({ status, onAgain }: { status: Status; onAgain: () => void
   if (status === 'mail') {
     return (
       <p className="form-note" role="status">
-        Votre messagerie s’est ouverte avec le message prêt à partir. Rien ne s’est ouvert ? Écrivez à{' '}
+        Ta messagerie s’est ouverte avec le message prêt à partir. Rien ne s’est ouvert ? Écris à{' '}
         <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>.
       </p>
     );
@@ -40,14 +40,14 @@ function SendFeedback({ status, onAgain }: { status: Status; onAgain: () => void
   if (status === 'error') {
     return (
       <p className="form-error" role="alert">
-        Le message n’est pas parti. Vérifiez votre connexion, puis réessayez.
+        Le message n’est pas parti. Vérifie ta connexion, puis réessaie.
       </p>
     );
   }
   if (status === 'unavailable') {
     return (
       <p className="form-error" role="alert">
-        L’envoi de messages n’est pas encore ouvert sur le site. Réessayez dans quelques jours.
+        L’envoi de messages n’est pas encore ouvert sur le site. Réessaie dans quelques jours.
       </p>
     );
   }
@@ -57,7 +57,7 @@ function SendFeedback({ status, onAgain }: { status: Status; onAgain: () => void
 function NotOpenYet() {
   return (
     <p className="form-note">
-      L’envoi de messages ouvre bientôt. Vous pouvez déjà préparer votre message : il partira dès que le formulaire sera
+      L’envoi de messages ouvre bientôt. Tu peux déjà préparer ton message : il partira dès que le formulaire sera
       relié.
     </p>
   );
@@ -75,7 +75,7 @@ export function ContactPage() {
   const [form, setForm] = useState({ name: '', email: '', topic: 'Question', message: '' });
   const set = (patch: Partial<typeof form>) => setForm((f) => ({ ...f, ...patch }));
   return (
-    <InfoLayout title="Contact" lede="Une question, une idée, un partenariat ? Écrivez-nous : chaque message est lu.">
+    <InfoLayout title="Contact" lede="Une question, une idée, un partenariat ? Écris-nous : chaque message est lu.">
       <p className="contact-direct">
         Par e-mail : <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>, ou avec le formulaire ci-dessous.
       </p>
@@ -100,11 +100,11 @@ export function ContactPage() {
         >
           {!messagesEnabled && <NotOpenYet />}
           <div className="form-row">
-            <label htmlFor={`${id}-name`}>Votre nom (facultatif)</label>
+            <label htmlFor={`${id}-name`}>Ton nom (facultatif)</label>
             <input id={`${id}-name`} value={form.name} onChange={(e) => set({ name: e.target.value })} autoComplete="name" />
           </div>
           <div className="form-row">
-            <label htmlFor={`${id}-email`}>Votre e-mail, pour vous répondre</label>
+            <label htmlFor={`${id}-email`}>Ton e-mail, pour te répondre</label>
             <input
               id={`${id}-email`}
               type="email"
@@ -216,16 +216,16 @@ export function ReportPage() {
           </div>
           <div className="form-row">
             <label htmlFor={`${id}-correct`}>
-              {form.topic.startsWith('Photo') ? 'Votre demande (retrait, crédit à afficher…)' : 'La bonne information'}
+              {form.topic.startsWith('Photo') ? 'Ta demande (retrait, crédit à afficher…)' : 'La bonne information'}
             </label>
             <textarea id={`${id}-correct`} required rows={5} maxLength={3000} value={form.correct} onChange={(e) => set({ correct: e.target.value })} />
           </div>
           <div className="form-row">
-            <label htmlFor={`${id}-source`}>Où l’avez-vous vue ? (lien, facultatif)</label>
+            <label htmlFor={`${id}-source`}>Où l’as-tu vue ? (lien, facultatif)</label>
             <input id={`${id}-source`} type="url" value={form.source} onChange={(e) => set({ source: e.target.value })} placeholder="https://" />
           </div>
           <div className="form-row">
-            <label htmlFor={`${id}-email`}>Votre e-mail (facultatif, pour vous prévenir de la correction)</label>
+            <label htmlFor={`${id}-email`}>Ton e-mail (facultatif, pour te prévenir de la correction)</label>
             <input id={`${id}-email`} type="email" value={form.email} onChange={(e) => set({ email: e.target.value })} autoComplete="email" />
           </div>
           <button type="submit" className="button button-primary" disabled={status === 'sending'}>
@@ -246,7 +246,7 @@ export function ProposePage() {
   return (
     <InfoLayout
       title="Proposer une course"
-      lede="Une course manque à la carte ? Donnez-nous l’essentiel : elle sera vérifiée sur son site officiel, puis ajoutée."
+      lede="Une course manque à la carte ? Donne-nous l’essentiel : elle sera vérifiée sur son site officiel, puis ajoutée."
     >
       {status === 'sent' ? (
         <SendFeedback status={status} onAgain={reset} />
@@ -295,7 +295,7 @@ export function ProposePage() {
             <input id={`${id}-website`} type="url" required value={form.website} onChange={(e) => set({ website: e.target.value })} placeholder="https://" />
           </div>
           <fieldset className="form-row form-choice">
-            <legend>Vous êtes…</legend>
+            <legend>Tu es…</legend>
             <label>
               <input type="radio" name={`${id}-who`} checked={form.organizer === 'non'} onChange={() => set({ organizer: 'non' })} /> Coureur ou coureuse
             </label>
@@ -308,11 +308,11 @@ export function ProposePage() {
             <textarea id={`${id}-comment`} rows={4} maxLength={2000} value={form.comment} onChange={(e) => set({ comment: e.target.value })} />
           </div>
           <div className="form-row">
-            <label htmlFor={`${id}-email`}>Votre e-mail (facultatif, pour vous prévenir de l’ajout)</label>
+            <label htmlFor={`${id}-email`}>Ton e-mail (facultatif, pour te prévenir de l’ajout)</label>
             <input id={`${id}-email`} type="email" value={form.email} onChange={(e) => set({ email: e.target.value })} autoComplete="email" />
           </div>
           <p className="form-hint">
-            Vous voulez seulement la suivre dans votre saison ? Ajoutez-la vous-même depuis <Link to="/ma-saison">Ma saison</Link>.
+            Tu veux seulement la suivre dans ta saison ? Ajoute-la toi-même depuis <Link to="/ma-saison">Ma saison</Link>.
           </p>
           <button type="submit" className="button button-primary" disabled={status === 'sending'}>
             {status === 'sending' ? 'Envoi…' : 'Proposer la course'}

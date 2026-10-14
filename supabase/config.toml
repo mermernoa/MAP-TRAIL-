@@ -30,27 +30,27 @@ otp_expiry = 3600
 # E-mails en français aux couleurs de Take Ton Trail (supabase/templates/).
 # Les liens ramènent sur #/compte?token_hash=…&type=…, valides sur n'importe quel appareil.
 [auth.email.template.confirmation]
-subject = "Confirmez votre adresse – Take Ton Trail"
+subject = "Confirme ton adresse – Take Ton Trail"
 content_path = "./supabase/templates/confirmation.html"
 
 [auth.email.template.recovery]
-subject = "Choisissez un nouveau mot de passe – Take Ton Trail"
+subject = "Choisis un nouveau mot de passe – Take Ton Trail"
 content_path = "./supabase/templates/recovery.html"
 
 [auth.email.template.email_change]
-subject = "Confirmez votre nouvelle adresse – Take Ton Trail"
+subject = "Confirme ta nouvelle adresse – Take Ton Trail"
 content_path = "./supabase/templates/email_change.html"
 
 [auth.email.template.invite]
-subject = "Votre invitation sur Take Ton Trail"
+subject = "Ton invitation sur Take Ton Trail"
 content_path = "./supabase/templates/invite.html"
 
 [auth.email.template.magic_link]
-subject = "Votre lien de connexion – Take Ton Trail"
+subject = "Ton lien de connexion – Take Ton Trail"
 content_path = "./supabase/templates/magic_link.html"
 
 [auth.email.template.reauthentication]
-subject = "Votre code de sécurité – Take Ton Trail"
+subject = "Ton code de sécurité – Take Ton Trail"
 content_path = "./supabase/templates/reauthentication.html"
 
 # Serveur d'envoi : ajouté par le workflow si le secret SMTP_PASSWORD existe

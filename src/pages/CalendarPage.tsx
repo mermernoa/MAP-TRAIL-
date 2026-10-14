@@ -434,7 +434,7 @@ function DayPanel({
           {races.length > 0 && (
             <p className="muted small">
               {races.length} {races.length > 1 ? 'courses' : 'course'}
-              {races.length > 1 && (byFit ? ', les plus proches de vos critères d’abord' : ', les plus connues d’abord')}
+              {races.length > 1 && (byFit ? ', les plus proches de tes critères d’abord' : ', les plus connues d’abord')}
             </p>
           )}
         </div>

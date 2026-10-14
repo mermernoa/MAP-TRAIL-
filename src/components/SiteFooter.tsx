@@ -50,7 +50,7 @@ export function SiteFooter() {
         </nav>
       </div>
       <p className="site-footer-note">
-        Informations données à titre indicatif : vérifiez toujours auprès de l’organisation avant de vous inscrire. Photos
+        Informations données à titre indicatif : vérifie toujours auprès de l’organisation avant de t’inscrire. Photos
         créditées à leurs auteurs.
       </p>
     </footer>

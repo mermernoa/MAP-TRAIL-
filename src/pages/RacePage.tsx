@@ -37,7 +37,7 @@ export function RacePage() {
     return (
       <div className="page-message">
         <h1>Course introuvable</h1>
-        <p>Cette course n’existe pas ou a été supprimée de votre navigateur.</p>
+        <p>Cette course n’existe pas ou a été supprimée de ton navigateur.</p>
         <Link to="/carte" className="button button-primary">
           Revenir à la carte
         </Link>
@@ -198,7 +198,7 @@ function RaceDetail({ event }: { event: RaceEvent }) {
                 {profile && (
                   <p className="muted small">
                     {profile.source === 'gpx'
-                      ? 'D’après votre fichier GPX.'
+                      ? 'D’après ton fichier GPX.'
                       : 'Profil simplifié d’après les principaux points de passage, altitudes approximatives.'}
                   </p>
                 )}
@@ -213,7 +213,7 @@ function RaceDetail({ event }: { event: RaceEvent }) {
                 />
               ) : (
                 <p className="empty-inline">
-                  Pas encore de profil pour ce parcours. Importez son GPX ci-dessous pour l’afficher.
+                  Pas encore de profil pour ce parcours. Importe son GPX ci-dessous pour l’afficher.
                 </p>
               )}
             </section>
@@ -336,12 +336,12 @@ function RaceDetail({ event }: { event: RaceEvent }) {
 
             <p className="data-note">
               {event.custom
-                ? 'Course ajoutée par vous, enregistrée dans ce navigateur.'
+                ? 'Course ajoutée par toi, enregistrée dans ce navigateur.'
                 : `Fiche issue de la base Take Ton Trail${event.source ? ` (source : ${event.source})` : ''}${
                     event.updatedAt ? `, mise à jour le ${formatDate(event.updatedAt)}` : ''
                   }.`}
-              {event.dateStatus === 'estimated' && ' Les dates sont prévisionnelles.'} Vérifiez les conditions d’inscription
-              sur le site de l’organisation avant de vous engager.
+              {event.dateStatus === 'estimated' && ' Les dates sont prévisionnelles.'} Vérifie les conditions d’inscription
+              sur le site de l’organisation avant de t’engager.
             </p>
             {!event.custom && (
               <p className="data-note">

@@ -53,7 +53,7 @@ export const COLLECTIONS: Collection[] = [
     slug: 'nocturnes-d-halloween',
     title: 'Nocturnes d’Halloween',
     tagline: 'Frontale sur le front, citrouilles au ravito.',
-    text: 'Les trails de nuit et les courses déguisées autour d’Halloween, de la fin octobre aux premiers jours de novembre. Prévoyez une lampe frontale, et un costume si le cœur vous en dit.',
+    text: 'Les trails de nuit et les courses déguisées autour d’Halloween, de la fin octobre aux premiers jours de novembre. Prévois une lampe frontale, et un costume si le cœur t’en dit.',
     pick: (e, c) =>
       mmdd(c) >= '10-24' &&
       mmdd(c) <= '11-09' &&
@@ -86,7 +86,7 @@ export const COLLECTIONS: Collection[] = [
     slug: 'l-hiver-en-montagne',
     title: 'L’hiver en montagne',
     tagline: 'Crêtes enneigées et sentiers gelés.',
-    text: 'Les trails de décembre à mars dans les massifs de montagne : Alpes, Pyrénées, Jura, Vosges, Massif central et Corse. Le parcours peut changer avec l’enneigement : suivez les consignes de l’organisation.',
+    text: 'Les trails de décembre à mars dans les massifs de montagne : Alpes, Pyrénées, Jura, Vosges, Massif central et Corse. Le parcours peut changer avec l’enneigement : suis les consignes de l’organisation.',
     pick: (e, c) => MOUNTAINS.includes(e.massif ?? '') && (mmdd(c) >= '12-01' || mmdd(c) <= '03-31') && (dplusPerKm(c) ?? 0) >= 25,
   },
   {

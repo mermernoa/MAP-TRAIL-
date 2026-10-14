@@ -56,7 +56,7 @@ export function AboutPage() {
         <p>
           Trouver une course de trail, c’est souvent jongler entre les calendriers, les réseaux sociaux et les sites des
           organisations. Take Ton Trail met tout au même endroit : où, quand, combien de kilomètres et de dénivelé, à quel
-          prix, et quand ouvrent les inscriptions. Puis vous gardez vos courses dans votre saison.
+          prix, et quand ouvrent les inscriptions. Puis tu gardes tes courses dans ta saison.
         </p>
       </section>
       <section>
@@ -68,13 +68,13 @@ export function AboutPage() {
         </p>
         <p>
           Les prix sont le tarif de base de l’édition la plus récente publiée par l’organisation. Ils peuvent changer selon
-          la date d’inscription ou la licence : vérifiez toujours sur le site de la course avant de vous inscrire.
+          la date d’inscription ou la licence : vérifie toujours sur le site de la course avant de t’inscrire.
         </p>
       </section>
       <section>
         <h2>Ce que le site ne fait pas</h2>
         <p>
-          Take Ton Trail ne vend pas de dossards et n’organise aucune course. Pour vous inscrire, chaque fiche renvoie vers
+          Take Ton Trail ne vend pas de dossards et n’organise aucune course. Pour t’inscrire, chaque fiche renvoie vers
           l’organisation ou sa plateforme d’inscription. Le site est indépendant : il n’est lié à aucune organisation ni à
           aucune des plateformes citées.
         </p>
@@ -83,15 +83,15 @@ export function AboutPage() {
         <h2>Les photos</h2>
         <p>
           Chaque photo affichée est créditée : auteur, journal, office de tourisme ou plateforme d’origine, avec le lien vers
-          l’image. Si vous êtes l’auteur d’une photo et souhaitez la faire retirer ou corriger son crédit,{' '}
+          l’image. Si tu es l’auteur d’une photo et souhaites la faire retirer ou corriger son crédit,{' '}
           <Link to="/signaler?sujet=photo">dites-le nous</Link> : elle sera retirée rapidement.
         </p>
       </section>
       <section>
         <h2>Participer</h2>
         <p>
-          Une date a changé, un prix est faux, une course manque ? <Link to="/signaler">Signalez une erreur</Link> ou{' '}
-          <Link to="/proposer-une-course">proposez une course</Link>. Chaque message est lu et la base est corrigée à la main.
+          Une date a changé, un prix est faux, une course manque ? <Link to="/signaler">Signale une erreur</Link> ou{' '}
+          <Link to="/proposer-une-course">propose une course</Link>. Chaque message est lu et la base est corrigée à la main.
           Pour tout le reste : <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>.
         </p>
       </section>
@@ -150,7 +150,7 @@ export function LegalPage() {
         </p>
         <p>
           Les photos de courses restent la propriété de leurs auteurs ; chacune est créditée avec un lien vers son origine.
-          Pour faire retirer une photo ou corriger un crédit, utilisez le formulaire{' '}
+          Pour faire retirer une photo ou corriger un crédit, utilise le formulaire{' '}
           <Link to="/signaler?sujet=photo">Signaler une erreur</Link>.
         </p>
       </section>
@@ -166,7 +166,7 @@ export function LegalPage() {
         <h2>Responsabilité</h2>
         <p>
           Les informations sont données à titre indicatif et peuvent changer sans préavis. Seuls le site et le règlement de
-          l’organisation font foi : vérifiez-les avant de vous inscrire ou de vous déplacer.
+          l’organisation font foi : vérifie-les avant de t’inscrire ou de te déplacer.
         </p>
       </section>
     </InfoLayout>
@@ -182,20 +182,20 @@ export function PrivacyPage() {
       <section>
         <h2>Sans compte</h2>
         <p>
-          Votre saison, vos courses ajoutées à la main, vos réglages de carte et les traces GPX que vous importez restent dans
-          votre navigateur (stockage local). Rien n’est envoyé à nos serveurs. Pour tout effacer, videz les données du site
-          dans les réglages de votre navigateur.
+          Ta saison, tes courses ajoutées à la main, tes réglages de carte et les traces GPX que tu importes restent dans
+          ton navigateur (stockage local). Rien n’est envoyé à nos serveurs, sauf si tu choisis de proposer une trace (voir
+          plus bas). Pour tout effacer, vide les données du site dans les réglages de ton navigateur.
         </p>
         <p>
-          La localisation n’est demandée que si vous cliquez sur « Près de chez moi » ou « Autour de moi ». Votre position sert
-          à filtrer la carte dans votre navigateur et n’est jamais transmise ni conservée.
+          La localisation n’est demandée que si tu cliques sur « Près de chez moi » ou « Autour de moi ». Ta position sert
+          à filtrer la carte dans ton navigateur et n’est jamais transmise ni conservée.
         </p>
       </section>
       <section>
         <h2>Avec un compte</h2>
         <p>
-          Le compte sert à retrouver votre saison sur tous vos appareils et à vous proposer des courses. Il conserve votre
-          adresse e-mail, votre mot de passe (chiffré, jamais lisible), le nom et la région que vous indiquez, et votre saison
+          Le compte sert à retrouver ta saison sur tous tes appareils et à te proposer des courses. Il conserve ton
+          adresse e-mail, ton mot de passe (chiffré, jamais lisible), le nom et la région que tu indiques, et ta saison
           (courses, statuts, objectifs, notes). Ces données sont hébergées par Supabase et ne sont ni vendues, ni partagées,
           ni utilisées pour de la publicité.
         </p>
@@ -207,9 +207,14 @@ export function PrivacyPage() {
       <section>
         <h2>Messages</h2>
         <p>
-          Les formulaires (contact, signaler une erreur, proposer une course) transmettent votre message et, si vous la
-          donnez, votre adresse e-mail pour vous répondre. Les messages sont conservés le temps de traiter la demande, puis
+          Les formulaires (contact, signaler une erreur, proposer une course) transmettent ton message et, si tu la
+          donnes, ton adresse e-mail pour te répondre. Les messages sont conservés le temps de traiter la demande, puis
           supprimés au plus tard un an après.
+        </p>
+        <p>
+          Quand tu proposes une trace GPX depuis une fiche, le fichier et le mot facultatif qui l’accompagne sont envoyés à
+          Take Ton Trail, avec ton compte si tu es connecté. Une trace validée s’affiche sur la fiche pour tout le monde, sans
+          ton nom ni ton mot ; une trace refusée est supprimée.
         </p>
       </section>
       <section>
@@ -226,15 +231,15 @@ export function PrivacyPage() {
         <p>
           Pour s’afficher, les cartes et le relief chargent des images depuis OpenFreeMap, OpenTopoMap, Esri et Amazon Web
           Services, et les photos de courses depuis leur site d’origine. Comme pour toute page web, ces serveurs reçoivent
-          l’adresse IP de votre appareil.
+          l’adresse IP de ton appareil.
         </p>
       </section>
       <section>
-        <h2>Vos droits</h2>
+        <h2>Tes droits</h2>
         <p>
-          Vous pouvez accéder à vos données, les corriger, les exporter (bouton « Sauvegarder » de Ma saison) ou les effacer à
-          tout moment. Pour toute question ou demande, écrivez à <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>. Vous
-          pouvez aussi adresser une réclamation à la CNIL (cnil.fr).
+          Tu peux accéder à tes données, les corriger, les exporter (bouton « Sauvegarder » de Ma saison) ou les effacer à
+          tout moment. Pour toute question ou demande, écris à <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>. Tu
+          peux aussi adresser une réclamation à la CNIL (cnil.fr).
         </p>
       </section>
     </InfoLayout>

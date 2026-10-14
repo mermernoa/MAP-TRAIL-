@@ -68,7 +68,7 @@ export function HomePage() {
 
   const locate = () => {
     if (!('geolocation' in navigator)) {
-      setGeoError('La localisation n’est pas disponible sur cet appareil : cherchez plutôt une ville.');
+      setGeoError('La localisation n’est pas disponible sur cet appareil : cherche plutôt une ville.');
       return;
     }
     setLocating(true);
@@ -80,7 +80,7 @@ export function HomePage() {
       },
       () => {
         setLocating(false);
-        setGeoError('Position introuvable. Autorisez la localisation dans le navigateur, ou cherchez une ville.');
+        setGeoError('Position introuvable. Autorise la localisation dans le navigateur, ou cherche une ville.');
       },
       { timeout: 10000 },
     );
@@ -98,8 +98,8 @@ export function HomePage() {
             Du petit trail du coin à l’ultra mythique.
           </h1>
           <p className="home-lede">
-            {upcoming.length} courses à venir en France et outre-mer. Cherchez sur la carte en relief, feuilletez le
-            calendrier, gardez les vôtres dans votre saison.
+            {upcoming.length} courses à venir en France et outre-mer. Cherche sur la carte en relief, feuillette le
+            calendrier, garde les tiennes dans ta saison.
           </p>
           <HomeSearch events={events} today={today} />
           <nav className="home-doors" aria-label="Pour commencer">
@@ -156,7 +156,7 @@ export function HomePage() {
           <section className="home-section" aria-labelledby="featured-title">
             <div className="home-section-head reveal-item">
               <h2 id="featured-title">Nos coups de cœur</h2>
-              <p>Les courses qu’on vous recommande en ce moment.</p>
+              <p>Les courses qu’on te recommande en ce moment.</p>
             </div>
             <ul className="race-list home-featured reveal-item">
               {featured.map((e) => (
@@ -191,10 +191,10 @@ export function HomePage() {
         <section className="home-season reveal-item" aria-labelledby="season-title">
           <img src="brand/medaille.webp" alt="" width={178} height={260} className="home-season-medal" />
           <div>
-            <h2 id="season-title">Votre saison, en un coup d’œil</h2>
+            <h2 id="season-title">Ta saison, en un coup d’œil</h2>
             <p>
-              Ajoutez vos courses, fixez vos objectifs, suivez les dates d’inscription. Avec un compte, votre saison vous suit
-              sur tous vos appareils et des courses qui vous ressemblent vous sont proposées.
+              Ajoute tes courses, fixe tes objectifs, suis les dates d’inscription. Avec un compte, ta saison te suit
+              sur tous tes appareils et des courses qui te ressemblent te sont proposées.
             </p>
             <div className="home-season-actions">
               <Link to="/ma-saison" className="button button-primary">

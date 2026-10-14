@@ -418,7 +418,7 @@ export function CourseMap({ event, track, hoverKm, onFlyKm }: Props) {
 
       {wheelHint && (
         <p className="course-map-hint" role="status">
-          Cliquez dans la carte pour l’explorer au trackpad ou à la molette
+          Clique dans la carte pour l’explorer au trackpad ou à la molette
         </p>
       )}
     </div>

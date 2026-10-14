@@ -35,7 +35,7 @@ export function AccountPage() {
       <header className="account-head">
         <h1 className="account-title">{user ? `Salut ${user.name || 'à toi'} !` : 'Mon compte'}</h1>
         <p className="account-lead">
-          Votre saison sur tous vos appareils, et des courses proposées d’après celles que vous avez déjà choisies.
+          Ta saison sur tous tes appareils, et des courses proposées d’après celles que tu as déjà choisies.
         </p>
       </header>
 
@@ -44,13 +44,13 @@ export function AccountPage() {
           {status === 'disabled' && <ComingSoon />}
           {(status === 'idle' || status === 'loading') && (
             <section className="panel account-card" aria-busy="true">
-              <p className="muted">Connexion à votre compte…</p>
+              <p className="muted">Connexion à ton compte…</p>
             </section>
           )}
           {recovery && (status === 'signedIn' || status === 'signedOut') && <NewPasswordForm />}
           {linkResult === 'invalid' && (
             <p className="form-error" role="alert">
-              Ce lien a expiré ou a déjà servi. Connectez-vous, ou demandez un nouveau lien avec « Mot de passe oublié ».
+              Ce lien a expiré ou a déjà servi. Connecte-toi, ou demande un nouveau lien avec « Mot de passe oublié ».
             </p>
           )}
           {!recovery && status === 'signedOut' && <AuthForms confirmed={confirmed || linkResult === 'confirmed'} />}
@@ -65,8 +65,8 @@ export function AccountPage() {
 function Benefits() {
   return (
     <ul className="account-benefits">
-      <li>Votre saison enregistrée et synchronisée sur ordinateur et téléphone</li>
-      <li>Des courses proposées selon vos distances, votre dénivelé et vos régions</li>
+      <li>Ta saison enregistrée et synchronisée sur ordinateur et téléphone</li>
+      <li>Des courses proposées selon tes distances, ton dénivelé et tes régions</li>
       <li>Gratuit, et supprimable à tout moment</li>
     </ul>
   );
@@ -78,7 +78,7 @@ function ComingSoon() {
       <h2 className="account-card-title">Les comptes arrivent</h2>
       <Benefits />
       <p className="muted small">
-        En attendant, votre saison reste enregistrée dans ce navigateur, et vos propositions de courses sont déjà là.
+        En attendant, ta saison reste enregistrée dans ce navigateur, et tes propositions de courses sont déjà là.
       </p>
       <Link to="/ma-saison" className="button">
         Voir ma saison
@@ -93,7 +93,7 @@ function AuthForms({ confirmed }: { confirmed: boolean }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const [info, setInfo] = useState(confirmed ? 'Adresse confirmée : connectez-vous pour retrouver votre saison.' : '');
+  const [info, setInfo] = useState(confirmed ? 'Adresse confirmée : connecte-toi pour retrouver ta saison.' : '');
   const [busy, setBusy] = useState(false);
   const { signUp, signIn, resetPassword } = useAccount.getState();
 
@@ -109,7 +109,7 @@ function AuthForms({ confirmed }: { confirmed: boolean }) {
     if (mode === 'signup') {
       const res = await signUp(email.trim(), password, name);
       if (res.error) setError(res.error);
-      else if (res.confirm) setInfo(`C’est presque fini : ouvrez l’e-mail envoyé à ${email.trim()} et cliquez sur le lien pour activer votre compte.`);
+      else if (res.confirm) setInfo(`C’est presque fini : ouvre l’e-mail envoyé à ${email.trim()} et clique sur le lien pour activer ton compte.`);
     } else if (mode === 'signin') {
       const res = await signIn(email.trim(), password);
       if (res.error) setError(res.error);
@@ -185,7 +185,7 @@ function AuthForms({ confirmed }: { confirmed: boolean }) {
         )}
         {mode === 'signup' && (
           <p className="muted small">
-            Votre saison est enregistrée de façon sécurisée pour la retrouver partout. Vous pouvez supprimer votre compte à tout moment.
+            Ta saison est enregistrée de façon sécurisée pour la retrouver partout. Tu peux supprimer ton compte à tout moment.
           </p>
         )}
       </form>
@@ -210,7 +210,7 @@ function NewPasswordForm() {
       <h2 className="account-card-title">Nouveau mot de passe</h2>
       <form className="account-form" onSubmit={submit}>
         <label className="field">
-          Choisissez un mot de passe
+          Choisis un mot de passe
           <input type="password" autoComplete="new-password" minLength={8} value={password} onChange={(e) => setPassword(e.target.value)} required />
         </label>
         {error && (
@@ -228,12 +228,12 @@ function NewPasswordForm() {
 
 function SyncStatus() {
   const sync = useAccount((s) => s.sync);
-  if (sync === 'saving') return <p className="account-sync">Enregistrement de votre saison…</p>;
+  if (sync === 'saving') return <p className="account-sync">Enregistrement de ta saison…</p>;
   if (sync === 'error') return <p className="account-sync is-error">Synchronisation impossible pour l’instant : nouvel essai à la prochaine modification.</p>;
   if (sync === 'saved')
     return (
       <p className="account-sync is-ok">
-        <CheckIcon size={16} /> Saison synchronisée sur tous vos appareils
+        <CheckIcon size={16} /> Saison synchronisée sur tous tes appareils
       </p>
     );
   return null;
@@ -274,7 +274,7 @@ function Profile() {
       <SyncStatus />
       <p className="small">
         <Link to="/ma-saison">
-          {count ? `${count} course${count > 1 ? 's' : ''} dans votre saison` : 'Votre saison est vide pour l’instant'}
+          {count ? `${count} course${count > 1 ? 's' : ''} dans ta saison` : 'Ta saison est vide pour l’instant'}
         </Link>
       </p>
       <form className="account-form" onSubmit={save}>
@@ -283,7 +283,7 @@ function Profile() {
           <input type="text" autoComplete="given-name" value={name} onChange={(e) => setName(e.target.value)} />
         </label>
         <label className="field">
-          Région où vous habitez
+          Région où tu habites
           <select value={region} onChange={(e) => setRegion(e.target.value)}>
             <option value="">Non précisée</option>
             {regions.map((r) => (
@@ -344,18 +344,18 @@ function Suggestions() {
     <section className="panel account-suggestions" aria-labelledby="suggestions-title">
       <div className="panel-head">
         <h2 id="suggestions-title">
-          <SparkIcon size={20} /> Courses pour vous
+          <SparkIcon size={20} /> Courses pour toi
         </h2>
         {resolved.length > 0 && (
           <p className="muted small">
-            D’après {resolved.length === 1 ? 'la course' : `les ${resolved.length} courses`} de votre saison.
+            D’après {resolved.length === 1 ? 'la course' : `les ${resolved.length} courses`} de ta saison.
           </p>
         )}
       </div>
       {resolved.length === 0 ? (
         <div className="empty-inline account-empty">
           <UserIcon size={22} />
-          <p>Ajoutez une ou deux courses à votre saison : nous vous proposerons des courses qui vous ressemblent.</p>
+          <p>Ajoute une ou deux courses à ta saison : on te proposera des courses qui te ressemblent.</p>
           <Link to="/carte" className="button button-primary">
             Explorer la carte
           </Link>
@@ -363,7 +363,7 @@ function Suggestions() {
       ) : list.length ? (
         <SuggestionList suggestions={list} />
       ) : (
-        <p className="empty-inline">Aucune course ne se glisse dans votre calendrier pour l’instant : revenez après le prochain ajout de courses.</p>
+        <p className="empty-inline">Aucune course ne se glisse dans ton calendrier pour l’instant : reviens après le prochain ajout de courses.</p>
       )}
     </section>
   );

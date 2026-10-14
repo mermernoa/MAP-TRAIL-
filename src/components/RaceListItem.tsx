@@ -58,7 +58,7 @@ export function RaceListItem({ event, courses, selected, onSelect, onHover }: Pr
           {event.dateStatus === 'estimated' && <span className="tag tag-soft">Date prévisionnelle</span>}
           {event.massif && event.massif !== 'Plaine / campagne' && <span className="tag">{event.massif}</span>}
           {courses.every((c) => c.full === 'yes') && <span className="tag tag-full">Complet</span>}
-          {event.custom && <span className="tag">Ajoutée par vous</span>}
+          {event.custom && <span className="tag">Ajoutée par toi</span>}
         </span>
       </button>
     </li>

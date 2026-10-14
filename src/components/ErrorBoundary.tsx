@@ -30,7 +30,7 @@ export class ErrorBoundary extends Component<Props, State> {
       <div className="page-message" role="alert">
         <img src="brand/3t.webp" alt="" width={136} height={100} />
         <h1>Cette page n’a pas pu s’afficher</h1>
-        <p>Rechargez la page. Si le problème revient, envoyez-nous le message ci-dessous.</p>
+        <p>Recharge la page. Si le problème revient, envoie-nous le message ci-dessous.</p>
         <button type="button" className="button button-primary" onClick={() => window.location.reload()}>
           Recharger la page
         </button>

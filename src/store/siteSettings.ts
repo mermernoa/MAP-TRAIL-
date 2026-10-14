@@ -88,7 +88,7 @@ export const useSiteSettings = create<State>((set, get) => ({
       set({ [key]: value } as Partial<State>);
       return {};
     } catch {
-      return { error: 'Base injoignable. Réessayez.' };
+      return { error: 'Base injoignable. Réessaie.' };
     }
   },
 }));

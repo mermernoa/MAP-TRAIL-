@@ -48,16 +48,16 @@ export function accountReturnUrl(): string {
 
 const MESSAGES: Record<string, string> = {
   invalid_credentials: 'E-mail ou mot de passe incorrect.',
-  user_already_exists: 'Un compte existe déjà avec cet e-mail. Connectez-vous.',
-  email_exists: 'Un compte existe déjà avec cet e-mail. Connectez-vous.',
+  user_already_exists: 'Un compte existe déjà avec cet e-mail. Connecte-toi.',
+  email_exists: 'Un compte existe déjà avec cet e-mail. Connecte-toi.',
   weak_password: 'Mot de passe trop faible : 8 caractères minimum, avec des lettres et des chiffres.',
-  email_not_confirmed: 'Confirmez d’abord votre adresse e-mail grâce au lien reçu.',
-  over_email_send_rate_limit: 'Trop d’e-mails envoyés. Réessayez dans quelques minutes.',
-  over_request_rate_limit: 'Trop de tentatives. Réessayez dans quelques minutes.',
-  same_password: 'Choisissez un mot de passe différent de l’ancien.',
+  email_not_confirmed: 'Confirme d’abord ton adresse e-mail grâce au lien reçu.',
+  over_email_send_rate_limit: 'Trop d’e-mails envoyés. Réessaie dans quelques minutes.',
+  over_request_rate_limit: 'Trop de tentatives. Réessaie dans quelques minutes.',
+  same_password: 'Choisis un mot de passe différent de l’ancien.',
   email_address_invalid: 'Cette adresse e-mail n’est pas valide.',
   signup_disabled: 'La création de compte est momentanément fermée.',
-  validation_failed: 'Vérifiez l’e-mail et le mot de passe saisis.',
+  validation_failed: 'Vérifie l’e-mail et le mot de passe saisis.',
 };
 
 /** Message lisible pour une erreur Supabase. */
@@ -65,9 +65,9 @@ export function authErrorMessage(error: unknown): string {
   const e = error as { code?: string; message?: string; status?: number; name?: string } | null;
   if (e?.code && MESSAGES[e.code]) return MESSAGES[e.code];
   if (e?.name === 'AuthRetryableFetchError' || e?.status === 0 || /fetch|network/i.test(e?.message ?? '')) {
-    return 'Connexion impossible. Vérifiez votre réseau puis réessayez.';
+    return 'Connexion impossible. Vérifie ton réseau puis réessaie.';
   }
-  return 'Une erreur est survenue. Réessayez dans un instant.';
+  return 'Une erreur est survenue. Réessaie dans un instant.';
 }
 
 export type EmailLinkType = 'email' | 'signup' | 'recovery' | 'email_change' | 'invite' | 'magiclink';

@@ -134,7 +134,7 @@ export default function AdminPage() {
     return (
       <div className="page-message">
         <h1>Espace réservé</h1>
-        <p>Connectez-vous avec le compte administrateur.</p>
+        <p>Connecte-toi avec le compte administrateur.</p>
         <Link to="/compte" className="button button-primary">
           Se connecter
         </Link>

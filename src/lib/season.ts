@@ -98,7 +98,7 @@ export function seasonWarnings(resolved: ResolvedEntry[]): SeasonWarning[] {
       warnings.push({
         kind: 'recovery',
         entryIds: ids,
-        message: `${gap} jours seulement entre ${prev.course.name} et ${next.course.name} ; comptez plutôt ${Math.round(
+        message: `${gap} jours seulement entre ${prev.course.name} et ${next.course.name} ; compte plutôt ${Math.round(
           needed / 7,
         )} semaines de récupération après ${prev.course.name}.`,
       });

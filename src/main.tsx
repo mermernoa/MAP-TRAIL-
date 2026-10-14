@@ -16,7 +16,7 @@ function showFatalError(error: unknown) {
   box.innerHTML = `
     <img src="brand/3t.webp" alt="" width="136" height="100" />
     <h1>Le site a rencontré un problème</h1>
-    <p>Rechargez la page. Si le problème revient, envoyez-nous le message ci-dessous.</p>
+    <p>Recharge la page. Si le problème revient, envoie-nous le message ci-dessous.</p>
     <button type="button" class="button button-primary">Recharger la page</button>
     <details class="error-details"><summary>Détail technique</summary><pre></pre></details>`;
   const message = error instanceof Error ? `${error.name}: ${error.message}` : String(error);

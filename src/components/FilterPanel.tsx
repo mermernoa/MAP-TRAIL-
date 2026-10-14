@@ -99,7 +99,7 @@ export function FilterPanel({ open, onClose, races, resultCount }: Props) {
       },
       () => {
         setLocating(false);
-        setGeoError("Position introuvable. Autorisez la localisation dans le navigateur, puis réessayez.");
+        setGeoError("Position introuvable. Autorise la localisation dans le navigateur, puis réessaie.");
       },
       { timeout: 10000 },
     );

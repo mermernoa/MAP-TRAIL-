@@ -99,7 +99,7 @@ export function MapPage() {
           <div className="empty">
             <img className="empty-illustration" src="brand/boussole.webp" alt="" width={110} height={139} />
             <p>Aucune course ne correspond à ces critères.</p>
-            <p className="muted">Élargissez la distance ou la période, ou retirez un filtre ci-dessus.</p>
+            <p className="muted">Élargis la distance ou la période, ou retire un filtre ci-dessus.</p>
           </div>
         )}
       </aside>

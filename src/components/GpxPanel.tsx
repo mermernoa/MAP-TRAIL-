@@ -100,7 +100,7 @@ export function GpxPanel({ eventId, course, track, fileName, text, remote = fals
         >
           <UploadIcon size={22} />
           <p>
-            <strong>Déposez le GPX du parcours ici</strong>
+            <strong>Dépose le GPX du parcours ici</strong>
             <br />
             <span className="muted">
               Le tracé s’affiche sur la carte et le profil devient détaillé. Tu peux ensuite le proposer pour qu’il s’affiche pour tout le monde.

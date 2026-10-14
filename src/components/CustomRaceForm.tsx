@@ -91,11 +91,11 @@ export function CustomRaceForm({ onClose, onCreated }: Props) {
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name.trim()) return setError('Donnez un nom à la course.');
-    if (!dateStart) return setError('Indiquez la date de la course.');
-    if (!pos) return setError('Placez la course sur la carte en cliquant sur son lieu de départ.');
+    if (!name.trim()) return setError('Donne un nom à la course.');
+    if (!dateStart) return setError('Indique la date de la course.');
+    if (!pos) return setError('Place la course sur la carte en cliquant sur son lieu de départ.');
     const valid = courses.filter((c) => Number(c.distanceKm) > 0);
-    if (!valid.length) return setError('Ajoutez au moins un parcours avec sa distance.');
+    if (!valid.length) return setError('Ajoute au moins un parcours avec sa distance.');
     const end = dateEnd && dateEnd >= dateStart ? dateEnd : dateStart;
     const id = `perso-${slug(name) || 'course'}-${Date.now().toString(36)}`;
     const builtCourses: Course[] = valid.map((c, i) => ({
@@ -119,7 +119,7 @@ export function CustomRaceForm({ onClose, onCreated }: Props) {
       dateStatus: 'official',
       popularity: 1,
       circuits: [],
-      description: 'Course ajoutée par vous. Ses informations sont enregistrées dans ce navigateur.',
+      description: 'Course ajoutée par toi. Ses informations sont enregistrées dans ce navigateur.',
       website: website.trim() || undefined,
       links: [],
       registration: { opens: opens || undefined, closes: closes || undefined },
@@ -185,7 +185,7 @@ export function CustomRaceForm({ onClose, onCreated }: Props) {
           </label>
 
           <div className="field field-wide">
-            <span>Lieu de départ : cliquez sur la carte</span>
+            <span>Lieu de départ : clique sur la carte</span>
             <div ref={mapEl} className="pick-map" />
             <span className="muted small">{pos ? `${pos.lat}, ${pos.lng}` : 'Aucun lieu choisi'}</span>
           </div>

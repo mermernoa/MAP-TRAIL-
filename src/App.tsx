@@ -90,7 +90,7 @@ function CatalogGate({ children }: { children: React.ReactNode }) {
       <div className="page-message">
         <img src="brand/boussole.webp" alt="" width={142} height={180} />
         <h1>Impossible de charger les courses</h1>
-        <p>Vérifiez votre connexion, puis réessayez.</p>
+        <p>Vérifie ta connexion, puis réessaie.</p>
         <button
           type="button"
           className="button button-primary"

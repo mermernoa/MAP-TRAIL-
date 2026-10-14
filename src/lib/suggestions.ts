@@ -86,13 +86,13 @@ export function suggestRaces(chosen: ResolvedEntry[], events: RaceEvent[], today
           dist < 1.5
             ? undefined
             : course.distanceKm > longest * 1.05
-              ? `Un cran au-dessus de votre plus longue course (${fmtKm(longest)})`
-              : `Distance dans la lignée de vos courses (${fmtKm(course.distanceKm)})`,
+              ? `Un cran au-dessus de ta plus longue course (${fmtKm(longest)})`
+              : `Distance dans la lignée de tes courses (${fmtKm(course.distanceKm)})`,
       });
       const dp = dplusPerKm(course);
       if (Number.isFinite(dp) && Number.isFinite(refDplus)) {
         const s = Math.max(0, 1 - Math.abs(dp - refDplus) / 40) * 2;
-        parts.push({ score: s, reason: s > 1.4 ? `Dénivelé proche de vos habitudes (${Math.round(dp)} m/km)` : undefined });
+        parts.push({ score: s, reason: s > 1.4 ? `Dénivelé proche de tes habitudes (${Math.round(dp)} m/km)` : undefined });
       }
       if (course.technicity && Number.isFinite(refTech) && Math.abs(course.technicity - refTech) <= 1) parts.push({ score: 0.5 });
 
@@ -111,7 +111,7 @@ export function suggestRaces(chosen: ResolvedEntry[], events: RaceEvent[], today
       } else if (regions.has(event.region)) {
         parts.push({ score: 0.6 });
       }
-      if (options.homeRegion && event.region === options.homeRegion) parts.push({ score: 0.8, reason: `Près de chez vous (${event.region})` });
+      if (options.homeRegion && event.region === options.homeRegion) parts.push({ score: 0.8, reason: `Près de chez toi (${event.region})` });
       const sharedCircuit = event.circuits.find((c) => circuits.has(c));
       if (sharedCircuit) parts.push({ score: 1, reason: `${sharedCircuit}, comme ${circuits.get(sharedCircuit)}` });
 

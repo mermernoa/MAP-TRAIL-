@@ -81,7 +81,7 @@ export function SeasonPage() {
       importData(data);
       setImportMsg(`${data.entries.length} courses importées.`);
     } catch {
-      setImportMsg('Fichier non reconnu. Utilisez un fichier exporté depuis « Sauvegarder ».');
+      setImportMsg('Fichier non reconnu. Utilise un fichier exporté depuis « Sauvegarder ».');
     }
   };
 
@@ -97,7 +97,7 @@ export function SeasonPage() {
               {relativeDays(next.date, today)}.
             </p>
           ) : (
-            <p className="season-next muted">Aucune course à venir dans votre saison.</p>
+            <p className="season-next muted">Aucune course à venir dans ta saison.</p>
           )}
         </div>
         <div className="season-actions">
@@ -152,8 +152,8 @@ export function SeasonPage() {
       {!resolved.length ? (
         <div className="empty empty-large">
           <img className="empty-illustration" src="brand/medaille.webp" alt="" width={150} height={219} />
-          <h2>Votre saison est vide</h2>
-          <p>Ajoutez des courses depuis la carte ou le calendrier avec le bouton « Ma saison », ou saisissez une course locale absente du catalogue.</p>
+          <h2>Ta saison est vide</h2>
+          <p>Ajoute des courses depuis la carte ou le calendrier avec le bouton « Ma saison », ou saisis une course locale absente du catalogue.</p>
           <div className="button-row">
             <Link to="/carte" className="button button-primary">
               Explorer la carte
@@ -230,7 +230,7 @@ export function SeasonPage() {
           )}
           {!shown.length && (
             <p className="empty-inline">
-              Aucune course sur cette période. {range === 'next' ? 'Choisissez une autre année ci-dessus.' : ''}
+              Aucune course sur cette période. {range === 'next' ? 'Choisis une autre année ci-dessus.' : ''}
             </p>
           )}
 
@@ -243,7 +243,7 @@ export function SeasonPage() {
           {suggestions.length > 0 && (
             <section className="panel season-suggestions" aria-labelledby="season-suggestions-title">
               <div className="panel-head">
-                <h2 id="season-suggestions-title">Courses pour vous</h2>
+                <h2 id="season-suggestions-title">Courses pour toi</h2>
                 <Link to="/compte">Toutes les propositions</Link>
               </div>
               <SuggestionList suggestions={suggestions} />
