@@ -1,4 +1,4 @@
-import type { StyleSpecification } from 'maplibre-gl';
+import type { Map as MapLibreMap, StyleSpecification } from 'maplibre-gl';
 
 /**
  * Fonds de carte sans clé d'API. Chaque URL peut être remplacée au build
@@ -91,4 +91,23 @@ export function basemapStyle(id: BasemapId): string | StyleSpecification {
 /** Style satellite simple pour les vues 3D (en-tête des fiches course). */
 export function satelliteStyle(): StyleSpecification {
   return rasterStyle([SATELLITE_TILES], 'Imagerie © Esri, Maxar, Earthstar Geographics', 18);
+}
+
+/**
+ * Le style « Plan » (Positron) est très pâle : on lui donne un peu de couleur
+ * au chargement (eau, forêts, parcs, fond), sans toucher aux routes ni aux noms.
+ */
+export function tintPlan(map: MapLibreMap) {
+  for (const layer of map.getStyle().layers) {
+    const id = layer.id.toLowerCase();
+    try {
+      if (layer.type === 'background') map.setPaintProperty(layer.id, 'background-color', '#f1eee9');
+      else if (layer.type === 'fill' && /water|ocean|lake|river/.test(id)) map.setPaintProperty(layer.id, 'fill-color', '#a8cbe6');
+      else if (layer.type === 'fill' && /wood|forest/.test(id)) map.setPaintProperty(layer.id, 'fill-color', '#c9dfc0');
+      else if (layer.type === 'fill' && /park|grass|landcover|nature/.test(id)) map.setPaintProperty(layer.id, 'fill-color', '#d9e8cf');
+      else if (layer.type === 'line' && /waterway|river/.test(id)) map.setPaintProperty(layer.id, 'line-color', '#8fb9dd');
+    } catch {
+      // Couche sans cette propriété : on la laisse telle quelle.
+    }
+  }
 }

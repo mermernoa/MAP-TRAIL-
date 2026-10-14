@@ -1368,6 +1368,25 @@ textarea {
   width: 100%;
 }
 
+/* Les boutons restent visibles en bas de l'aperçu, même quand il défile. */
+.preview-foot {
+  position: sticky;
+  bottom: 0;
+  z-index: 1;
+  margin: 0 -18px -18px;
+  padding: 12px 18px 16px;
+  background: var(--surface);
+  box-shadow: 0 -10px 16px -12px rgba(7, 28, 63, 0.35);
+}
+
+/* Écran d'ordinateur étroit : l'aperçu passe sous les boutons de la carte (fond, Relief 3D). */
+@media (min-width: 901px) and (max-width: 1180px) {
+  .preview-dock {
+    top: 60px;
+    max-height: calc(100% - 72px);
+  }
+}
+
 /* ---------- Calendar ---------- */
 .calendar-page {
   max-width: 1400px;
@@ -1788,6 +1807,13 @@ textarea {
     rgba(4, 14, 32, 0.05) 68%,
     rgba(4, 14, 32, 0.3) 100%
   );
+}
+
+/* Sur une photo, un voile plus dense derrière le texte (en bas à gauche) garde le titre lisible. */
+.race-hero.has-photo .race-hero-shade {
+  background:
+    radial-gradient(90% 75% at 0% 100%, rgba(4, 14, 32, 0.7) 0%, rgba(4, 14, 32, 0) 70%),
+    linear-gradient(to top, rgba(4, 14, 32, 0.85) 0%, rgba(4, 14, 32, 0.5) 40%, rgba(4, 14, 32, 0.12) 70%, rgba(4, 14, 32, 0.3) 100%);
 }
 
 .race-hero-content {
@@ -3217,6 +3243,20 @@ textarea {
 
 .app-nav a {
   font-weight: 700;
+  white-space: nowrap;
+}
+
+/* Très petits écrans : les liens du menu se resserrent pour tenir sur une ligne. */
+@media (max-width: 380px) {
+  .app-nav a {
+    padding: 0 6px;
+    font-size: 13.5px;
+  }
+
+  .app-nav a.active::after {
+    left: 6px;
+    right: 6px;
+  }
 }
 
 /* Bouton principal façon autocollant, comme le logo : rose, contour et ombre marine. */
@@ -3237,12 +3277,14 @@ textarea {
   box-shadow: 1px 1px 0 #071c3f;
 }
 
-/* Le nom de la course reprend le lettrage du logo. */
+/* Le nom de la course reprend le lettrage du logo ; un halo sombre le détache de n'importe quelle photo. */
 .race-title {
   color: #fe66c4;
   -webkit-text-stroke: 0.07em #071c3f;
   paint-order: stroke fill;
-  text-shadow: 0.045em 0.065em 0 #071c3f;
+  text-shadow:
+    0.045em 0.065em 0 #071c3f,
+    0 0 0.5em rgba(4, 14, 32, 0.55);
   line-height: 0.95;
   max-width: 16ch;
 }
@@ -3361,6 +3403,14 @@ textarea {
 
 .race-hero-switch .map-tool {
   box-shadow: var(--shadow-sticker);
+}
+
+/* Mobile : le bouton monte en haut à droite, sous le crédit, loin du texte. */
+@media (max-width: 760px) {
+  .race-hero-switch {
+    top: 64px;
+    bottom: auto;
+  }
 }
 
 .race-extra {

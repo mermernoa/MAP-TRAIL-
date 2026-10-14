@@ -5,7 +5,7 @@ import maplibregl, { hasFastWebGL, initMapAfterPaint, supportsWebGL, type GeoJSO
 import { BAND_COLORS, INK } from '../lib/colors';
 import { formatRange } from '../lib/dates';
 import { DISTANCE_BANDS, distanceBand } from '../lib/metrics';
-import { basemapStyle, BASEMAPS, DEM_SOURCE, LABEL_FONT, type BasemapId } from '../lib/mapStyles';
+import { basemapStyle, BASEMAPS, DEM_SOURCE, LABEL_FONT, tintPlan, type BasemapId } from '../lib/mapStyles';
 import { MapExplorer } from '../lib/explore';
 import { disableTerrain, enableTerrain, groundAltitude } from '../lib/terrain3d';
 import { ExplorePad } from './ExplorePad';
@@ -80,6 +80,7 @@ function radiusExpr(extra = 0): maplibregl.ExpressionSpecification {
 function addRaceLayers(map: MapLibreMap, basemap: BasemapId, data: FeatureCollection<Point>) {
   if (!map.getSource('dem')) map.addSource('dem', DEM_SOURCE);
   if (basemap === 'plan' && !map.getLayer('hillshade')) {
+    tintPlan(map);
     if (!map.getSource('dem-shade')) map.addSource('dem-shade', DEM_SOURCE);
     const firstLine = map.getStyle().layers.find((l) => l.type === 'line' || l.type === 'symbol')?.id;
     map.addLayer(
@@ -88,7 +89,7 @@ function addRaceLayers(map: MapLibreMap, basemap: BasemapId, data: FeatureCollec
         type: 'hillshade',
         source: 'dem-shade',
         paint: {
-          'hillshade-exaggeration': 0.35,
+          'hillshade-exaggeration': 0.5,
           'hillshade-shadow-color': '#3d4d44',
           'hillshade-highlight-color': '#ffffff',
           'hillshade-accent-color': '#5d6b5f',

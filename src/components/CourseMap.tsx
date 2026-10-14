@@ -4,7 +4,7 @@ import type { RaceEvent } from '../data/types';
 import type { ParsedTrack } from '../lib/gpx';
 import maplibregl, { hasFastWebGL, initMapAfterPaint, supportsWebGL, type GeoJSONSource, type MapLibreMap } from '../lib/maplibre';
 import { ACCENT, INK } from '../lib/colors';
-import { basemapStyle, BASEMAPS, LABEL_FONT, type BasemapId } from '../lib/mapStyles';
+import { basemapStyle, BASEMAPS, LABEL_FONT, tintPlan, type BasemapId } from '../lib/mapStyles';
 import { MapExplorer } from '../lib/explore';
 import { elevationAtKm, orbit, positionAtKm, TrackFlyover } from '../lib/flyover';
 import { disableTerrain, enableTerrain, groundAltitude } from '../lib/terrain3d';
@@ -88,6 +88,7 @@ export function CourseMap({ event, track, hoverKm, onFlyKm }: Props) {
     map.addControl(new maplibregl.FullscreenControl({ container: rootRef.current ?? undefined }), 'top-right');
     map.addControl(new maplibregl.ScaleControl({ unit: 'metric' }), 'bottom-left');
     map.on('style.load', () => {
+      if (appliedStyle.current === 'plan') tintPlan(map);
       if (latest.current.terrain) enableTerrain(map);
       setStyleVersion((v) => v + 1);
     });
