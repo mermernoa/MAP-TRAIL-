@@ -22,7 +22,7 @@ export function AccountPage() {
     void ensure().then(() => {
       // Le code de retour de l'e-mail a servi : on le retire de l'adresse.
       if (/[?&]code=/.test(window.location.search)) {
-        window.history.replaceState(null, '', `${window.location.pathname}${window.location.hash}`);
+        window.history.replaceState(null, '', window.location.pathname);
       }
     });
     return () => {

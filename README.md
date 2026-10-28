@@ -2,12 +2,12 @@
 
 La carte et le calendrier des trails, du plus confidentiel au plus mythique.
 
-- **Accueil** (`#/`) : un massif en courbes de niveau, en relief 3D (WebGL), que la caméra contourne pendant que le sentier se trace du départ au sommet, la recherche (courses, massifs, collections, lieux) et trois portes : près de chez moi, ce week-end (ou le prochain week-end de course), les mythiques.
-- **Collections** (`#/collection/…`) : premiers ultras, nocturnes d'Halloween, moins de 20 €, premier dossard, fin d'année, hiver en montagne, au soleil l'hiver, en équipe, mythiques (`src/lib/collections.ts`).
-- **Massifs** (`#/massif/…`) : relief 3D du massif, texte court, photo de course créditée et courses à venir (`src/lib/massifs.ts`). Collections et massifs sont sur l'accueil.
-- **À la une** (`#/a-la-une`, anciens `#/explorer` et `#/trouver`) : les courses mises en avant, sans filtre : une grande course en tête (premier coup de cœur de l'espace admin, sinon la prochaine mythique), nos coups de cœur, une course par thème choisie automatiquement (défi du mois, prochaine mythique, pépite confidentielle, meilleur rapport km/prix, nocturne, ultra à préparer, kilomètre vertical, à faire à deux, `src/lib/spotlights.ts`) et les plus attendues du prochain week-end.
+- **Accueil** (`/`) : un massif en courbes de niveau, en relief 3D (WebGL), que la caméra contourne pendant que le sentier se trace du départ au sommet, la recherche (courses, massifs, collections, lieux) et trois portes : près de chez moi, ce week-end (ou le prochain week-end de course), les mythiques.
+- **Collections** (`/collection/…`) : premiers ultras, nocturnes d'Halloween, moins de 20 €, premier dossard, fin d'année, hiver en montagne, au soleil l'hiver, en équipe, mythiques (`src/lib/collections.ts`).
+- **Massifs** (`/massif/…`) : relief 3D du massif, texte court, photo de course créditée et courses à venir (`src/lib/massifs.ts`). Collections et massifs sont sur l'accueil.
+- **À la une** (`/a-la-une`, anciens `/explorer` et `/trouver`) : les courses mises en avant, sans filtre : une grande course en tête (premier coup de cœur de l'espace admin, sinon la prochaine mythique), nos coups de cœur, une course par thème choisie automatiquement (défi du mois, prochaine mythique, pépite confidentielle, meilleur rapport km/prix, nocturne, ultra à préparer, kilomètre vertical, à faire à deux, `src/lib/spotlights.ts`) et les plus attendues du prochain week-end.
 - **Pages d'information** : à propos, contact, signaler une erreur (lien sur chaque fiche), proposer une course, mentions légales, confidentialité.
-- **Carte interactive** (`#/carte`) : zoom, regroupement des repères, survol, sélection, aperçu ; fonds plan ombré, topo et satellite ; globe à l'ouverture ; **relief 3D** accentué selon le zoom, sous un ciel teinté de rose, où l'on garde les gestes habituels d'une carte (glisser pour se déplacer, molette pour zoomer, clic droit ou deux doigts pour tourner et incliner), avec des boutons pour tourner, incliner, zoomer et un survol automatique ; le fond (plan, topo, satellite) se change aussi en 3D. Les **massifs** de l'accueil montrent la prochaine course, le plus long parcours et la photo du massif, qui suit la souris.
+- **Carte interactive** (`/carte`) : zoom, regroupement des repères, survol, sélection, aperçu ; fonds plan ombré, topo et satellite ; globe à l'ouverture ; **relief 3D** accentué selon le zoom, sous un ciel teinté de rose, où l'on garde les gestes habituels d'une carte (glisser pour se déplacer, molette pour zoomer, clic droit ou deux doigts pour tourner et incliner), avec des boutons pour tourner, incliner, zoomer et un survol automatique ; le fond (plan, topo, satellite) se change aussi en 3D. Les **massifs** de l'accueil montrent la prochaine course, le plus long parcours et la photo du massif, qui suit la souris.
 - **Filtres** communs à la carte et au calendrier : distance, dénivelé, technicité, type de course (court, long, ultra, nocturne, urbain, KV), format (solo, duo, relais), massif, région, rayon autour de soi, période, notoriété, catégorie UTMB Index (valeurs publiées seulement, avec les logos officiels), circuits, prix maximum, inscriptions ouvertes, courses complètes masquées.
 - **Calendrier** en vues mois, année et liste, avec les ouvertures et clôtures d'inscription.
 - **Fiche course** : photo de la base (ou relief 3D du lieu en lente rotation), chaque parcours avec ses chiffres, son prix, son lien d'inscription et le document demandé, profil altimétrique, carte du tracé avec relief 3D et **survol du parcours** (la caméra suit la trace GPX, le profil avance en même temps), import et export GPX, dates importantes (export agenda) et liens utiles.
@@ -66,6 +66,12 @@ Activez-le une fois dans **Settings → Pages → Build and deployment → Sourc
 
 **Sauvegarde** : la version du site d'avant la refonte immersive 3D (commit `a5b225b`, 6 octobre 2026) est construite à chaque déploiement et reste en ligne sous `/sauvegarde/` (par exemple https://mermernoa.github.io/MAP-TRAIL-/sauvegarde/). Pour y revenir entièrement : `git revert` des commits suivants, ou `git checkout a5b225b -- .` puis commit.
 
+## Référencement
+
+Le site a de vraies adresses (`/course/evt103-marathon-du-mont-blanc`, `/massif/alpes-du-nord`…) ; les anciennes en `#/…` sont converties au démarrage. Après `vite build`, `scripts/prerender.ts` écrit une page HTML par adresse (accueil, carte, calendrier, à la une, chaque massif, chaque collection, chaque course, pages d'information) avec son titre, sa description, son adresse canonique, ses balises de partage (Open Graph, image `public/og-image.png`), ses données structurées schema.org (`SportsEvent` pour les courses à date confirmée) et un contenu lisible sans JavaScript. Il écrit aussi `sitemap.xml`, `robots.txt` et `404.html` (adresses inconnues et espace admin, non indexés). GitHub Pages sert `/course/xyz` depuis `course/xyz.html`.
+
+L'adresse publique (`VITE_SITE_URL`) et le chemin du site (`VITE_BASE_PATH`, balise `<base>`) sont dans `.env.production` : à changer le jour où le site passe sur son propre nom de domaine. Pour Google : déclarer le site dans Google Search Console (propriété « préfixe d'URL » `https://mermernoa.github.io/MAP-TRAIL-/`) puis y envoyer `sitemap.xml`.
+
 ## Fonds de carte
 
 Aucune clé d'API n'est nécessaire par défaut :
@@ -82,7 +88,7 @@ Pour un usage commercial ou à fort trafic, passez sur un fournisseur avec clé 
 
 ## Comptes
 
-La page **Mon compte** (`#/compte`) permet de créer un compte Take Ton Trail : la saison est alors enregistrée en ligne et synchronisée entre ordinateur et téléphone (la version modifiée le plus récemment l'emporte, les suppressions sont propagées). La page propose aussi des courses d'après celles déjà choisies (`src/lib/suggestions.ts` : distance et dénivelé voisins, un cran au-dessus de la plus longue course, mêmes massifs et circuits, assez de récupération entre deux courses) ; ces propositions fonctionnent aussi sans compte.
+La page **Mon compte** (`/compte`) permet de créer un compte Take Ton Trail : la saison est alors enregistrée en ligne et synchronisée entre ordinateur et téléphone (la version modifiée le plus récemment l'emporte, les suppressions sont propagées). La page propose aussi des courses d'après celles déjà choisies (`src/lib/suggestions.ts` : distance et dénivelé voisins, un cran au-dessus de la plus longue course, mêmes massifs et circuits, assez de récupération entre deux courses) ; ces propositions fonctionnent aussi sans compte.
 
 Les comptes reposent sur [Supabase](https://supabase.com) (offre gratuite). Mise en place :
 
@@ -95,14 +101,14 @@ Sans ces réglages, la page indique que les comptes arrivent bientôt et la sais
 
 ### E-mails des comptes
 
-Les e-mails (confirmation, mot de passe oublié, changement d'adresse…) sont en français, aux couleurs du site : `supabase/templates/`. Leurs liens ramènent sur `#/compte?token_hash=…&type=…`, valides même ouverts sur un autre appareil que celui de l'inscription. Ces réglages, l'adresse du site et les règles de mot de passe (`supabase/config.toml`) sont envoyés à Supabase par le workflow **Réglages Supabase** (`.github/workflows/supabase-config.yml`), à chaque modification ou à la demande (« Run workflow »). Il lui faut deux secrets GitHub (Settings → Secrets and variables → Actions) :
+Les e-mails (confirmation, mot de passe oublié, changement d'adresse…) sont en français, aux couleurs du site : `supabase/templates/`. Leurs liens ramènent sur `/compte?token_hash=…&type=…` (les anciens liens en `#/compte?…` marchent toujours), valides même ouverts sur un autre appareil que celui de l'inscription. Ces réglages, l'adresse du site et les règles de mot de passe (`supabase/config.toml`) sont envoyés à Supabase par le workflow **Réglages Supabase** (`.github/workflows/supabase-config.yml`), à chaque modification ou à la demande (« Run workflow »). Il lui faut deux secrets GitHub (Settings → Secrets and variables → Actions) :
 
 - `SUPABASE_ACCESS_TOKEN` (obligatoire) : jeton d'accès personnel créé sur supabase.com → Account → Access Tokens ;
 - `SMTP_PASSWORD` (facultatif) : mot de passe d'application Google de taketontrail@gmail.com ; les e-mails partent alors de « Take Ton Trail » au lieu de l'adresse par défaut de Supabase, limitée aux membres de l'équipe.
 
 ### Espace admin
 
-`#/admin`, relié nulle part et non indexé, n'est accessible qu'aux comptes inscrits dans la table `admins` (vérifié par la base, pas seulement par la page) : tableau de bord (visites, comptes, saisons, courses les plus vues et les plus ajoutées), messages des formulaires à traiter, liste des comptes (export CSV), réglages du site sans toucher au code (bandeau d'annonce, coups de cœur de l'accueil, courses masquées, photo de chaque massif) et liens vers la feuille, Supabase et les déploiements. Les réglages sont dans la table `site_settings`, lue par tous les visiteurs. Les pages vues sont comptées sans cookie ni identifiant (table `page_views`, un total par jour et par page).
+`/admin`, relié nulle part et non indexé, n'est accessible qu'aux comptes inscrits dans la table `admins` (vérifié par la base, pas seulement par la page) : tableau de bord (visites, comptes, saisons, courses les plus vues et les plus ajoutées), messages des formulaires à traiter, liste des comptes (export CSV), réglages du site sans toucher au code (bandeau d'annonce, coups de cœur de l'accueil, courses masquées, photo de chaque massif) et liens vers la feuille, Supabase et les déploiements. Les réglages sont dans la table `site_settings`, lue par tous les visiteurs. Les pages vues sont comptées sans cookie ni identifiant (table `page_views`, un total par jour et par page).
 
 ### Traces GPX proposées
 

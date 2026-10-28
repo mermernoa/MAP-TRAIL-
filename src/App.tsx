@@ -1,5 +1,5 @@
 import { lazy, Suspense, useEffect, useState } from 'react';
-import { HashRouter, Link, Navigate, NavLink, Route, Routes, useLocation } from 'react-router-dom';
+import { BrowserRouter, Link, Navigate, NavLink, Route, Routes, useLocation } from 'react-router-dom';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { UserIcon } from './components/Icons';
 import { LoadingGauge } from './components/LoadingGauge';
@@ -15,6 +15,7 @@ import { MassifPage } from './pages/MassifPage';
 import { ContactPage, ProposePage, ReportPage } from './pages/MessagePages';
 import { RacePage } from './pages/RacePage';
 import { SeasonPage } from './pages/SeasonPage';
+import { ROUTER_BASENAME } from './lib/base';
 import { useTilt } from './lib/motion';
 import { startAccount, useAccount } from './store/account';
 import { useCatalog } from './store/catalog';
@@ -245,14 +246,14 @@ export function App() {
   return (
     // Changements de page immédiats : en mode « transition », React attendait que le
     // navigateur soit libre, ce que les cartes WebGL retardaient parfois de plusieurs secondes.
-    <HashRouter useTransitions={false}>
+    <BrowserRouter basename={ROUTER_BASENAME} useTransitions={false}>
       <ScrollToTop />
       <TrackViews />
       <a
         className="skip-link"
         href="#main"
         onClick={(e) => {
-          // Le routeur utilise le fragment d'URL : on déplace le focus sans changer d'adresse.
+          // Avec la balise <base>, « #main » changerait de page : on déplace seulement le focus.
           e.preventDefault();
           document.getElementById('main')?.focus();
         }}
@@ -267,6 +268,6 @@ export function App() {
         </CatalogGate>
       </main>
       <Footer />
-    </HashRouter>
+    </BrowserRouter>
   );
 }

@@ -1,4 +1,5 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
+import { appUrl } from './base';
 
 /**
  * Projet Supabase des comptes Take Ton Trail. L'URL et la clé publiable sont
@@ -19,7 +20,7 @@ export function getSupabase(): Promise<SupabaseClient> {
   client ??= import('@supabase/supabase-js').then(({ createClient }) =>
     createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
       auth: {
-        // PKCE : le retour des e-mails arrive en « ?code=… », compatible avec les adresses en #/.
+        // PKCE : le retour des e-mails arrive en « ?code=… » sur la page compte.
         flowType: 'pkce',
         persistSession: true,
         autoRefreshToken: true,
@@ -43,7 +44,7 @@ export function hasStoredSession(): boolean {
 
 /** Adresse de retour des e-mails (confirmation, mot de passe oublié) : la page compte. */
 export function accountReturnUrl(): string {
-  return `${window.location.origin}${window.location.pathname}#/compte`;
+  return appUrl('compte');
 }
 
 const MESSAGES: Record<string, string> = {
@@ -73,11 +74,12 @@ export function authErrorMessage(error: unknown): string {
 export type EmailLinkType = 'email' | 'signup' | 'recovery' | 'email_change' | 'invite' | 'magiclink';
 
 /**
- * Lien d'e-mail au format « #/compte?token_hash=…&type=… » (voir supabase/templates/) :
+ * Lien d'e-mail au format « compte?token_hash=…&type=… » (voir supabase/templates/) ;
+ * l'ancien format « #/compte?… » reste lu.
  * il fonctionne même ouvert sur un autre appareil que celui de l'inscription.
  */
-export function emailLinkToken(hash = window.location.hash): { tokenHash: string; type: EmailLinkType } | null {
-  const query = hash.split('?')[1];
+export function emailLinkToken(url = window.location.search || window.location.hash): { tokenHash: string; type: EmailLinkType } | null {
+  const query = url.split('?')[1];
   if (!query) return null;
   const params = new URLSearchParams(query);
   const tokenHash = params.get('token_hash');

@@ -12,7 +12,7 @@ import { useCatalog } from '../store/catalog';
 import { type Banner, type MassifPhoto, useSiteSettings } from '../store/siteSettings';
 
 /**
- * Espace admin (#/admin) : non relié au site, non indexé, et réservé aux comptes
+ * Espace admin (/admin) : non relié au site, non indexé, et réservé aux comptes
  * inscrits dans la table `admins` : la base refuse les données à tout autre compte.
  */
 
@@ -167,7 +167,7 @@ function Gone() {
 
 function Dashboard() {
   const [tab, setTab] = useState<Tab>(() => {
-    const t = new URLSearchParams(window.location.hash.split('?')[1] ?? '').get('onglet');
+    const t = new URLSearchParams(window.location.search).get('onglet');
     return TABS.some((x) => x.id === t) ? (t as Tab) : 'bord';
   });
   const [stats, setStats] = useState<Stats | null>(null);

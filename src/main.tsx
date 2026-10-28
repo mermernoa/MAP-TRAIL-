@@ -5,6 +5,10 @@ import './styles/tokens.css';
 import './styles/app.css';
 import './styles/home.css';
 import { App } from './App';
+import { upgradeHashUrl } from './lib/base';
+
+// Anciennes adresses en « #/… » : converties avant le démarrage du routeur.
+upgradeHashUrl();
 
 const container = document.getElementById('root') as HTMLElement;
 

@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { accountsEnabled, getSupabase, SUPABASE_PUBLISHABLE_KEY, SUPABASE_URL } from '../lib/supabase';
 
 /**
- * Réglages du site modifiés depuis l'espace admin (#/admin), sans repasser par
+ * Réglages du site modifiés depuis l'espace admin (/admin), sans repasser par
  * le code : table `site_settings` de Supabase, lisible par tous les visiteurs.
  */
 export interface Banner {

@@ -28,7 +28,7 @@ otp_length = 6
 otp_expiry = 3600
 
 # E-mails en français aux couleurs de Take Ton Trail (supabase/templates/).
-# Les liens ramènent sur #/compte?token_hash=…&type=…, valides sur n'importe quel appareil.
+# Les liens ramènent sur /compte?token_hash=…&type=…, valides sur n'importe quel appareil.
 [auth.email.template.confirmation]
 subject = "Confirme ton adresse – Take Ton Trail"
 content_path = "./supabase/templates/confirmation.html"

@@ -1,5 +1,6 @@
 import { useId, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
+import { appUrl } from '../lib/base';
 import { CONTACT_EMAIL, messagesEnabled, type OutgoingMessage, type SendResult, sendMessage } from '../lib/messages';
 import { useRace } from '../store/races';
 import { InfoLayout } from './InfoPages';
@@ -185,7 +186,7 @@ export function ReportPage() {
               subject: `${form.topic} – ${raceName || 'course non précisée'}`,
               body: lines([
                 ['Course', raceName],
-                ['Fiche', event ? `${window.location.origin}${window.location.pathname}#/course/${event.id}` : undefined],
+                ['Fiche', event ? appUrl(`course/${event.id}`) : undefined],
                 ['Problème', form.topic],
                 ['Information correcte', `\n${form.correct}`],
                 ['Source', form.source],

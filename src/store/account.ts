@@ -144,7 +144,8 @@ export const useAccount = create<AccountState>()((set, get) => {
             const { error } = await sb.auth.verifyOtp({ token_hash: link.tokenHash, type: link.type === 'signup' ? 'email' : link.type });
             if (!error && link.type === 'recovery') set({ recovery: true });
             set({ linkResult: error ? 'invalid' : link.type === 'recovery' ? 'recovery' : 'confirmed' });
-            window.history.replaceState(null, '', `${window.location.pathname}${window.location.search}#/compte`);
+            // Le jeton a servi : on le retire de l'adresse.
+            window.history.replaceState(null, '', window.location.pathname);
           }
           const { data } = await sb.auth.getSession();
           onSession(data.session);

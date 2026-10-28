@@ -6,7 +6,7 @@
   "description": "Take Ton Trail : carte et calendrier interactifs des trails, du plus confidentiel au plus mythique.",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "build": "tsc -b && vite build && tsx scripts/prerender.ts",
     "preview": "vite preview",
     "typecheck": "tsc -b --noEmit",
     "test": "vitest run",

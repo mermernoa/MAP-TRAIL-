@@ -163,6 +163,7 @@ describe('réglages de l’espace admin', () => {
   it('lisent le jeton des e-mails dans l’adresse en #/compte', async () => {
     const { emailLinkToken } = await import('../lib/supabase');
     expect(emailLinkToken('#/compte?token_hash=abc123&type=recovery')).toEqual({ tokenHash: 'abc123', type: 'recovery' });
+    expect(emailLinkToken('?token_hash=xyz&type=email')).toEqual({ tokenHash: 'xyz', type: 'email' });
     expect(emailLinkToken('#/compte')).toBeNull();
     expect(emailLinkToken('#/compte?type=email')).toBeNull();
   });
