@@ -79,12 +79,16 @@ Aucune clé d'API n'est nécessaire par défaut :
 | Fond | Source | Variable pour le remplacer |
 | --- | --- | --- |
 | Plan | OpenFreeMap (Positron) + ombrage | `VITE_STYLE_PLAN` |
-| Topo | OpenTopoMap | `VITE_TOPO_TILES` (URLs séparées par des virgules) |
-| Satellite | Esri World Imagery | `VITE_SATELLITE_TILES` |
+| Topo, hors de France | OpenTopoMap | `VITE_TOPO_TILES` (URLs séparées par des virgules) |
+| Topo, en France | Plan IGN v2 (Géoplateforme) | `VITE_IGN_PLAN_TILES` (`off` pour le retirer) |
+| Satellite, hors de France | Esri World Imagery, toponymes Esri | `VITE_SATELLITE_TILES` |
+| Satellite et en-têtes 3D, en France | Photographies aériennes IGN (Géoplateforme) | `VITE_IGN_PHOTO_TILES` (`off` pour le retirer) |
 | Relief | Terrain Tiles (AWS Open Data) | `VITE_DEM_TILES` |
 | Polices des étiquettes | OpenFreeMap | `VITE_GLYPHS_URL` |
 
-Pour un usage commercial ou à fort trafic, passez sur un fournisseur avec clé (MapTiler, Stadia, IGN Géoplateforme…) et respectez les conditions de chaque source.
+Les couches IGN (Licence Ouverte Etalab 2.0, sans clé) sont posées par-dessus le fond mondial, uniquement sur la métropole, la Corse et les DROM, en fondu entre les zooms 5,5 et 7 : le globe dézoomé reste le même, et là où l'IGN n'a pas de tuile, le fond mondial reste visible. Les noms de lieux Esri restent au-dessus des photos aériennes, en France comme ailleurs.
+
+Pour un usage commercial ou à fort trafic, passez sur un fournisseur avec clé (MapTiler, Stadia…) et respectez les conditions de chaque source.
 
 ## Comptes
 

@@ -209,9 +209,10 @@ export function LegalPage() {
       <section>
         <h2>Cartes et relief</h2>
         <p>
-          Fonds de carte : © les contributeurs d’OpenStreetMap (ODbL), OpenFreeMap, OpenTopoMap (CC-BY-SA). Imagerie
-          satellite : © Esri, Maxar, Earthstar Geographics. Relief : Terrain Tiles (AWS Open Data, Mapzen). Les mentions
-          détaillées s’affichent sur chaque carte.
+          Fonds de carte : © les contributeurs d’OpenStreetMap (ODbL), OpenFreeMap, OpenTopoMap (CC-BY-SA). En France,
+          les vues Topo et Satellite utilisent le Plan IGN v2 et les photographies aériennes de l’IGN (© IGN –
+          Géoplateforme, Licence Ouverte Etalab 2.0). Imagerie satellite hors de France : © Esri, Maxar, Earthstar
+          Geographics. Relief : Terrain Tiles (AWS Open Data, Mapzen). Les mentions détaillées s’affichent sur chaque carte.
         </p>
       </section>
       <section>
@@ -301,7 +302,8 @@ export function PrivacyPage() {
         </p>
         <p>
           Comme pour toute page web, certains serveurs reçoivent l’adresse IP de ton appareil pour t’envoyer leurs fichiers :
-          GitHub Pages (le site lui-même, États-Unis), OpenFreeMap, OpenTopoMap, Esri et Amazon Web Services (cartes et relief),
+          GitHub Pages (le site lui-même, États-Unis), OpenFreeMap, OpenTopoMap, l’IGN (Géoplateforme), Esri et Amazon Web
+          Services (cartes et relief),
           les sites d’origine des photos de courses, et Supabase si tu utilises un compte, les formulaires ou les traces
           proposées. Ils ne reçoivent rien d’autre de Take Ton Trail.
         </p>
