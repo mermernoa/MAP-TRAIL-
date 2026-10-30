@@ -5,8 +5,8 @@ project_id = "take-ton-trail"
 
 [auth]
 # Adresse du site : sert de retour par défaut après les e-mails.
-site_url = "https://mermernoa.github.io/MAP-TRAIL-/"
-additional_redirect_urls = ["https://mermernoa.github.io/MAP-TRAIL-/**", "http://localhost:5173/**"]
+site_url = "https://taketontrail.fr/"
+additional_redirect_urls = ["https://taketontrail.fr/**", "https://www.taketontrail.fr/**", "https://mermernoa.github.io/MAP-TRAIL-/**", "http://localhost:5173/**"]
 enable_signup = true
 enable_anonymous_sign_ins = false
 # Même règle que le formulaire du site : 8 caractères, des lettres et des chiffres.
