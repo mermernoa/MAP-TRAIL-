@@ -2,7 +2,16 @@
 <html lang="fr">
   <head>
     <meta charset="UTF-8" />
-    <base href="%VITE_BASE_PATH%" />
+    <script>
+      // Racine du site : taketontrail.fr (ou local) à la racine, ancienne adresse GitHub Pages sous /MAP-TRAIL-/.
+      // Le même build marche aux deux adresses, avant et après le passage au nom de domaine.
+      (function () {
+        var legacy = '%VITE_BASE_PATH%';
+        var base = document.createElement('base');
+        base.href = location.pathname.indexOf(legacy) === 0 ? legacy : '/';
+        document.head.appendChild(base);
+      })();
+    </script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="description" content="Take Ton Trail : la carte et le calendrier des trails, du plus confidentiel au plus mythique. Filtre par distance, dénivelé, technicité, massif et date, puis construis ta saison." />
     <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
