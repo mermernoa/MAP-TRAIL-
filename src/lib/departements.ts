@@ -1,4 +1,4 @@
-import type { RaceEvent } from '../data/types';
+import type { Course, RaceEvent } from '../data/types';
 import { MONTH_NAMES } from './dates';
 import { normalize } from './filters';
 
@@ -233,8 +233,8 @@ export interface PageSummary {
   famous: RaceEvent[];
 }
 
-export function summarize(list: RaceEvent[], today: string): PageSummary {
-  const courses = list.flatMap((e) => e.courses.filter((c) => c.start.slice(0, 10) >= today));
+export function summarize(list: RaceEvent[], today: string, coursesOf?: (e: RaceEvent) => Course[]): PageSummary {
+  const courses = list.flatMap((e) => (coursesOf ? coursesOf(e) : e.courses.filter((c) => c.start.slice(0, 10) >= today)));
   return {
     count: list.length,
     longestKm: courses.reduce((m, c) => Math.max(m, c.distanceKm), 0),
