@@ -10,10 +10,12 @@ interface Props {
   /** Parcours à mettre en avant (par défaut, tous). */
   courses?: Course[];
   showPrice?: boolean;
+  /** Précision ajoutée après le lieu (« à 23 km »). */
+  note?: string;
 }
 
 /** Ligne de course cliquable vers sa fiche : date façon dossard, nom, lieu, distances. */
-export function RaceRow({ event, courses = event.courses, showPrice = false }: Props) {
+export function RaceRow({ event, courses = event.courses, showPrice = false, note }: Props) {
   const day = courses.map((c) => c.start.slice(0, 10)).sort()[0] ?? event.dateStart;
   const { d, m } = parseYMD(day);
   const longest = Math.max(...event.courses.map((c) => c.distanceKm));
@@ -29,6 +31,7 @@ export function RaceRow({ event, courses = event.courses, showPrice = false }: P
           <span className="race-item-name">{event.name}</span>
           <span className="race-item-place">
             <span aria-hidden="true">{countryFlag(event.country)}</span> {event.city}, {event.department ?? event.region}
+            {note && ` · ${note}`}
             <span className="sr-only">, {formatRange(event.dateStart, event.dateEnd)}</span>
           </span>
           <span className="race-item-courses">

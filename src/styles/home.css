@@ -2764,3 +2764,26 @@ button.list-more {
   grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
   width: 100%;
 }
+
+/* Accueil : départements et mois. */
+.home-places {
+  gap: 12px;
+}
+
+.home-places-label {
+  margin-top: 8px;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 24px;
+  color: var(--ink);
+}
+
+/* Fiche course : liens discrets vers les pages du coin. */
+.race-nearby {
+  margin-top: 8px;
+}
+
+.race-nearby h2 {
+  font-size: 24px;
+}
+

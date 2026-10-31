@@ -1,6 +1,6 @@
-import type { RaceEvent } from '../data/types';
-import { MONTH_NAMES } from './dates';
-import { normalize } from './filters';
+import type { Course, RaceEvent } from '../data/types';
+import { formatDate, MONTH_NAMES } from './dates';
+import { fameScore, normalize } from './filters';
 
 /**
  * Départements français, pour les pages « Trails en Haute-Savoie », « Trails dans le Var »…
@@ -121,7 +121,7 @@ const RAW: [string, string, string, string][] = [
   ['976', 'Mayotte', 'à ', 'Outre-mer'],
 ];
 
-const slugify = (s: string) =>
+export const slugify = (s: string) =>
   normalize(s)
     .replace(/[’']/g, '-')
     .replace(/[^a-z0-9]+/g, '-')
@@ -229,37 +229,62 @@ export interface PageSummary {
   longestKm: number;
   maxGain: number;
   shortestKm: number;
-  /** Les courses les plus connues de la page (notoriété 4 ou 5), trois au plus. */
+  /** Les courses phares de la page (les plus connues), trois au plus. */
   famous: RaceEvent[];
+  /** Prochaine course de la liste et le jour de son premier parcours retenu. */
+  next: { event: RaceEvent; day: string } | null;
 }
 
-export function summarize(list: RaceEvent[], today: string): PageSummary {
-  const courses = list.flatMap((e) => e.courses.filter((c) => c.start.slice(0, 10) >= today));
+const fameCache = new WeakMap<RaceEvent, number>();
+const fame = (e: RaceEvent) => {
+  let v = fameCache.get(e);
+  if (v == null) fameCache.set(e, (v = fameScore(e)));
+  return v;
+};
+
+/** Résumé d'une liste de courses ; `coursesOf` choisit les parcours qui comptent (par défaut, tous ceux à venir). */
+export function summarize(list: RaceEvent[], today: string, coursesOf?: (e: RaceEvent) => Course[]): PageSummary {
+  const pick = coursesOf ?? ((e: RaceEvent) => e.courses.filter((c) => c.start.slice(0, 10) >= today));
+  const courses = list.flatMap((e) => pick(e));
+  const first = list
+    .map((event) => ({ event, day: pick(event).map((c) => c.start.slice(0, 10)).sort()[0] ?? event.dateStart }))
+    .sort((a, b) => a.day.localeCompare(b.day))[0];
   return {
     count: list.length,
     longestKm: courses.reduce((m, c) => Math.max(m, c.distanceKm), 0),
     shortestKm: courses.reduce((m, c) => Math.min(m, c.distanceKm), Infinity),
     maxGain: courses.reduce((m, c) => Math.max(m, c.elevationGain ?? 0), 0),
-    famous: [...list]
-      .filter((e) => e.popularity >= 4)
-      .sort((a, b) => b.popularity - a.popularity)
-      .slice(0, 3),
+    // Deux courses phares sur une petite liste (sinon on les citerait toutes), trois au-delà.
+    famous: [...list].sort((a, b) => fame(b) - fame(a)).slice(0, list.length > 4 ? 3 : 2),
+    next: first ?? null,
   };
 }
 
 const nf = new Intl.NumberFormat('fr-FR', { maximumFractionDigits: 1 });
 const listFr = (items: string[]) => (items.length < 2 ? items.join('') : `${items.slice(0, -1).join(', ')} et ${items[items.length - 1]}`);
 
-/** « 17 courses de trail à venir en Haute-Savoie, de 5 à 170 km, jusqu'à 10 000 m D+. … » */
-export function introText(where: string, s: PageSummary, extra = ''): string {
-  if (!s.count) return `Aucune course de trail à venir ${where} pour l’instant.`;
-  const parts = [`${s.count} ${s.count > 1 ? 'courses de trail à venir' : 'course de trail à venir'} ${where}`];
+/** Nom des courses dans le texte : « course de trail », « ultra-trail », « kilomètre vertical »… */
+export interface Noun {
+  one: string;
+  many: string;
+}
+const TRAIL_NOUN: Noun = { one: 'course de trail', many: 'courses de trail' };
+
+/**
+ * « 17 courses de trail à venir en Haute-Savoie, de 5 à 170 km et jusqu'à 10 000 m de dénivelé positif.
+ * Parmi elles : … Prochain départ le 8 novembre 2026 : … »
+ */
+export function introText(where: string, s: PageSummary, opts: { noun?: Noun; extra?: string } = {}): string {
+  const noun = opts.noun ?? TRAIL_NOUN;
+  if (!s.count) return `Aucune ${noun.one} à venir ${where} pour l’instant.`;
+  const parts = [`${s.count} ${s.count > 1 ? `${noun.many} à venir` : `${noun.one} à venir`} ${where}`];
   if (s.longestKm > 0 && Number.isFinite(s.shortestKm)) {
     parts[0] += s.shortestKm === s.longestKm ? `, sur ${nf.format(s.longestKm)} km` : `, de ${nf.format(s.shortestKm)} à ${nf.format(s.longestKm)} km`;
     if (s.maxGain > 0) parts[0] += ` et jusqu’à ${nf.format(s.maxGain)} m de dénivelé positif`;
   }
   parts[0] += '.';
-  if (s.famous.length) parts.push(`Parmi elles : ${listFr(s.famous.map((e) => e.name))}.`);
-  if (extra) parts.push(extra);
+  if (s.count > 1 && s.famous.length) parts.push(`Les plus courues : ${listFr(s.famous.map((e) => e.name))}.`);
+  if (s.next) parts.push(`Prochain départ le ${formatDate(s.next.day)} : ${s.next.event.name}.`);
+  if (opts.extra) parts.push(opts.extra);
   return parts.join(' ');
 }

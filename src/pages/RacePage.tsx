@@ -16,6 +16,7 @@ import type { Course, RaceEvent } from '../data/types';
 import { formatDate, formatRange, formatTime, relativeDays } from '../lib/dates';
 import { departementOf } from '../lib/departements';
 import { massifByName } from '../lib/massifs';
+import { courseNearbyLinks } from '../lib/cities';
 import { altitudeAt, profileFromCheckpoints, profileFromTrack, type ProfilePoint } from '../lib/gpx';
 import { useParallax, useReveal } from '../lib/motion';
 import {
@@ -27,7 +28,7 @@ import {
   runningStones,
   TECHNICITY_LABELS,
 } from '../lib/metrics';
-import { useRace } from '../store/races';
+import { useAllRaces, useRace } from '../store/races';
 import { useCourseTrack } from '../store/useCourseTrack';
 import { useToday } from '../store/useToday';
 
@@ -56,6 +57,8 @@ function RaceDetail({ event }: { event: RaceEvent }) {
   const [hoverKm, setHoverKm] = useState<number | null>(null);
   const [flyKm, setFlyKm] = useState<number | null>(null);
   const [allCheckpoints, setAllCheckpoints] = useState(false);
+  const allRaces = useAllRaces();
+  const nearby = useMemo(() => courseNearbyLinks(event, allRaces, today), [event, allRaces, today]);
   // Photo de la base si elle existe et se charge, sinon relief 3D du lieu.
   const [heroMode, setHeroMode] = useState<'photo' | 'relief'>(event.image ? 'photo' : 'relief');
   const [photoFailed, setPhotoFailed] = useState(false);
@@ -356,6 +359,20 @@ function RaceDetail({ event }: { event: RaceEvent }) {
             )}
           </aside>
         </div>
+        {nearby.length > 0 && (
+          <nav className="massif-others race-nearby" aria-label="Autres trails dans le coin">
+            <h2>Dans le coin</h2>
+            <ul>
+              {nearby.map((l) => (
+                <li key={l.path}>
+                  <Link to={`/${l.path}`} className="chip-link">
+                    {l.label} · {l.count}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </nav>
+        )}
       </div>
     </article>
   );

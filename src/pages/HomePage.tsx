@@ -4,6 +4,7 @@ import { CollectionRail, MassifIndex, useCollectionEntries, useMassifEntries } f
 import { HomeSearch } from '../components/HomeSearch';
 import { TopoScene } from '../components/TopoScene';
 import { MONTH_SHORT, parseYMD } from '../lib/dates';
+import { departementsWithRaces, monthsWithRaces } from '../lib/departements';
 import type { Filters } from '../lib/filters';
 import { introDelay, useReveal } from '../lib/motion';
 import { raceWeekend } from '../lib/weekend';
@@ -37,6 +38,14 @@ export function HomePage() {
   const mythics = useMemo(() => upcoming.filter((e) => e.popularity >= 4).length, [upcoming]);
   const collections = useCollectionEntries(events, today, 1);
   const massifs = useMassifEntries(events, today);
+  const topDeps = useMemo(
+    () =>
+      departementsWithRaces(events, today)
+        .sort((a, b) => b.count - a.count || a.dep.name.localeCompare(b.dep.name, 'fr'))
+        .slice(0, 15),
+    [events, today],
+  );
+  const months = useMemo(() => monthsWithRaces(events, today), [events, today]);
   const featuredIds = useSiteSettings((s) => s.featured);
   const featured = useMemo(
     () => featuredIds.map((id) => events.find((e) => e.id === id)).filter((e): e is NonNullable<typeof e> => !!e && e.dateEnd >= today),
@@ -185,6 +194,37 @@ export function HomePage() {
           </div>
           <div className="reveal-item">
             <MassifIndex entries={massifs} />
+          </div>
+        </section>
+
+        <section id="departements" className="home-section" aria-labelledby="departements-title">
+          <div className="home-section-head reveal-item">
+            <h2 id="departements-title">Par département</h2>
+            <p>Les trails près de chez toi, département par département, et mois par mois pour construire ta saison.</p>
+            <Link to="/trails/" className="home-section-link">
+              Tous les départements
+            </Link>
+          </div>
+          <div className="massif-others home-places reveal-item">
+            <ul aria-label="Les départements avec le plus de courses">
+              {topDeps.map(({ dep, count }) => (
+                <li key={dep.slug}>
+                  <Link to={`/trails/${dep.slug}`} className="chip-link">
+                    {dep.name} · {count}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+            <h3 className="home-places-label">Par mois</h3>
+            <ul aria-label="Par mois">
+              {months.map(({ month, count }) => (
+                <li key={month.key}>
+                  <Link to={`/trails/${month.slug}`} className="chip-link">
+                    {month.label} · {count}
+                  </Link>
+                </li>
+              ))}
+            </ul>
           </div>
         </section>
 

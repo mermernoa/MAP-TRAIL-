@@ -11,17 +11,10 @@ import { dirname, join } from 'node:path';
 import type { RaceEvent } from '../src/data/types';
 import { collectionItems, COLLECTIONS } from '../src/lib/collections';
 import { formatRange } from '../src/lib/dates';
-import {
-  departementEvents,
-  departementOf,
-  departementsWithRaces,
-  introText,
-  MIN_INDEXED,
-  monthEvents,
-  monthsWithRaces,
-  summarize,
-} from '../src/lib/departements';
+import { departementOf, monthsWithRaces } from '../src/lib/departements';
 import { massifEvents, MASSIFS } from '../src/lib/massifs';
+import { courseNearbyLinks } from '../src/lib/cities';
+import { type TrailItem, trailsSite } from '../src/lib/trailPages';
 
 const DIST = 'dist';
 const env = Object.fromEntries(
@@ -66,13 +59,18 @@ const massifLink = (name: string | undefined) => {
   return m ? ` · Massif : <a href="massif/${m.slug}">${esc(m.name)}</a>` : '';
 };
 
+const nearbyLinks = (e: RaceEvent) => {
+  const links = courseNearbyLinks(e, events, today);
+  return links.length ? `<h2>Dans le coin</h2><ul>${links.map((l) => `<li><a href="${l.path}">${esc(l.label)}</a> (${l.count})</li>`).join('')}</ul>` : '';
+};
+
 const depLink = (e: RaceEvent) => {
   const d = departementOf(e);
   return d ? ` · <a href="trails/${d.slug}">Trails ${esc(d.inName)}</a>` : '';
 };
 
 const NAV = `<nav><a href="./">Accueil</a> · <a href="carte">Carte</a> · <a href="calendrier">Calendrier</a> · <a href="a-la-une">À la une</a> · <a href="ma-saison">Ma saison</a></nav>`;
-const FOOT = `<footer><p><a href="trails/">Trails par département et par mois</a> · <a href="a-propos">À propos</a> · <a href="contact">Contact</a> · <a href="proposer-une-course">Proposer une course</a> · <a href="mentions-legales">Mentions légales</a> · <a href="confidentialite">Confidentialité</a></p></footer>`;
+const FOOT = `<footer><p><a href="trails/">Trails par région, ville, format et mois</a> · <a href="a-propos">À propos</a> · <a href="contact">Contact</a> · <a href="proposer-une-course">Proposer une course</a> · <a href="mentions-legales">Mentions légales</a> · <a href="confidentialite">Confidentialité</a></p></footer>`;
 const MASSIF_LINKS = `<h2>Par massif</h2><ul>${MASSIFS.map((m) => `<li><a href="massif/${m.slug}">${esc(m.name)}</a></li>`).join('')}</ul>`;
 const COLLECTION_LINKS = `<h2>Par envie</h2><ul>${COLLECTIONS.map((c) => `<li><a href="collection/${c.slug}">${esc(c.title)}</a> : ${esc(c.tagline)}</li>`).join('')}</ul>`;
 
@@ -108,13 +106,17 @@ function render(p: Page): string {
 }
 
 const pages: Page[] = [];
+const DEP_HOME_LINKS = `<h2>Par département</h2><ul>${trailsSite(events, today)
+  .topDepartements.slice(0, 15)
+  .map(({ dep, count }) => `<li><a href="trails/${dep.slug}">Trails ${esc(dep.inName)}</a> (${count})</li>`)
+  .join('')}</ul><p><a href="trails/">Tous les départements, les grandes villes et les formats</a></p>`;
 const ORG = { '@type': 'Organization', name: 'Take Ton Trail', url: `${SITE_URL}/`, logo: `${SITE_URL}/icon-512.png` };
 
 pages.push({
   path: '',
   title: 'Take Ton Trail – la carte et le calendrier des trails en France',
   description: `${upcoming.length} courses de trail à venir en France et outre-mer, du petit trail du coin à l’ultra mythique : carte en relief, calendrier, distances, D+, prix et dates d’inscription.`,
-  body: `<h1>Du petit trail du coin à l’ultra mythique</h1><p>${upcoming.length} courses de trail à venir en France et outre-mer, sur une carte en relief et dans un calendrier. Filtre par distance, dénivelé, technicité, massif et date, puis construis ta saison.</p>${MASSIF_LINKS}${COLLECTION_LINKS}`,
+  body: `<h1>Du petit trail du coin à l’ultra mythique</h1><p>${upcoming.length} courses de trail à venir en France et outre-mer, sur une carte en relief et dans un calendrier. Filtre par distance, dénivelé, technicité, massif et date, puis construis ta saison.</p>${MASSIF_LINKS}${COLLECTION_LINKS}${DEP_HOME_LINKS}`,
   jsonLd: [
     { '@context': 'https://schema.org', '@type': 'WebSite', name: 'Take Ton Trail', url: `${SITE_URL}/`, inLanguage: 'fr-FR' },
     { '@context': 'https://schema.org', ...ORG },
@@ -169,41 +171,54 @@ for (const c of COLLECTIONS) {
   });
 }
 
-// Pages « Trails en Haute-Savoie » et « Trails en novembre 2026 » (recherches locales et saisonnières).
-const deps = departementsWithRaces(events, today);
-const months = monthsWithRaces(events, today);
-const DEP_LINKS = (list: typeof deps) =>
-  `<ul>${list.map(({ dep, count }) => `<li><a href="trails/${dep.slug}">Trails ${esc(dep.inName)}</a> (${count})</li>`).join('')}</ul>`;
-const MONTH_LINKS = `<ul>${months.map(({ month, count }) => `<li><a href="trails/${month.slug}">Trails en ${esc(month.label)}</a> (${count})</li>`).join('')}</ul>`;
-pages.push({
-  path: 'trails/',
-  title: 'Trails par département et par mois – Take Ton Trail',
-  description: `Les ${upcoming.length} courses de trail à venir en France, classées par département et par mois : trouve les trails près de chez toi et construis ta saison.`,
-  body: `<h1>Trails par département et par mois</h1><h2>Par mois</h2>${MONTH_LINKS}<h2>Par département</h2>${DEP_LINKS(deps)}`,
-});
-for (const { dep } of deps) {
-  const list = departementEvents(dep, events, today);
-  const intro = introText(dep.inName, summarize(list, today));
-  const neighbours = deps.filter((d) => d.dep.region === dep.region && d.dep !== dep);
+// Pages Trails (/trails/…) : régions, départements, grandes villes, formats, croisements et mois.
+// Mêmes données que le site (src/lib/trailPages.ts), avec fil d'Ariane et liste en données structurées.
+const site = trailsSite(events, today);
+const abs = (path: string) => (path ? `${SITE_URL}/${path}` : `${SITE_URL}/`);
+const href = (path: string) => (path ? path : './');
+const itemLink = (i: TrailItem) => {
+  const longest = Math.max(...i.courses.map((c) => c.distanceKm));
+  const far = i.km != null ? ` · à ${Math.round(i.km)} km` : '';
+  return `<li><a href="course/${i.event.id}">${esc(i.event.name)}</a> · ${esc(place(i.event))}${far} · ${esc(formatRange(i.event.dateStart, i.event.dateEnd))} · ${
+    i.courses.length > 1 ? 'jusqu’à ' : ''
+  }${km(longest)}</li>`;
+};
+for (const p of site.pages) {
+  const crumbs = [...p.breadcrumb, { label: p.h1, path: p.path }];
+  const jsonLd: object[] = [
+    {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: crumbs.map((c, n) => ({ '@type': 'ListItem', position: n + 1, name: c.label, item: abs(c.path) })),
+    },
+  ];
+  if (p.items.length) {
+    jsonLd.push({
+      '@context': 'https://schema.org',
+      '@type': 'ItemList',
+      name: p.h1,
+      numberOfItems: p.items.length,
+      itemListOrder: 'https://schema.org/ItemListOrderAscending',
+      itemListElement: p.items.map((i, n) => ({ '@type': 'ListItem', position: n + 1, name: i.event.name, url: `${SITE_URL}/course/${i.event.id}` })),
+    });
+  }
+  const sections = p.sections
+    .map(
+      (sec) =>
+        `<h2>${esc(sec.title)}</h2><ul>${sec.links
+          .map((l) => `<li><a href="${href(l.path)}">${esc(l.label)}</a>${l.count != null ? ` (${l.count})` : ''}</li>`)
+          .join('')}</ul>`,
+    )
+    .join('');
   pages.push({
-    path: `trails/${dep.slug}`,
-    title: `Trails ${dep.inName} (${dep.code}) : ${list.length} courses à venir – Take Ton Trail`,
-    description: clip(`${intro} Calendrier, distances, dénivelé et inscriptions.`),
-    body: `<h1>Trails ${esc(dep.inName)}</h1><p>${esc(intro)}</p><h2>Le calendrier des trails ${esc(dep.inName)}</h2><ul>${list.map(raceLink).join('')}</ul>${
-      neighbours.length ? `<h2>Ailleurs en ${esc(dep.region)}</h2>${DEP_LINKS(neighbours)}` : ''
-    }`,
-    noindex: list.length < MIN_INDEXED,
-  });
-}
-for (const { month } of months) {
-  const list = monthEvents(month, events, today);
-  const intro = introText(`en ${month.label}`, summarize(list, today));
-  pages.push({
-    path: `trails/${month.slug}`,
-    title: `Trails en ${month.label} : ${list.length} courses en France – Take Ton Trail`,
-    description: clip(`${intro} Dates, lieux, distances et inscriptions.`),
-    body: `<h1>Trails en ${esc(month.label)}</h1><p>${esc(intro)}</p><ul>${list.map(raceLink).join('')}</ul><h2>Les autres mois</h2>${MONTH_LINKS}`,
-    noindex: list.length < MIN_INDEXED,
+    path: p.path,
+    title: `${p.title} – Take Ton Trail`,
+    description: p.description,
+    body: `<nav aria-label="Fil d’Ariane">${p.breadcrumb.map((l) => `<a href="${href(l.path)}">${esc(l.label)}</a>`).join(' / ')}</nav><h1>${esc(p.h1)}</h1>${
+      p.subtitle ? `<p>${esc(p.subtitle)}</p>` : ''
+    }<p>${esc(p.intro)}</p>${p.items.length ? `<h2>${esc(p.listTitle)}</h2><ul>${p.items.map(itemLink).join('')}</ul>` : ''}${sections}`,
+    jsonLd,
+    noindex: p.noindex,
   });
 }
 
@@ -249,7 +264,7 @@ for (const e of events) {
     lastmod: e.updatedAt,
     body: `<h1>${esc(e.name)}</h1><p>${esc(place(e))}${depLink(e)} · ${estimated ? 'Date prévisionnelle : ' : ''}${esc(when)}${massifLink(e.massif)}</p><h2>Parcours</h2><ul>${courses
       .map((c) => `<li>${esc(c.name)} : ${km(c.distanceKm)}${c.elevationGain != null ? `, ${nf.format(c.elevationGain)} m D+` : ''}${c.priceEur != null ? `, ${nf.format(c.priceEur)} €` : ''}</li>`)
-      .join('')}</ul>${e.description ? `<p>${esc(e.description)}</p>` : ''}${e.website ? `<p><a href="${esc(e.website)}" rel="nofollow">Site de l’organisation</a></p>` : ''}`,
+      .join('')}</ul>${e.description ? `<p>${esc(e.description)}</p>` : ''}${e.website ? `<p><a href="${esc(e.website)}" rel="nofollow">Site de l’organisation</a></p>` : ''}${nearbyLinks(e)}`,
     // Date pas encore publiée : pas de données d'événement (Google demande une date sûre).
     jsonLd: estimated ? undefined : [ld],
   });
@@ -283,6 +298,10 @@ writeFileSync(
   ),
 );
 
+const paths = new Set(pages.map((p) => p.path));
+if (paths.size !== pages.length) throw new Error('Deux pages ont la même adresse');
+// GitHub Pages ne sait pas servir à la fois /x (x.html) et /x/ (x/index.html).
+for (const p of pages) if (!p.path.endsWith('/') && paths.has(`${p.path}/`)) throw new Error(`Page et dossier en conflit : ${p.path}`);
 const indexed = pages.filter((p) => !p.noindex);
 writeFileSync(
   join(DIST, 'sitemap.xml'),

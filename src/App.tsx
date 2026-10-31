@@ -12,7 +12,6 @@ import { HomePage } from './pages/HomePage';
 import { AboutPage, LegalPage, PrivacyPage } from './pages/InfoPages';
 import { MapPage } from './pages/MapPage';
 import { MassifPage } from './pages/MassifPage';
-import { TrailsPage } from './pages/TrailsPage';
 import { ContactPage, ProposePage, ReportPage } from './pages/MessagePages';
 import { RacePage } from './pages/RacePage';
 import { SeasonPage } from './pages/SeasonPage';
@@ -25,6 +24,8 @@ import { trackView, useSiteSettings } from './store/siteSettings';
 
 // Espace admin : chargé seulement quand on l'ouvre.
 const AdminPage = lazy(() => import('./pages/AdminPage'));
+// Pages Trails (régions, villes, formats…) : chargées à la demande, comme l'espace admin.
+const TrailsPage = lazy(() => import('./pages/TrailsPage').then((m) => ({ default: m.TrailsPage })));
 
 /** Sur l'accueil, l'en-tête se fond dans la nuit du décor tant qu'on ne l'a pas quitté. */
 function useOverHero(active: boolean) {
@@ -174,6 +175,10 @@ function ScrollToTop() {
   return null;
 }
 
+function LazyPage({ children }: { children: React.ReactNode }) {
+  return <Suspense fallback={<div className="page-message"><p>Chargement…</p></div>}>{children}</Suspense>;
+}
+
 function PageRoutes() {
   const { pathname } = useLocation();
   return (
@@ -188,8 +193,8 @@ function PageRoutes() {
         <Route path="/trouver" element={<Navigate to="/a-la-une" replace />} />
         <Route path="/collection/:slug" element={<CollectionPage />} />
         <Route path="/massif/:slug" element={<MassifPage />} />
-        <Route path="/trails" element={<TrailsPage />} />
-        <Route path="/trails/:slug" element={<TrailsPage />} />
+        <Route path="/trails" element={<LazyPage><TrailsPage /></LazyPage>} />
+        <Route path="/trails/:slug" element={<LazyPage><TrailsPage /></LazyPage>} />
         <Route path="/a-propos" element={<AboutPage />} />
         <Route path="/contact" element={<ContactPage />} />
         <Route path="/signaler" element={<ReportPage />} />
