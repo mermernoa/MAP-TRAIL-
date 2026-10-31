@@ -2754,3 +2754,13 @@ button.list-more {
     min-height: 260px;
   }
 }
+
+/* ---------- Pages département et mois ---------- */
+.trails-intro {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.trails-intro .massif-stats {
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  width: 100%;
+}

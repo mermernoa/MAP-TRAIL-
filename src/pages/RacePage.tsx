@@ -14,6 +14,7 @@ import { TerrainHero } from '../components/TerrainHero';
 import { derivedLinks } from '../data';
 import type { Course, RaceEvent } from '../data/types';
 import { formatDate, formatRange, formatTime, relativeDays } from '../lib/dates';
+import { departementOf } from '../lib/departements';
 import { massifByName } from '../lib/massifs';
 import { altitudeAt, profileFromCheckpoints, profileFromTrack, type ProfilePoint } from '../lib/gpx';
 import { useParallax, useReveal } from '../lib/motion';
@@ -124,7 +125,11 @@ function RaceDetail({ event }: { event: RaceEvent }) {
           <nav className="breadcrumb" aria-label="Fil d’Ariane">
             <Link to="/carte">Carte</Link>
             <span aria-hidden="true">/</span>
-            <span>{event.region}</span>
+            {departementOf(event) ? (
+              <Link to={`/trails/${departementOf(event)!.slug}`}>Trails {departementOf(event)!.inName}</Link>
+            ) : (
+              <span>{event.region}</span>
+            )}
           </nav>
           <h1 className="race-title">{event.name}</h1>
           <p className="race-hero-place">

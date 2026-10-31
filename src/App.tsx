@@ -12,6 +12,7 @@ import { HomePage } from './pages/HomePage';
 import { AboutPage, LegalPage, PrivacyPage } from './pages/InfoPages';
 import { MapPage } from './pages/MapPage';
 import { MassifPage } from './pages/MassifPage';
+import { TrailsPage } from './pages/TrailsPage';
 import { ContactPage, ProposePage, ReportPage } from './pages/MessagePages';
 import { RacePage } from './pages/RacePage';
 import { SeasonPage } from './pages/SeasonPage';
@@ -187,6 +188,8 @@ function PageRoutes() {
         <Route path="/trouver" element={<Navigate to="/a-la-une" replace />} />
         <Route path="/collection/:slug" element={<CollectionPage />} />
         <Route path="/massif/:slug" element={<MassifPage />} />
+        <Route path="/trails" element={<TrailsPage />} />
+        <Route path="/trails/:slug" element={<TrailsPage />} />
         <Route path="/a-propos" element={<AboutPage />} />
         <Route path="/contact" element={<ContactPage />} />
         <Route path="/signaler" element={<ReportPage />} />

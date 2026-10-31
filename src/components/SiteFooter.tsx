@@ -8,6 +8,7 @@ const EXPLORE_LINKS: { to: string; label: string; section?: string }[] = [
   { to: '/a-la-une', label: 'À la une' },
   { to: '/', label: 'Collections', section: 'collections' },
   { to: '/', label: 'Massifs', section: 'massifs' },
+  { to: '/trails/', label: 'Par département et par mois' },
   { to: '/ma-saison', label: 'Ma saison' },
   { to: '/compte', label: 'Mon compte' },
 ];
