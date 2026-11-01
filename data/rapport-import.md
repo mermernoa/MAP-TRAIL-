@@ -1,18 +1,18 @@
 # Rapport d’import de la base des courses
 
-Import du 01/11/2026 17:59:26 depuis 4 fichier(s) JSON de l'API Sheets.
+Import du 01/11/2026 18:09:54 depuis 4 fichier(s) JSON de l'API Sheets.
 
-- 3185 lignes lues, 3185 publiées (statuts Validé, Prêt, En ligne).
-- 1272 événements et 3182 parcours sur le site.
+- 3185 lignes lues, 3167 publiées (statuts Validé, Prêt, En ligne), non publiées : 18 « À vérifier ».
+- 1265 événements et 3164 parcours sur le site.
 - 0 prix saisis en centimes (ex. 1 200,00 € pour 12 €) corrigés à l’import : à rectifier dans la feuille.
-- 527 événements à date « à confirmer » (affichés « Date prévisionnelle »), dont 410 ramenés au jour de la semaine de l’édition précédente (liste ci-dessous).
+- 522 événements à date « à confirmer » (affichés « Date prévisionnelle »), dont 405 ramenés au jour de la semaine de l’édition précédente (liste ci-dessous).
 
 ## Lignes ignorées (2)
 
 - **EVT040-A** Trail des Hautes Vosges : Date de début manquante ou illisible : ligne ignorée.
 - **EVT460** Trail De Noel By Rossignol : Aucune coordonnée pour cet événement : il n’apparaît pas sur le site.
 
-## À vérifier (69)
+## À vérifier (57)
 
 - **EVT001** La Foulée Des Monts D'Ain : Photo : le lien ouvre une page web, pas une image (photo ignorée).
 - **EVT002** Val'Oween Trail : Photo : vignette de recherche Google, à remplacer par le lien de l’image d’origine (photo ignorée).
@@ -70,21 +70,9 @@ Import du 01/11/2026 17:59:26 depuis 4 fichier(s) JSON de l'API Sheets.
 - **EVT1004** Trail Saint Roch de Caveirac : Dates étalées sur 98 jours (du 16/01/2027 au 24/04/2027) : date de fin ou dates des parcours à vérifier.
 - **EVT1006** Trail du Château de Beaumesnil : Dates étalées sur 151 jours (du 20/01/2027 au 20/06/2027) : date de fin ou dates des parcours à vérifier.
 - **EVT1266** La TransPyreneA - 100% Basque : Dates étalées sur 17 jours (du 01/08/2027 au 18/08/2027) : date de fin ou dates des parcours à vérifier.
-- **EVT470** Foulées du Père Noël : Coordonnées à 137 km des autres courses du département « Dordogne (24) » (46.118472, 1.81487) : vérifier la commune et le département.
-- **EVT130** Moontrail by rcbj : Coordonnées à 160 km des autres courses du département « Isère (38) » (43.848269, 5.143194) : vérifier la commune et le département.
-- **EVT326** Les Foulées De La Crete : Coordonnées à 725 km des autres courses du département « Haute-Savoie (74) » (49.5344534, -1.529802) : vérifier la commune et le département.
-- **EVT234** La selloise : Coordonnées à 453 km des autres courses du département « Haute-Saône (70) » (49.301862, 0.505915) : vérifier la commune et le département.
-- **EVT748** Trail Blanc Du Grandvaux : Coordonnées à 230 km des autres courses du département « Jura (39) » (48.3832725, 7.4718731) : vérifier la commune et le département.
 - **EVT241** Maloya trail : Doublon probable de EVT240 (Sainte Rose, 2026-11-11 ; ici Saint-Philippe, 2026-11-11) : garder une seule des deux.
-- **EVT275** Trail de la Croix de Fer by Night : Doublon probable de EVT225 (Le Mériot, 2026-11-08 ; ici Le Mériot, 2026-11-14) : garder une seule des deux.
-- **EVT459** Trail des sangliers : Doublon probable de EVT458 (Poitiers, 2026-12-06 ; ici Smarves, 2026-12-06) : garder une seule des deux.
-- **EVT517** Eco trail de noel : Doublon probable de EVT973 (Cavaillon, 2026-12-05 ; ici Cavaillon, 2026-12-13) : garder une seule des deux.
-- **EVT555** L'embûche de Noël : Doublon probable de EVT882 (Nieul, 2026-12-20 ; ici Nieul, 2026-12-20) : garder une seule des deux.
-- **EVT592** Trail Blanc de la Montagne Ardéchoise : Doublon probable de EVT582 (Astet, 2027-01-09 ; ici Borne, 2027-01-09) : garder une seule des deux.
-- **EVT1119** Roc'trail : Doublon probable de EVT690 (Paussac-et-Saint-Vivien, 2027-01-23 ; ici Paussac-et-Saint-Vivien, 2027-01-30) : garder une seule des deux.
-- **EVT755** Trail De La Crête : Doublon probable de EVT791 (Saint Joseph, 2027-01-31 ; ici Saint-Joseph, 2027-01-31) : garder une seule des deux.
 
-## Dates à confirmer déplacées (410)
+## Dates à confirmer déplacées (405)
 
 La feuille reprend le jour et le mois de l’édition précédente avec l’année suivante, ce qui décale le jour de la semaine (dimanche 9 novembre 2025 → lundi 9 novembre 2026). Le site affiche la date au même jour de la semaine que l’édition précédente. Reportez la vraie date dans la feuille dès qu’elle est annoncée.
 
@@ -105,7 +93,6 @@ La feuille reprend le jour et le mois de l’édition précédente avec l’ann�
 | **EVT167** Nomade trail de cyim | mardi 3 novembre 2026 | dimanche 1er novembre 2026 |
 | **EVT196** La course des illuminés | dimanche 8 novembre 2026 | samedi 7 novembre 2026 |
 | **EVT224** Sparnatrail | lundi 9 novembre 2026 | dimanche 8 novembre 2026 |
-| **EVT225** Trail de la croix de fer by night | lundi 9 novembre 2026 | dimanche 8 novembre 2026 |
 | **EVT226** Trail du Ségala | lundi 9 novembre 2026 | dimanche 8 novembre 2026 |
 | **EVT227** Corrida de Schoeneck | lundi 9 novembre 2026 | dimanche 8 novembre 2026 |
 | **EVT228** Vinotrail | lundi 9 novembre 2026 | dimanche 8 novembre 2026 |
@@ -174,7 +161,6 @@ La feuille reprend le jour et le mois de l’édition précédente avec l’ann�
 | **EVT552** La 1418 noctrail | dimanche 20 décembre 2026 | samedi 19 décembre 2026 |
 | **EVT553** Trail nocturne de Vervins | dimanche 20 décembre 2026 | samedi 19 décembre 2026 |
 | **EVT554** LHSA trail aventure | lundi 21 décembre 2026 | dimanche 20 décembre 2026 |
-| **EVT555** L'embûche de Noël | lundi 21 décembre 2026 | dimanche 20 décembre 2026 |
 | **EVT556** Trail hivernal des Villards by Dare2B | lundi 21 décembre 2026 | dimanche 20 décembre 2026 |
 | **EVT557** Trail De Noël de Dampierre-sur-Linotte | lundi 21 décembre 2026 | dimanche 20 décembre 2026 |
 | **EVT558** La vandrimaraise | mardi 22 décembre 2026 | dimanche 20 décembre 2026 |
@@ -271,7 +257,6 @@ La feuille reprend le jour et le mois de l’édition précédente avec l’ann�
 | **EVT685** Trail blanc de l'envolée | dimanche 24 janvier 2027 | samedi 23 janvier 2027 |
 | **EVT686** Trail piton de la fournaise | dimanche 24 janvier 2027 | samedi 23 janvier 2027 |
 | **EVT688** Trail de bize minervois | dimanche 24 janvier 2027 | samedi 23 janvier 2027 |
-| **EVT690** Roc'trail | dimanche 24 janvier 2027 | samedi 23 janvier 2027 |
 | **EVT692** Trail Chantelle sports nature | dimanche 24 janvier 2027 | samedi 23 janvier 2027 |
 | **EVT693** Le dernier homme debout Morvan | dimanche 24 janvier 2027 | samedi 23 janvier 2027 |
 | **EVT694** Trail Tous Pour Alex | dimanche 24 janvier 2027 | samedi 23 janvier 2027 |
@@ -326,7 +311,6 @@ La feuille reprend le jour et le mois de l’édition précédente avec l’ann�
 | **EVT752** Trail du boivre entre terre et mer | dimanche 31 janvier 2027 | samedi 30 janvier 2027 |
 | **EVT753** Challenge Jean Roure | lundi 1er février 2027 | dimanche 31 janvier 2027 |
 | **EVT754** La city urban trail | lundi 1er février 2027 | dimanche 31 janvier 2027 |
-| **EVT755** Trail De La Crête | lundi 1er février 2027 | dimanche 31 janvier 2027 |
 | **EVT756** Le trail fort et vert | lundi 1er février 2027 | dimanche 31 janvier 2027 |
 | **EVT757** La mythik | lundi 1er février 2027 | dimanche 31 janvier 2027 |
 | **EVT758** Trail des calanques | lundi 1er février 2027 | dimanche 31 janvier 2027 |
@@ -466,7 +450,6 @@ La feuille reprend le jour et le mois de l’édition précédente avec l’ann�
 | **EVT963** La Roukamina | lundi 30 novembre 2026 | dimanche 29 novembre 2026 |
 | **EVT964** La salamandre givree | lundi 30 novembre 2026 | dimanche 29 novembre 2026 |
 | **EVT965** Launagu'etoile | mardi 1er décembre 2026 | dimanche 29 novembre 2026 |
-| **EVT973** Ecotrail de Noël | dimanche 6 décembre 2026 | samedi 5 décembre 2026 |
 | **EVT974** Foulées de l'Île Barlet | dimanche 6 décembre 2026 | samedi 5 décembre 2026 |
 | **EVT975** La Cherveusienne | dimanche 6 décembre 2026 | samedi 5 décembre 2026 |
 | **EVT976** La Sainte Anne | dimanche 6 décembre 2026 | samedi 5 décembre 2026 |
