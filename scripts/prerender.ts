@@ -15,6 +15,7 @@ import { departementOf, monthsWithRaces } from '../src/lib/departements';
 import { massifEvents, MASSIFS } from '../src/lib/massifs';
 import { courseNearbyLinks } from '../src/lib/cities';
 import { type TrailItem, trailsSite } from '../src/lib/trailPages';
+import { collectionTitle, infoTitle, massifTitle, raceTitle, TITLES, trailsTitle } from '../src/lib/seoTitles';
 
 const DIST = 'dist';
 const env = Object.fromEntries(
@@ -47,6 +48,8 @@ interface Page {
   jsonLd?: object[];
   noindex?: boolean;
   lastmod?: string;
+  /** Adresse canonique d'une autre page (même course saisie deux fois dans la feuille). */
+  canonicalPath?: string;
 }
 
 function raceLink(e: RaceEvent) {
@@ -79,7 +82,7 @@ function render(p: Page): string {
   const head = [
     `<title>${esc(p.title)}</title>`,
     `<meta name="description" content="${esc(p.description)}" />`,
-    `<link rel="canonical" href="${url}" />`,
+    `<link rel="canonical" href="${p.canonicalPath != null ? `${SITE_URL}/${p.canonicalPath}` : url}" />`,
     p.noindex ? '<meta name="robots" content="noindex" />' : '',
     '<meta property="og:site_name" content="Take Ton Trail" />',
     '<meta property="og:locale" content="fr_FR" />',
@@ -101,7 +104,8 @@ function render(p: Page): string {
     .replace('</head>', `    ${head}\n  </head>`)
     .replace(/\n\s*\n/g, '\n');
   // Contenu lisible sans JavaScript ; le site le remplace dès qu'il démarre.
-  html = html.replace('<div id="root"></div>', `<div id="root"><div class="prerender">${NAV}${p.body}${FOOT}</div></div>`);
+  const absolute = (h: string) => h.replace(/href="(?!https?:|\/|#|mailto:)(\.\/)?/g, 'href="/');
+  html = html.replace('<div id="root"></div>', `<div id="root"><div class="prerender">${absolute(NAV + p.body + FOOT)}</div></div>`);
   return html;
 }
 
@@ -114,17 +118,17 @@ const ORG = { '@type': 'Organization', name: 'Take Ton Trail', url: `${SITE_URL}
 
 pages.push({
   path: '',
-  title: 'Take Ton Trail – la carte et le calendrier des trails en France',
+  title: TITLES.home,
   description: `${upcoming.length} courses de trail à venir en France et outre-mer, du petit trail du coin à l’ultra mythique : carte en relief, calendrier, distances, D+, prix et dates d’inscription.`,
   body: `<h1>Du petit trail du coin à l’ultra mythique</h1><p>${upcoming.length} courses de trail à venir en France et outre-mer, sur une carte en relief et dans un calendrier. Filtre par distance, dénivelé, technicité, massif et date, puis construis ta saison.</p>${MASSIF_LINKS}${COLLECTION_LINKS}${DEP_HOME_LINKS}`,
   jsonLd: [
-    { '@context': 'https://schema.org', '@type': 'WebSite', name: 'Take Ton Trail', url: `${SITE_URL}/`, inLanguage: 'fr-FR' },
+    { '@context': 'https://schema.org', '@type': 'WebSite', name: 'Take Ton Trail', alternateName: ['TakeTonTrail', 'Take Ton Trail – trails en France'], url: `${SITE_URL}/`, inLanguage: 'fr-FR' },
     { '@context': 'https://schema.org', ...ORG },
   ],
 });
 pages.push({
   path: 'carte',
-  title: 'Carte des courses de trail en France – Take Ton Trail',
+  title: TITLES.map,
   description: 'Toutes les courses de trail sur une carte en relief 3D : filtre par distance, dénivelé, massif, date et prix, et trouve les courses près de chez toi.',
   body: `<h1>La carte des trails</h1><p>Toutes les courses de trail de France et d’outre-mer sur une carte en relief, avec leurs distances, leur dénivelé et leurs dates.</p>${MASSIF_LINKS}`,
 });
@@ -139,7 +143,7 @@ const monthSlug = (k: string) => monthsWithRaces(events, today).find((x) => x.mo
 const MONTHS = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
 pages.push({
   path: 'calendrier',
-  title: 'Calendrier des trails en France – Take Ton Trail',
+  title: TITLES.calendar,
   description: `Le calendrier des ${upcoming.length} prochaines courses de trail en France, mois par mois : dates, lieux, distances, dénivelé, prix et ouverture des inscriptions.`,
   body: `<h1>Calendrier des trails</h1>${[...byMonth]
     .map(([k, list]) => `<h2><a href="trails/${monthSlug(k)}">${MONTHS[Number(k.slice(5, 7)) - 1]} ${k.slice(0, 4)}</a></h2><ul>${list.map(raceLink).join('')}</ul>`)
@@ -147,7 +151,7 @@ pages.push({
 });
 pages.push({
   path: 'a-la-une',
-  title: 'Courses de trail à la une – Take Ton Trail',
+  title: TITLES.highlights,
   description: 'Nos coups de cœur, une course par thème (défi, mythique, pépite, nocturne, ultra, KV) et le prochain week-end de trail.',
   body: '<h1>À la une</h1><p>Nos coups de cœur, une course par thème et le prochain week-end de course.</p>',
 });
@@ -156,7 +160,7 @@ for (const m of MASSIFS) {
   const list = massifEvents(m, events, today);
   pages.push({
     path: `massif/${m.slug}`,
-    title: `Trails ${m.name} : ${list.length} courses – Take Ton Trail`,
+    title: massifTitle(m.name),
     description: clip(`${list.length} courses de trail à venir dans le massif ${m.name}. ${m.text}`),
     body: `<h1>Trails ${esc(m.name)}</h1><p>${esc(m.text)}</p><ul>${list.map(raceLink).join('')}</ul>`,
   });
@@ -165,7 +169,7 @@ for (const c of COLLECTIONS) {
   const items = collectionItems(c, events, today);
   pages.push({
     path: `collection/${c.slug}`,
-    title: `${c.title} : ${items.length} courses de trail – Take Ton Trail`,
+    title: collectionTitle(c.title),
     description: clip(`${c.tagline} ${c.text}`),
     body: `<h1>${esc(c.title)}</h1><p>${esc(c.text)}</p><ul>${items.map((i) => raceLink(i.event)).join('')}</ul>`,
   });
@@ -212,7 +216,7 @@ for (const p of site.pages) {
     .join('');
   pages.push({
     path: p.path,
-    title: `${p.title} – Take Ton Trail`,
+    title: trailsTitle(p.title),
     description: p.description,
     body: `<nav aria-label="Fil d’Ariane">${p.breadcrumb.map((l) => `<a href="${href(l.path)}">${esc(l.label)}</a>`).join(' / ')}</nav><h1>${esc(p.h1)}</h1>${
       p.subtitle ? `<p>${esc(p.subtitle)}</p>` : ''
@@ -259,7 +263,7 @@ for (const e of events) {
   }
   pages.push({
     path: `course/${e.id}`,
-    title: `${e.name} ${year} – ${e.city} | Take Ton Trail`,
+    title: raceTitle(e.name, year, e.city),
     description: clip(`${e.name} à ${place(e)}, ${estimated ? 'date prévisionnelle : ' : ''}${when}. Parcours : ${dist}. Prix, inscriptions, carte et profil.`),
     lastmod: e.updatedAt,
     body: `<h1>${esc(e.name)}</h1><p>${esc(place(e))}${depLink(e)} · ${estimated ? 'Date prévisionnelle : ' : ''}${esc(when)}${massifLink(e.massif)}</p><h2>Parcours</h2><ul>${courses
@@ -281,7 +285,20 @@ const STATIC: [string, string, string, boolean?][] = [
   ['compte', 'Mon compte', 'Ton compte Take Ton Trail : ta saison sur tous tes appareils.', true],
 ];
 for (const [path, title, description, noindex] of STATIC) {
-  pages.push({ path, title: `${title} – Take Ton Trail`, description, body: `<h1>${esc(title)}</h1><p>${esc(description)}</p>`, noindex });
+  pages.push({ path, title: infoTitle(title), description, body: `<h1>${esc(title)}</h1><p>${esc(description)}</p>`, noindex });
+}
+
+// Même course saisie deux fois dans la feuille (signalée dans data/rapport-import.md) : même titre.
+// La fiche à date officielle (sinon la plus récente) reste la page de référence pour Google.
+const byTitle = new Map<string, Page[]>();
+for (const p of pages) if (p.path.startsWith('course/')) byTitle.set(p.title, [...(byTitle.get(p.title) ?? []), p]);
+for (const group of byTitle.values()) {
+  if (group.length < 2) continue;
+  const ev = (p: Page) => events.find((e) => `course/${e.id}` === p.path)!;
+  const [keep, ...others] = [...group].sort(
+    (a, b) => Number(ev(b).dateStatus === 'official') - Number(ev(a).dateStatus === 'official') || (ev(b).updatedAt ?? '').localeCompare(ev(a).updatedAt ?? ''),
+  );
+  for (const p of others) p.canonicalPath = keep.path;
 }
 
 for (const p of pages) {
@@ -302,7 +319,7 @@ const paths = new Set(pages.map((p) => p.path));
 if (paths.size !== pages.length) throw new Error('Deux pages ont la même adresse');
 // GitHub Pages ne sait pas servir à la fois /x (x.html) et /x/ (x/index.html).
 for (const p of pages) if (!p.path.endsWith('/') && paths.has(`${p.path}/`)) throw new Error(`Page et dossier en conflit : ${p.path}`);
-const indexed = pages.filter((p) => !p.noindex);
+const indexed = pages.filter((p) => !p.noindex && p.canonicalPath == null);
 writeFileSync(
   join(DIST, 'sitemap.xml'),
   `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${indexed

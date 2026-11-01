@@ -9,6 +9,7 @@ import type { RaceEvent } from '../data/types';
 import { formatDate, monthLabel, parseYMD } from '../lib/dates';
 import { summarize } from '../lib/departements';
 import { useReveal, useParallax } from '../lib/motion';
+import { trailsTitle } from '../lib/seoTitles';
 import { type LinkSection, type PageLink, type TrailItem, type TrailsPageData, trailsSite } from '../lib/trailPages';
 import { useFilterStore } from '../store/filters';
 import { useAllRaces } from '../store/races';
@@ -37,9 +38,10 @@ export function TrailsPage() {
   return page.kind === 'index' ? <TrailsIndex page={page} /> : <TrailsView key={page.slug} page={page} />;
 }
 
+/** Même titre que la page pré-rendue (Google lit celui de la page affichée). */
 function useTitle(title: string) {
   useEffect(() => {
-    document.title = `${title} – Take Ton Trail`;
+    document.title = trailsTitle(title);
     return () => {
       document.title = 'Take Ton Trail';
     };
@@ -158,7 +160,7 @@ function TrailsView({ page }: { page: TrailsPageData }) {
   const navigate = useNavigate();
   const heroRef = useParallax<HTMLElement>(0.35);
   const bodyRef = useReveal<HTMLDivElement>('.panel, .massif-intro', [page.slug]);
-  useTitle(page.h1);
+  useTitle(page.title);
   const terrain = page.center != null;
   const openMap = () => {
     if (!page.map) return;
@@ -222,7 +224,7 @@ function TrailsView({ page }: { page: TrailsPageData }) {
 
 function TrailsIndex({ page }: { page: TrailsPageData }) {
   const bodyRef = useReveal<HTMLDivElement>('.massif-others', [page.sections.length]);
-  useTitle(page.h1);
+  useTitle(page.title);
   return (
     <article className="collection-page trails-page">
       <header className="race-hero collection-hero">

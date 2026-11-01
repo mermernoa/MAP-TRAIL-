@@ -11,6 +11,7 @@ import { raceWeekend } from '../lib/weekend';
 import { useAllRaces } from '../store/races';
 import { useSiteSettings } from '../store/siteSettings';
 import { useToday } from '../store/useToday';
+import { TITLES } from '../lib/seoTitles';
 
 /** Parcours le plus parlant d'un événement à venir : le plus long. */
 function mainCourse(e: RaceEvent, today: string): Course {
@@ -31,7 +32,7 @@ export function HighlightsPage() {
   useTilt('.spot-card', 6);
 
   useEffect(() => {
-    document.title = 'À la une – Take Ton Trail';
+    document.title = TITLES.highlights;
     return () => {
       document.title = 'Take Ton Trail';
     };

@@ -10,6 +10,7 @@ import { useParallax, useReveal } from '../lib/motion';
 import { coverPhoto } from '../lib/photos';
 import { useAllRaces } from '../store/races';
 import { useToday } from '../store/useToday';
+import { collectionTitle } from '../lib/seoTitles';
 
 const PAGE = 40;
 const firstDay = (i: CollectionItem) => i.courses.map((c) => c.start.slice(0, 10)).sort()[0];
@@ -30,7 +31,7 @@ export function CollectionPage() {
 
   useEffect(() => {
     if (!collection) return;
-    document.title = `${collection.title} – Take Ton Trail`;
+    document.title = collectionTitle(collection.title);
     setShown(PAGE);
     setPhotoFailed(false);
     return () => {

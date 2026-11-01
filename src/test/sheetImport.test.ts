@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest';
+import type { RaceEvent } from '../data/types';
 import {
+  consistencyIssues,
   convertSheet,
   fixPrice,
   isTentativeDate,
@@ -149,5 +151,24 @@ describe('conversion de la feuille', () => {
   it('signale les dates étalées sur des mois', () => {
     const spread = convertSheet([SHEET_HEADERS, row({ ...base, 'ID course': 'EVT011-A', 'Distance (km)': '20', 'Date fin': '31/12/2026' })]);
     expect(spread.issues.some((i) => i.rowId === 'EVT011' && /étalées sur 61 jours/.test(i.message))).toBe(true);
+  });
+});
+
+describe('contrôles entre lignes', () => {
+  const ev = (id: string, name: string, city: string, department: string, lat: number, lng: number, dateStart: string) =>
+    ({ id, name, city, department, lat, lng, dateStart, dateEnd: dateStart, courses: [] }) as unknown as RaceEvent;
+
+  it('signale une commune placée loin de son département et les doublons probables', () => {
+    const issues = consistencyIssues([
+      ev('evt1-a', 'Trail A', 'Lans', 'Isère (38)', 45.13, 5.59, '2026-12-01'),
+      ev('evt2-b', 'Trail B', 'Voiron', 'Isère (38)', 45.36, 5.59, '2026-12-02'),
+      ev('evt3-c', 'Trail C', 'Vienne', 'Isère (38)', 45.52, 4.87, '2026-12-03'),
+      ev('evt4-d', 'Trail D', 'Maubec', 'Isère (38)', 43.85, 5.14, '2026-12-04'),
+      ev('evt5-roc', 'Roc’trail', 'Paussac', 'Dordogne (24)', 45.34, 0.54, '2027-01-23'),
+      ev('evt6-roc', 'Roc trail', 'Paussac', 'Dordogne (24)', 45.34, 0.54, '2027-01-30'),
+      ev('evt7-tru', 'Trail des Truffières', 'Cabrespine', 'Aude (11)', 43.36, 2.46, '2026-11-15'),
+      ev('evt8-tru', 'Trail des truffières', 'Saint-Paul', 'Drôme (26)', 44.35, 4.77, '2026-11-15'),
+    ]);
+    expect(issues.map((i) => i.rowId)).toEqual(['EVT4', 'EVT6']);
   });
 });

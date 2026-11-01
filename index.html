@@ -2,22 +2,15 @@
 <html lang="fr">
   <head>
     <meta charset="UTF-8" />
-    <script>
-      // Racine du site : taketontrail.fr (ou local) à la racine, ancienne adresse GitHub Pages sous /MAP-TRAIL-/.
-      // Le même build marche aux deux adresses, avant et après le passage au nom de domaine.
-      (function () {
-        var legacy = '%VITE_BASE_PATH%';
-        var base = document.createElement('base');
-        base.href = location.pathname.indexOf(legacy) === 0 ? legacy : '/';
-        document.head.appendChild(base);
-      })();
-    </script>
+    <base href="/" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="description" content="Take Ton Trail : la carte et le calendrier des trails, du plus confidentiel au plus mythique. Filtre par distance, dénivelé, technicité, massif et date, puis construis ta saison." />
     <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#071c3f" media="(prefers-color-scheme: dark)" />
-    <link rel="icon" href="./favicon.png" type="image/png" />
-    <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
+    <link rel="icon" href="/favicon.ico?v=3" sizes="48x48" />
+    <link rel="icon" href="/favicon-96.png?v=3" type="image/png" sizes="96x96" />
+    <link rel="icon" href="/favicon-192.png?v=3" type="image/png" sizes="192x192" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=3" />
     <title>Take Ton Trail</title>
     <style>
       /* Contenu généré au build (scripts/prerender.ts), affiché le temps que le site démarre. */

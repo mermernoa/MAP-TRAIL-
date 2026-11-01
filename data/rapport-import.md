@@ -1,18 +1,18 @@
 # Rapport d’import de la base des courses
 
-Import du 14/10/2026 10:11:19 depuis export CSV de la feuille.
+Import du 01/11/2026 17:59:26 depuis 4 fichier(s) JSON de l'API Sheets.
 
-- 2248 lignes lues, 2248 publiées (statuts Validé, Prêt, En ligne).
-- 906 événements et 2245 parcours sur le site.
+- 3185 lignes lues, 3185 publiées (statuts Validé, Prêt, En ligne).
+- 1272 événements et 3182 parcours sur le site.
 - 0 prix saisis en centimes (ex. 1 200,00 € pour 12 €) corrigés à l’import : à rectifier dans la feuille.
-- 419 événements à date « à confirmer » (affichés « Date prévisionnelle »), dont 339 ramenés au jour de la semaine de l’édition précédente (liste ci-dessous).
+- 527 événements à date « à confirmer » (affichés « Date prévisionnelle »), dont 410 ramenés au jour de la semaine de l’édition précédente (liste ci-dessous).
 
 ## Lignes ignorées (2)
 
 - **EVT040-A** Trail des Hautes Vosges : Date de début manquante ou illisible : ligne ignorée.
 - **EVT460** Trail De Noel By Rossignol : Aucune coordonnée pour cet événement : il n’apparaît pas sur le site.
 
-## À vérifier (53)
+## À vérifier (69)
 
 - **EVT001** La Foulée Des Monts D'Ain : Photo : le lien ouvre une page web, pas une image (photo ignorée).
 - **EVT002** Val'Oween Trail : Photo : vignette de recherche Google, à remplacer par le lien de l’image d’origine (photo ignorée).
@@ -67,8 +67,24 @@ Import du 14/10/2026 10:11:19 depuis export CSV de la feuille.
 - **EVT819** Open Fast Hiking : Dates étalées sur 91 jours (du 06/02/2027 au 08/05/2027) : date de fin ou dates des parcours à vérifier.
 - **EVT824** Trail Glazig : Dates étalées sur 151 jours (du 06/02/2027 au 07/07/2027) : date de fin ou dates des parcours à vérifier.
 - **EVT835** Lautrec Trail Nocturne : Dates étalées sur 19 jours (du 07/02/2027 au 26/02/2027) : date de fin ou dates des parcours à vérifier.
+- **EVT1004** Trail Saint Roch de Caveirac : Dates étalées sur 98 jours (du 16/01/2027 au 24/04/2027) : date de fin ou dates des parcours à vérifier.
+- **EVT1006** Trail du Château de Beaumesnil : Dates étalées sur 151 jours (du 20/01/2027 au 20/06/2027) : date de fin ou dates des parcours à vérifier.
+- **EVT1266** La TransPyreneA - 100% Basque : Dates étalées sur 17 jours (du 01/08/2027 au 18/08/2027) : date de fin ou dates des parcours à vérifier.
+- **EVT470** Foulées du Père Noël : Coordonnées à 137 km des autres courses du département « Dordogne (24) » (46.118472, 1.81487) : vérifier la commune et le département.
+- **EVT130** Moontrail by rcbj : Coordonnées à 160 km des autres courses du département « Isère (38) » (43.848269, 5.143194) : vérifier la commune et le département.
+- **EVT326** Les Foulées De La Crete : Coordonnées à 725 km des autres courses du département « Haute-Savoie (74) » (49.5344534, -1.529802) : vérifier la commune et le département.
+- **EVT234** La selloise : Coordonnées à 453 km des autres courses du département « Haute-Saône (70) » (49.301862, 0.505915) : vérifier la commune et le département.
+- **EVT748** Trail Blanc Du Grandvaux : Coordonnées à 230 km des autres courses du département « Jura (39) » (48.3832725, 7.4718731) : vérifier la commune et le département.
+- **EVT241** Maloya trail : Doublon probable de EVT240 (Sainte Rose, 2026-11-11 ; ici Saint-Philippe, 2026-11-11) : garder une seule des deux.
+- **EVT275** Trail de la Croix de Fer by Night : Doublon probable de EVT225 (Le Mériot, 2026-11-08 ; ici Le Mériot, 2026-11-14) : garder une seule des deux.
+- **EVT459** Trail des sangliers : Doublon probable de EVT458 (Poitiers, 2026-12-06 ; ici Smarves, 2026-12-06) : garder une seule des deux.
+- **EVT517** Eco trail de noel : Doublon probable de EVT973 (Cavaillon, 2026-12-05 ; ici Cavaillon, 2026-12-13) : garder une seule des deux.
+- **EVT555** L'embûche de Noël : Doublon probable de EVT882 (Nieul, 2026-12-20 ; ici Nieul, 2026-12-20) : garder une seule des deux.
+- **EVT592** Trail Blanc de la Montagne Ardéchoise : Doublon probable de EVT582 (Astet, 2027-01-09 ; ici Borne, 2027-01-09) : garder une seule des deux.
+- **EVT1119** Roc'trail : Doublon probable de EVT690 (Paussac-et-Saint-Vivien, 2027-01-23 ; ici Paussac-et-Saint-Vivien, 2027-01-30) : garder une seule des deux.
+- **EVT755** Trail De La Crête : Doublon probable de EVT791 (Saint Joseph, 2027-01-31 ; ici Saint-Joseph, 2027-01-31) : garder une seule des deux.
 
-## Dates à confirmer déplacées (339)
+## Dates à confirmer déplacées (410)
 
 La feuille reprend le jour et le mois de l’édition précédente avec l’année suivante, ce qui décale le jour de la semaine (dimanche 9 novembre 2025 → lundi 9 novembre 2026). Le site affiche la date au même jour de la semaine que l’édition précédente. Reportez la vraie date dans la feuille dès qu’elle est annoncée.
 
@@ -178,7 +194,6 @@ La feuille reprend le jour et le mois de l’édition précédente avec l’ann�
 | **EVT579** Doggy trail | lundi 4 janvier 2027 | dimanche 3 janvier 2027 |
 | **EVT580** Trail de Lamontjoie | mardi 5 janvier 2027 | dimanche 3 janvier 2027 |
 | **EVT581** La détox du causse | mardi 5 janvier 2027 | dimanche 3 janvier 2027 |
-| **EVT582** Trail blanc de la montagne ardechoise | mardi 5 janvier 2027 | dimanche 3 janvier 2027 |
 | **EVT583** Trail de la montagne ardéchoise | mardi 5 janvier 2027 | dimanche 3 janvier 2027 |
 | **EVT584** Dévol'ice trail | mardi 5 janvier 2027 | dimanche 3 janvier 2027 |
 | **EVT585** Souvenir jean-claude moutet - urban trail | mardi 5 janvier 2027 | dimanche 3 janvier 2027 |
@@ -270,7 +285,7 @@ La feuille reprend le jour et le mois de l’édition précédente avec l’ann�
 | **EVT702** Urban trail de Cannes | lundi 25 janvier 2027 | dimanche 24 janvier 2027 |
 | **EVT703** Trail de Pignan | lundi 25 janvier 2027 | dimanche 24 janvier 2027 |
 | **EVT704** Trails chantelle sports nature | lundi 25 janvier 2027 | dimanche 24 janvier 2027 |
-| **EVT705** Trail de la galinette | lundi 25 janvier 2027 | dimanche 24 janvier 2027 |
+| **EVT705** Trail de la galinette | dimanche 31 janvier 2027 | samedi 30 janvier 2027 |
 | **EVT706** Trail des coteaux du lyonnais | lundi 25 janvier 2027 | dimanche 24 janvier 2027 |
 | **EVT707** Trail'R Run | lundi 25 janvier 2027 | dimanche 24 janvier 2027 |
 | **EVT708** La foulée tricastine | lundi 25 janvier 2027 | dimanche 24 janvier 2027 |
@@ -286,7 +301,6 @@ La feuille reprend le jour et le mois de l’édition précédente avec l’ann�
 | **EVT718** La martiniquaise | lundi 25 janvier 2027 | dimanche 24 janvier 2027 |
 | **EVT719** Le nordic trail | lundi 25 janvier 2027 | dimanche 24 janvier 2027 |
 | **EVT720** Etampes trolls | lundi 25 janvier 2027 | dimanche 24 janvier 2027 |
-| **EVT721** Urban trail de Villeneuve lez Avignon | lundi 25 janvier 2027 | dimanche 24 janvier 2027 |
 | **EVT722** L'hivernal de la grande champagne | lundi 25 janvier 2027 | dimanche 24 janvier 2027 |
 | **EVT723** Trail blanc des 14 chapeaux | lundi 25 janvier 2027 | dimanche 24 janvier 2027 |
 | **EVT724** La sapurienne | mardi 26 janvier 2027 | dimanche 24 janvier 2027 |
@@ -300,6 +314,7 @@ La feuille reprend le jour et le mois de l’édition précédente avec l’ann�
 | **EVT732** Traversée des pignes | mardi 26 janvier 2027 | dimanche 24 janvier 2027 |
 | **EVT733** Ekotrail des green | mardi 26 janvier 2027 | dimanche 24 janvier 2027 |
 | **EVT734** Trail transvolcano et trail du tangue | mardi 26 janvier 2027 | dimanche 24 janvier 2027 |
+| **EVT737** La panoramique de Carnoux | dimanche 31 janvier 2027 | samedi 30 janvier 2027 |
 | **EVT742** Nocturne de Ribes | dimanche 31 janvier 2027 | samedi 30 janvier 2027 |
 | **EVT743** Virées du golf | dimanche 31 janvier 2027 | samedi 30 janvier 2027 |
 | **EVT744** Trail Blanc Joux-Plane | dimanche 31 janvier 2027 | samedi 30 janvier 2027 |
@@ -413,3 +428,75 @@ La feuille reprend le jour et le mois de l’édition précédente avec l’ann�
 | **EVT905** Trail d'Oneux | lundi 24 mai 2027 | dimanche 23 mai 2027 |
 | **EVT906** Trail du Liger | dimanche 30 mai 2027 | samedi 29 mai 2027 |
 | **EVT907** L'Hortillonne - Trail Daniel Varlet | dimanche 30 mai 2027 | samedi 29 mai 2027 |
+| **EVT910** Casteltrail | dimanche 1er novembre 2026 | samedi 31 octobre 2026 |
+| **EVT911** Courir Pour Leurs Rêves | dimanche 1er novembre 2026 | samedi 31 octobre 2026 |
+| **EVT912** Marathon de Moulière | dimanche 1er novembre 2026 | samedi 31 octobre 2026 |
+| **EVT913** L'Aydienne | lundi 2 novembre 2026 | dimanche 1er novembre 2026 |
+| **EVT914** Raidlight Vendée trail | lundi 2 novembre 2026 | dimanche 1er novembre 2026 |
+| **EVT915** Trail Di Sant'Appianu | lundi 2 novembre 2026 | dimanche 1er novembre 2026 |
+| **EVT916** Trail des Orris | lundi 2 novembre 2026 | dimanche 1er novembre 2026 |
+| **EVT917** Entre Ciel et Mer | mardi 3 novembre 2026 | dimanche 1er novembre 2026 |
+| **EVT918** La Course de l'Ours | mardi 3 novembre 2026 | dimanche 1er novembre 2026 |
+| **EVT919** La montée du Wintersberg | mardi 3 novembre 2026 | dimanche 1er novembre 2026 |
+| **EVT920** Musca'day trail | mardi 3 novembre 2026 | dimanche 1er novembre 2026 |
+| **EVT925** Agglo City Run | dimanche 8 novembre 2026 | samedi 7 novembre 2026 |
+| **EVT926** Espri'Trail des Badins | dimanche 8 novembre 2026 | samedi 7 novembre 2026 |
+| **EVT927** La Marlienne | dimanche 8 novembre 2026 | samedi 7 novembre 2026 |
+| **EVT928** Les Foulées Aixoises | dimanche 8 novembre 2026 | samedi 7 novembre 2026 |
+| **EVT929** Les Foulées Coursoises | dimanche 8 novembre 2026 | samedi 7 novembre 2026 |
+| **EVT930** TrailDuro | dimanche 8 novembre 2026 | samedi 7 novembre 2026 |
+| **EVT931** Foulées baudelloises | lundi 9 novembre 2026 | dimanche 8 novembre 2026 |
+| **EVT932** La Course des Paroisses | lundi 9 novembre 2026 | dimanche 8 novembre 2026 |
+| **EVT933** La Foulée des Mots | lundi 9 novembre 2026 | dimanche 8 novembre 2026 |
+| **EVT934** Trail des Sources de la Loire | lundi 9 novembre 2026 | dimanche 8 novembre 2026 |
+| **EVT935** Foulées de la Mue | mardi 10 novembre 2026 | dimanche 8 novembre 2026 |
+| **EVT936** La Vitalavie | mardi 10 novembre 2026 | dimanche 8 novembre 2026 |
+| **EVT937** Trail des Sucs | mardi 10 novembre 2026 | dimanche 8 novembre 2026 |
+| **EVT944** Le Défi des Plages | dimanche 15 novembre 2026 | samedi 14 novembre 2026 |
+| **EVT945** Orange Vélodrome Trail | dimanche 15 novembre 2026 | samedi 14 novembre 2026 |
+| **EVT946** La Boucle des Coteaux | lundi 16 novembre 2026 | dimanche 15 novembre 2026 |
+| **EVT947** Trail des Truffières | lundi 16 novembre 2026 | dimanche 15 novembre 2026 |
+| **EVT948** Courir au Château de la Bourdaisière | mardi 17 novembre 2026 | dimanche 15 novembre 2026 |
+| **EVT949** Trail de la butte de Thil | mardi 17 novembre 2026 | dimanche 15 novembre 2026 |
+| **EVT953** Courses de la Petite Camargue Alsacienne | dimanche 22 novembre 2026 | samedi 21 novembre 2026 |
+| **EVT954** La Foulée Caumontoise | dimanche 22 novembre 2026 | samedi 21 novembre 2026 |
+| **EVT956** Foulées Roxédoises | mardi 24 novembre 2026 | dimanche 22 novembre 2026 |
+| **EVT961** Foulées du Père Noël | dimanche 29 novembre 2026 | samedi 28 novembre 2026 |
+| **EVT962** Venerque Trail | dimanche 29 novembre 2026 | samedi 28 novembre 2026 |
+| **EVT963** La Roukamina | lundi 30 novembre 2026 | dimanche 29 novembre 2026 |
+| **EVT964** La salamandre givree | lundi 30 novembre 2026 | dimanche 29 novembre 2026 |
+| **EVT965** Launagu'etoile | mardi 1er décembre 2026 | dimanche 29 novembre 2026 |
+| **EVT973** Ecotrail de Noël | dimanche 6 décembre 2026 | samedi 5 décembre 2026 |
+| **EVT974** Foulées de l'Île Barlet | dimanche 6 décembre 2026 | samedi 5 décembre 2026 |
+| **EVT975** La Cherveusienne | dimanche 6 décembre 2026 | samedi 5 décembre 2026 |
+| **EVT976** La Sainte Anne | dimanche 6 décembre 2026 | samedi 5 décembre 2026 |
+| **EVT977** Trail Entre Terres et Mer | dimanche 6 décembre 2026 | samedi 5 décembre 2026 |
+| **EVT979** Course aux Dahuts | lundi 7 décembre 2026 | dimanche 6 décembre 2026 |
+| **EVT980** Trail Ecuillé | lundi 7 décembre 2026 | dimanche 6 décembre 2026 |
+| **EVT981** Trail de Bathernay | lundi 7 décembre 2026 | dimanche 6 décembre 2026 |
+| **EVT982** Course des 2 Viaducs | mardi 8 décembre 2026 | dimanche 6 décembre 2026 |
+| **EVT983** La Ronde de Noël de Rodez | mardi 8 décembre 2026 | dimanche 6 décembre 2026 |
+| **EVT988** Les 20ans de la Draille | dimanche 13 décembre 2026 | samedi 12 décembre 2026 |
+| **EVT989** Sep'arty | lundi 14 décembre 2026 | dimanche 13 décembre 2026 |
+| **EVT990** Noz-Trail du St-Emilion | lundi 28 décembre 2026 | dimanche 27 décembre 2026 |
+| **EVT991** Montée de Chambles | mardi 29 décembre 2026 | dimanche 27 décembre 2026 |
+| **EVT992** Course de l'épiphanie | dimanche 3 janvier 2027 | samedi 2 janvier 2027 |
+| **EVT993** L'Hivernale des Lacs | mardi 5 janvier 2027 | dimanche 3 janvier 2027 |
+| **EVT994** La Fuvelaine | mardi 5 janvier 2027 | dimanche 3 janvier 2027 |
+| **EVT995** Trail de l'Agenais | mardi 5 janvier 2027 | dimanche 3 janvier 2027 |
+| **EVT999** L'Ayguadoise | dimanche 10 janvier 2027 | samedi 9 janvier 2027 |
+| **EVT1000** Trail Nocturne la Frontale | dimanche 10 janvier 2027 | samedi 9 janvier 2027 |
+| **EVT1005** Ronde de la tam | dimanche 17 janvier 2027 | samedi 16 janvier 2027 |
+| **EVT1007** Course Nature des Vignobles du Cap | dimanche 24 janvier 2027 | samedi 23 janvier 2027 |
+| **EVT1008** La Foulée Montilienne | lundi 25 janvier 2027 | dimanche 24 janvier 2027 |
+| **EVT1009** Trail des Zèbres | mardi 26 janvier 2027 | dimanche 24 janvier 2027 |
+| **EVT1012** Forest Trail 31 | dimanche 31 janvier 2027 | samedi 30 janvier 2027 |
+| **EVT1013** Trail des meuniers | dimanche 31 janvier 2027 | samedi 30 janvier 2027 |
+| **EVT1014** Les Foulées Bessoises | lundi 1er février 2027 | dimanche 31 janvier 2027 |
+| **EVT1015** Trail de l'abbaye | lundi 1er février 2027 | dimanche 31 janvier 2027 |
+| **EVT1016** Trail du Veydrac | lundi 1er février 2027 | dimanche 31 janvier 2027 |
+| **EVT1017** La Foulée du Foussa | mardi 2 février 2027 | dimanche 31 janvier 2027 |
+| **EVT1018** Trail des Couteliers | mardi 2 février 2027 | dimanche 31 janvier 2027 |
+| **EVT1023** Trail Blanc de la Rosière | dimanche 7 février 2027 | samedi 6 février 2027 |
+| **EVT1024** Fresn'Urban Trail | mardi 9 février 2027 | dimanche 7 février 2027 |
+| **EVT1025** Winter Trail d'Alix | mardi 9 février 2027 | dimanche 7 février 2027 |

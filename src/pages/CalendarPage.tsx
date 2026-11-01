@@ -21,6 +21,7 @@ import { useFilterStore } from '../store/filters';
 import { useAllRaces } from '../store/races';
 import { useSeasonStore } from '../store/season';
 import { useToday } from '../store/useToday';
+import { TITLES } from '../lib/seoTitles';
 
 type View = 'month' | 'year' | 'list';
 
@@ -60,6 +61,12 @@ function maxBand(match: Match) {
 }
 
 export function CalendarPage() {
+  useEffect(() => {
+    document.title = TITLES.calendar;
+    return () => {
+      document.title = 'Take Ton Trail';
+    };
+  }, []);
   const races = useAllRaces();
   const filters = useFilterStore((s) => s.filters);
   const entries = useSeasonStore((s) => s.entries);
