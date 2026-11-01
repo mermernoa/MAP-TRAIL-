@@ -11,6 +11,7 @@ import { coverPhoto } from '../lib/photos';
 import { useAllRaces } from '../store/races';
 import { useToday } from '../store/useToday';
 import { collectionTitle } from '../lib/seoTitles';
+import { eventsWord } from '../lib/words';
 
 const PAGE = 40;
 const firstDay = (i: CollectionItem) => i.courses.map((c) => c.start.slice(0, 10)).sort()[0];
@@ -85,7 +86,7 @@ export function CollectionPage() {
           <h1 className="race-title">{collection.title}</h1>
           <p className="collection-lede">{collection.text}</p>
           <p className="race-hero-place">
-            {items.length} {items.length > 1 ? 'courses à venir' : 'course à venir'}
+            {eventsWord(items.length)} à venir
           </p>
         </div>
         {photo && <PhotoCredit credit={`${photo.credit}, ${photo.event.name}`} src={photo.src} className="race-hero-credit" />}

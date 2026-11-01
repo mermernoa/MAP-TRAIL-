@@ -10,6 +10,7 @@ import { useFilterStore } from '../store/filters';
 import { useAllRaces } from '../store/races';
 import { useToday } from '../store/useToday';
 import { TITLES } from '../lib/seoTitles';
+import { eventsWord } from '../lib/words';
 
 const PAGE = 60;
 
@@ -64,7 +65,7 @@ export function MapPage() {
         <FilterBar onOpenFilters={() => setFiltersOpen(true)} />
         <div className="results-head">
           <p className="results-count" aria-live="polite">
-            <strong>{listed.length}</strong> {listed.length > 1 ? 'courses' : 'course'}
+            <strong>{listed.length}</strong> {listed.length > 1 ? 'événements' : 'événement'}
             {onlyVisible && bounds ? ' dans la zone' : ''}
           </p>
           <label className="select-label">
@@ -97,7 +98,7 @@ export function MapPage() {
             {listed.length > visibleCount && (
               <li className="list-more">
                 <button type="button" className="button" onClick={() => setVisibleCount((n) => n + PAGE)}>
-                  Afficher {Math.min(PAGE, listed.length - visibleCount)} courses de plus
+                  Afficher {eventsWord(Math.min(PAGE, listed.length - visibleCount))} de plus
                 </button>
               </li>
             )}

@@ -22,6 +22,7 @@ import {
   summarize,
 } from '../src/lib/departements';
 import { massifEvents, MASSIFS } from '../src/lib/massifs';
+import { coursesWord, eventsWord } from '../src/lib/words';
 import { collectionTitle, departementTitle, infoTitle, massifTitle, monthTitle, raceTitle, TITLES } from '../src/lib/seoTitles';
 
 const DIST = 'dist';
@@ -40,6 +41,9 @@ const today = new Date().toISOString().slice(0, 10);
 const template = readFileSync(join(DIST, 'index.html'), 'utf8');
 const { events } = JSON.parse(readFileSync(join(DIST, 'data/races.json'), 'utf8')) as { events: RaceEvent[] };
 const upcoming = events.filter((e) => e.dateEnd >= today).sort((a, b) => a.dateStart.localeCompare(b.dateStart));
+// Un événement (une fiche) regroupe une ou plusieurs courses (ses parcours).
+const upcomingCourses = upcoming.reduce((n, e) => n + e.courses.filter((c) => c.start.slice(0, 10) >= today).length, 0);
+const COUNT = `${eventsWord(upcoming.length)} de trail à venir, soit ${coursesWord(upcomingCourses)}`;
 
 const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 const nf = new Intl.NumberFormat('fr-FR', { maximumFractionDigits: 1 });
@@ -115,8 +119,8 @@ const ORG = { '@type': 'Organization', name: 'Take Ton Trail', url: `${SITE_URL}
 pages.push({
   path: '',
   title: TITLES.home,
-  description: `${upcoming.length} courses de trail à venir en France et outre-mer, du petit trail du coin à l’ultra mythique : carte en relief, calendrier, distances, D+, prix et dates d’inscription.`,
-  body: `<h1>Du petit trail du coin à l’ultra mythique</h1><p>${upcoming.length} courses de trail à venir en France et outre-mer, sur une carte en relief et dans un calendrier. Filtre par distance, dénivelé, technicité, massif et date, puis construis ta saison.</p>${MASSIF_LINKS}${COLLECTION_LINKS}`,
+  description: `${COUNT} en France et outre-mer, du petit trail du coin à l’ultra mythique : carte en relief, calendrier, distances, D+, prix et dates d’inscription.`,
+  body: `<h1>Du petit trail du coin à l’ultra mythique</h1><p>${COUNT} en France et outre-mer, sur une carte en relief et dans un calendrier. Filtre par distance, dénivelé, technicité, massif et date, puis construis ta saison.</p>${MASSIF_LINKS}${COLLECTION_LINKS}`,
   jsonLd: [
     { '@context': 'https://schema.org', '@type': 'WebSite', name: 'Take Ton Trail', alternateName: ['TakeTonTrail', 'Take Ton Trail – trails en France'], url: `${SITE_URL}/`, inLanguage: 'fr-FR' },
     { '@context': 'https://schema.org', ...ORG },
@@ -140,7 +144,7 @@ const MONTHS = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet'
 pages.push({
   path: 'calendrier',
   title: TITLES.calendar,
-  description: `Le calendrier des ${upcoming.length} prochaines courses de trail en France, mois par mois : dates, lieux, distances, dénivelé, prix et ouverture des inscriptions.`,
+  description: `Le calendrier des ${eventsWord(upcoming.length)} de trail à venir en France (${coursesWord(upcomingCourses)}), mois par mois : dates, lieux, distances, dénivelé, prix et ouverture des inscriptions.`,
   body: `<h1>Calendrier des trails</h1>${[...byMonth]
     .map(([k, list]) => `<h2><a href="trails/${monthSlug(k)}">${MONTHS[Number(k.slice(5, 7)) - 1]} ${k.slice(0, 4)}</a></h2><ul>${list.map(raceLink).join('')}</ul>`)
     .join('')}`,
@@ -157,7 +161,7 @@ for (const m of MASSIFS) {
   pages.push({
     path: `massif/${m.slug}`,
     title: massifTitle(m.name),
-    description: clip(`${list.length} courses de trail à venir dans le massif ${m.name}. ${m.text}`),
+    description: clip(`${eventsWord(list.length)} de trail à venir dans le massif ${m.name}. ${m.text}`),
     body: `<h1>Trails ${esc(m.name)}</h1><p>${esc(m.text)}</p><ul>${list.map(raceLink).join('')}</ul>`,
   });
 }
@@ -180,7 +184,7 @@ const MONTH_LINKS = `<ul>${months.map(({ month, count }) => `<li><a href="trails
 pages.push({
   path: 'trails/',
   title: TITLES.trailsIndex,
-  description: `Les ${upcoming.length} courses de trail à venir en France, classées par département et par mois : trouve les trails près de chez toi et construis ta saison.`,
+  description: `Les ${eventsWord(upcoming.length)} de trail à venir en France, classés par département et par mois : trouve les trails près de chez toi et construis ta saison.`,
   body: `<h1>Trails par département et par mois</h1><h2>Par mois</h2>${MONTH_LINKS}<h2>Par département</h2>${DEP_LINKS(deps)}`,
 });
 for (const { dep } of deps) {

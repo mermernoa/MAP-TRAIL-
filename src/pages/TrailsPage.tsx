@@ -27,6 +27,7 @@ import { useFilterStore } from '../store/filters';
 import { useAllRaces } from '../store/races';
 import { useToday } from '../store/useToday';
 import { departementTitle, monthTitle, TITLES } from '../lib/seoTitles';
+import { eventsWord } from '../lib/words';
 
 const PAGE = 40;
 
@@ -63,7 +64,7 @@ function Stats({ list, today }: { list: RaceEvent[]; today: string }) {
   return (
     <dl className="massif-stats">
       <div>
-        <dt>Courses à venir</dt>
+        <dt>Événements à venir</dt>
         <dd>
           <CountUp value={s.count} format={(n) => String(Math.round(n))} />
         </dd>
@@ -284,7 +285,7 @@ function MonthView({ month }: { month: MonthPage }) {
           </nav>
           <h1 className="race-title">Trails en {month.label}</h1>
           <p className="race-hero-place">
-            {list.length} {list.length > 1 ? 'courses' : 'course'} en France et outre-mer
+            {eventsWord(list.length)} en France et outre-mer
           </p>
         </div>
       </header>

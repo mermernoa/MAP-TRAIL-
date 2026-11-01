@@ -13,8 +13,9 @@ import { RaceRow } from '../components/RaceRow';
 import { useAllRaces } from '../store/races';
 import { useToday } from '../store/useToday';
 import { TITLES } from '../lib/seoTitles';
+import { coursesWord, eventsWord } from '../lib/words';
 
-const plural = (n: number) => `${n} ${n > 1 ? 'courses' : 'course'}`;
+const plural = eventsWord;
 /** « 31 oct. », « 1er nov. » */
 const shortDay = (iso: string) => {
   const { d, m } = parseYMD(iso);
@@ -35,6 +36,10 @@ export function HomePage() {
 
   const upcoming = useMemo(() => events.filter((e) => !e.custom && e.dateEnd >= today), [events, today]);
   const weekend = useMemo(() => raceWeekend(events, today), [events, today]);
+  const courseCount = useMemo(
+    () => upcoming.reduce((n, e) => n + e.courses.filter((c) => c.start.slice(0, 10) >= today).length, 0),
+    [upcoming, today],
+  );
   const mythics = useMemo(() => upcoming.filter((e) => e.popularity >= 4).length, [upcoming]);
   const collections = useCollectionEntries(events, today, 1);
   const massifs = useMassifEntries(events, today);
@@ -99,7 +104,7 @@ export function HomePage() {
             Du petit trail du coin à l’ultra mythique.
           </h1>
           <p className="home-lede">
-            {upcoming.length} courses à venir en France et outre-mer. Cherche sur la carte en relief, feuillette le
+            {eventsWord(upcoming.length)} de trail à venir en France et outre-mer, soit {coursesWord(courseCount)}. Cherche sur la carte en relief, feuillette le
             calendrier, garde les tiennes dans ta saison.
           </p>
           <HomeSearch events={events} today={today} />

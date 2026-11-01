@@ -1,6 +1,7 @@
 import type { RaceEvent } from '../data/types';
 import { MONTH_NAMES } from './dates';
 import { normalize } from './filters';
+import { coursesWord, eventsWord } from './words';
 
 /**
  * Départements français, pour les pages « Trails en Haute-Savoie », « Trails dans le Var »…
@@ -225,7 +226,10 @@ export function monthsWithRaces(events: RaceEvent[], today: string): { month: Mo
 // ——— Texte d'introduction, propre à chaque page ———
 
 export interface PageSummary {
+  /** Nombre d'événements. */
   count: number;
+  /** Nombre de courses (parcours) de ces événements. */
+  courseCount: number;
   longestKm: number;
   maxGain: number;
   shortestKm: number;
@@ -237,6 +241,7 @@ export function summarize(list: RaceEvent[], today: string): PageSummary {
   const courses = list.flatMap((e) => e.courses.filter((c) => c.start.slice(0, 10) >= today));
   return {
     count: list.length,
+    courseCount: courses.length,
     longestKm: courses.reduce((m, c) => Math.max(m, c.distanceKm), 0),
     shortestKm: courses.reduce((m, c) => Math.min(m, c.distanceKm), Infinity),
     maxGain: courses.reduce((m, c) => Math.max(m, c.elevationGain ?? 0), 0),
@@ -250,16 +255,16 @@ export function summarize(list: RaceEvent[], today: string): PageSummary {
 const nf = new Intl.NumberFormat('fr-FR', { maximumFractionDigits: 1 });
 const listFr = (items: string[]) => (items.length < 2 ? items.join('') : `${items.slice(0, -1).join(', ')} et ${items[items.length - 1]}`);
 
-/** « 17 courses de trail à venir en Haute-Savoie, de 5 à 170 km, jusqu'à 10 000 m D+. … » */
+/** « 17 événements de trail à venir en Haute-Savoie, soit 41 courses de 5 à 170 km… » */
 export function introText(where: string, s: PageSummary, extra = ''): string {
-  if (!s.count) return `Aucune course de trail à venir ${where} pour l’instant.`;
-  const parts = [`${s.count} ${s.count > 1 ? 'courses de trail à venir' : 'course de trail à venir'} ${where}`];
+  if (!s.count) return `Aucun événement de trail à venir ${where} pour l’instant.`;
+  const parts = [`${eventsWord(s.count)} de trail à venir ${where}, soit ${coursesWord(s.courseCount)}`];
   if (s.longestKm > 0 && Number.isFinite(s.shortestKm)) {
-    parts[0] += s.shortestKm === s.longestKm ? `, sur ${nf.format(s.longestKm)} km` : `, de ${nf.format(s.shortestKm)} à ${nf.format(s.longestKm)} km`;
+    parts[0] += s.shortestKm === s.longestKm ? ` sur ${nf.format(s.longestKm)} km` : ` de ${nf.format(s.shortestKm)} à ${nf.format(s.longestKm)} km`;
     if (s.maxGain > 0) parts[0] += ` et jusqu’à ${nf.format(s.maxGain)} m de dénivelé positif`;
   }
   parts[0] += '.';
-  if (s.famous.length) parts.push(`Parmi elles : ${listFr(s.famous.map((e) => e.name))}.`);
+  if (s.famous.length) parts.push(`Parmi eux : ${listFr(s.famous.map((e) => e.name))}.`);
   if (extra) parts.push(extra);
   return parts.join(' ');
 }

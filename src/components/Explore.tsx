@@ -7,8 +7,9 @@ import { type Massif, MASSIFS, massifEvents } from '../lib/massifs';
 import { coverPhoto, MASSIF_PHOTO_CREDIT, massifCover, type Photo } from '../lib/photos';
 import { useSiteSettings } from '../store/siteSettings';
 import { RidgeProfile } from './RidgeProfile';
+import { eventsWord } from '../lib/words';
 
-const plural = (n: number) => `${n} ${n > 1 ? 'courses' : 'course'}`;
+const plural = eventsWord;
 
 export interface CollectionEntry {
   collection: Collection;

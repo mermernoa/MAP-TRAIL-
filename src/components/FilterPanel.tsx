@@ -10,6 +10,7 @@ import { useToday } from '../store/useToday';
 import { fmtNum } from './bits';
 import { CloseIcon, LocateIcon } from './Icons';
 import { RangeSlider } from './RangeSlider';
+import { eventsWord } from '../lib/words';
 
 interface Props {
   open: boolean;
@@ -358,7 +359,7 @@ export function FilterPanel({ open, onClose, races, resultCount }: Props) {
             Réinitialiser
           </button>
           <button type="button" className="button button-primary" onClick={onClose}>
-            Voir {resultCount} {resultCount > 1 ? 'courses' : 'course'}
+            Voir {eventsWord(resultCount)}
           </button>
         </footer>
       </div>
