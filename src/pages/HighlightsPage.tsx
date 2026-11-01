@@ -12,6 +12,7 @@ import { useAllRaces } from '../store/races';
 import { useSiteSettings } from '../store/siteSettings';
 import { useToday } from '../store/useToday';
 import { TITLES } from '../lib/seoTitles';
+import { eventsWord } from '../lib/words';
 
 /** Parcours le plus parlant d'un événement à venir : le plus long. */
 function mainCourse(e: RaceEvent, today: string): Course {
@@ -84,7 +85,7 @@ export function HighlightsPage() {
             <SectionBar
               id="hl-weekend"
               title={weekend.isThisWeekend ? 'Ce week-end' : 'Le prochain week-end de course'}
-              text={`${formatRange(weekend.saturday, weekend.sunday)} : ${weekend.events.length} courses, voici les plus attendues.`}
+              text={`${formatRange(weekend.saturday, weekend.sunday)} : ${eventsWord(weekend.events.length)}, voici les plus attendus.`}
             />
             <ul className="spot-grid">
               {weekendTop.map((e) => (

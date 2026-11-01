@@ -1,6 +1,7 @@
 import type { Course, RaceEvent } from '../data/types';
 import { formatDate, MONTH_NAMES } from './dates';
 import { fameScore, normalize } from './filters';
+import { eventsWord } from './words';
 
 /**
  * Départements français, pour les pages « Trails en Haute-Savoie », « Trails dans le Var »…
@@ -225,7 +226,10 @@ export function monthsWithRaces(events: RaceEvent[], today: string): { month: Mo
 // ——— Texte d'introduction, propre à chaque page ———
 
 export interface PageSummary {
+  /** Nombre d'événements. */
   count: number;
+  /** Nombre de courses (parcours) de ces événements. */
+  courseCount: number;
   longestKm: number;
   maxGain: number;
   shortestKm: number;
@@ -251,6 +255,7 @@ export function summarize(list: RaceEvent[], today: string, coursesOf?: (e: Race
     .sort((a, b) => a.day.localeCompare(b.day))[0];
   return {
     count: list.length,
+    courseCount: courses.length,
     longestKm: courses.reduce((m, c) => Math.max(m, c.distanceKm), 0),
     shortestKm: courses.reduce((m, c) => Math.min(m, c.distanceKm), Infinity),
     maxGain: courses.reduce((m, c) => Math.max(m, c.elevationGain ?? 0), 0),
@@ -263,27 +268,29 @@ export function summarize(list: RaceEvent[], today: string, coursesOf?: (e: Race
 const nf = new Intl.NumberFormat('fr-FR', { maximumFractionDigits: 1 });
 const listFr = (items: string[]) => (items.length < 2 ? items.join('') : `${items.slice(0, -1).join(', ')} et ${items[items.length - 1]}`);
 
-/** Nom des courses dans le texte : « course de trail », « ultra-trail », « kilomètre vertical »… */
+/** Nom des courses (parcours) dans le texte : « course », « ultra-trail », « kilomètre vertical »… */
 export interface Noun {
   one: string;
   many: string;
 }
-const TRAIL_NOUN: Noun = { one: 'course de trail', many: 'courses de trail' };
+const COURSE_NOUN: Noun = { one: 'course', many: 'courses' };
+const nfInt = new Intl.NumberFormat('fr-FR');
 
 /**
- * « 17 courses de trail à venir en Haute-Savoie, de 5 à 170 km et jusqu'à 10 000 m de dénivelé positif.
- * Parmi elles : … Prochain départ le 8 novembre 2026 : … »
+ * « 26 événements de trail à venir en Isère, soit 84 courses de 6 à 200 km et jusqu'à 12 500 m
+ * de dénivelé positif. Les plus connus : … Prochain départ le 8 novembre 2026 : … »
+ * Un événement regroupe une ou plusieurs courses (ses parcours) : on compte les deux.
  */
 export function introText(where: string, s: PageSummary, opts: { noun?: Noun; extra?: string } = {}): string {
-  const noun = opts.noun ?? TRAIL_NOUN;
-  if (!s.count) return `Aucune ${noun.one} à venir ${where} pour l’instant.`;
-  const parts = [`${s.count} ${s.count > 1 ? `${noun.many} à venir` : `${noun.one} à venir`} ${where}`];
+  const noun = opts.noun ?? COURSE_NOUN;
+  if (!s.count) return `Aucun événement de trail à venir ${where} pour l’instant.`;
+  const parts = [`${eventsWord(s.count)} de trail à venir ${where}, soit ${nfInt.format(s.courseCount)} ${s.courseCount > 1 ? noun.many : noun.one}`];
   if (s.longestKm > 0 && Number.isFinite(s.shortestKm)) {
-    parts[0] += s.shortestKm === s.longestKm ? `, sur ${nf.format(s.longestKm)} km` : `, de ${nf.format(s.shortestKm)} à ${nf.format(s.longestKm)} km`;
+    parts[0] += s.shortestKm === s.longestKm ? ` sur ${nf.format(s.longestKm)} km` : ` de ${nf.format(s.shortestKm)} à ${nf.format(s.longestKm)} km`;
     if (s.maxGain > 0) parts[0] += ` et jusqu’à ${nf.format(s.maxGain)} m de dénivelé positif`;
   }
   parts[0] += '.';
-  if (s.count > 1 && s.famous.length) parts.push(`Les plus courues : ${listFr(s.famous.map((e) => e.name))}.`);
+  if (s.count > 1 && s.famous.length) parts.push(`Les plus connus : ${listFr(s.famous.map((e) => e.name))}.`);
   if (s.next) parts.push(`Prochain départ le ${formatDate(s.next.day)} : ${s.next.event.name}.`);
   if (opts.extra) parts.push(opts.extra);
   return parts.join(' ');

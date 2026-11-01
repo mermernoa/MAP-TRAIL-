@@ -73,7 +73,7 @@ describe('pages Trails', () => {
   it('donne la distance à la ville et un bouton vers la carte filtrée', () => {
     const events = [1, 2, 3].map((i) => race(`l${i}`, 'Rhône (69)', 45.76 + i * 0.05, 4.84, [course(`l${i}-c`, 20)]));
     const lyon = trailsSite(events, TODAY).page('pres-de-lyon')!;
-    expect(lyon.title).toBe('Trails près de Lyon : 3 courses');
+    expect(lyon.title).toBe('Trails près de Lyon : 3 événements');
     expect(lyon.items[0].km).toBeGreaterThan(5);
     expect(lyon.map?.filters.near).toMatchObject({ radiusKm: 50, label: 'Près de Lyon' });
     expect(courseNearbyLinks(events[0], events, TODAY).map((l) => l.path)).toEqual(['trails/pres-de-lyon', 'trails/rhone']);

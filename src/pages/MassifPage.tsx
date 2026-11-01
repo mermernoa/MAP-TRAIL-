@@ -15,6 +15,7 @@ import { useFilterStore } from '../store/filters';
 import { useAllRaces } from '../store/races';
 import { useToday } from '../store/useToday';
 import { massifTitle } from '../lib/seoTitles';
+import { eventsWord } from '../lib/words';
 
 const PAGE = 30;
 
@@ -90,7 +91,7 @@ export function MassifPage() {
             <p className="massif-lede">{massif.text}</p>
             <dl className="massif-stats">
               <div>
-                <dt>Courses à venir</dt>
+                <dt>Événements à venir</dt>
                 <dd>
                   <CountUp value={list.length} format={(n) => String(Math.round(n))} />
                 </dd>
@@ -115,7 +116,7 @@ export function MassifPage() {
               )}
             </dl>
             <button type="button" className="button button-primary" onClick={openMap}>
-              Voir les {list.length} courses sur la carte
+              Voir les {eventsWord(list.length)} sur la carte
             </button>
           </div>
           {photo && !photoFailed && (

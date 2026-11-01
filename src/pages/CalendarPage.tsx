@@ -22,6 +22,7 @@ import { useAllRaces } from '../store/races';
 import { useSeasonStore } from '../store/season';
 import { useToday } from '../store/useToday';
 import { TITLES } from '../lib/seoTitles';
+import { eventsWord } from '../lib/words';
 
 type View = 'month' | 'year' | 'list';
 
@@ -177,7 +178,7 @@ export function CalendarPage() {
             <span>Seulement ma saison</span>
           </label>
           <span className="muted small">
-            {matches.length} {matches.length > 1 ? 'courses' : 'course'}
+            {eventsWord(matches.length)}
           </span>
         </div>
       </div>
@@ -300,7 +301,7 @@ function MonthGrid({
                       +{hiddenRaces || hiddenRegs}
                       <span className="month-more-label">
                         {hiddenRaces > 0
-                          ? ` ${hiddenRaces > 1 ? 'autres courses' : 'autre course'}`
+                          ? ` ${hiddenRaces > 1 ? 'autres événements' : 'autre événement'}`
                           : ` ${hiddenRegs > 1 ? 'dates' : 'date'} d’inscription`}
                       </span>
                     </button>
@@ -440,7 +441,7 @@ function DayPanel({
           <h2 className="preview-title">{formatDate(day, { weekday: true })}</h2>
           {races.length > 0 && (
             <p className="muted small">
-              {races.length} {races.length > 1 ? 'courses' : 'course'}
+              {eventsWord(races.length)}
               {races.length > 1 && (byFit ? ', les plus proches de tes critères d’abord' : ', les plus connues d’abord')}
             </p>
           )}

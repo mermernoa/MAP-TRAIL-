@@ -17,6 +17,7 @@ import { normalize } from './filters';
 import { massifByName } from './massifs';
 import { type City, type PageLink, CITIES, CITY_RADIUS_KM, cityDep } from './cities';
 import { haversineKm } from './metrics';
+import { eventsWord } from './words';
 
 export type { PageLink } from './cities';
 
@@ -199,7 +200,6 @@ export interface TrailsPageData {
 }
 
 const clip = (s: string, n = 158) => (s.length <= n ? s : `${s.slice(0, n - 1).replace(/[\s,;:·–-]+\S*$/, '')}…`);
-const coursesWord = (n: number) => `${n} ${n > 1 ? 'courses' : 'course'}`;
 const HOME: PageLink = { label: 'Accueil', path: '' };
 const INDEX: PageLink = { label: 'Trails', path: 'trails/' };
 const seedOf = (s: string) => [...s].reduce((h, ch) => (h * 31 + ch.charCodeAt(0)) % 997, 7);
@@ -371,7 +371,7 @@ function buildSite(events: RaceEvent[], today: string): TrailsSite {
       today,
     );
     const intro = introText(r.inName, s, {
-      extra: deps.length > 1 ? `Elles se répartissent sur ${deps.length} départements : ${deps.map((d) => `${d.name} (${d.items.length})`).join(', ')}.` : '',
+      extra: deps.length > 1 ? `Ils se répartissent sur ${deps.length} départements : ${deps.map((d) => `${d.name} (${d.items.length})`).join(', ')}.` : '',
     });
     // Une région dont toutes les courses sont dans un seul département ferait doublon avec lui.
     const twin = deps.length === 1;
@@ -381,9 +381,9 @@ function buildSite(events: RaceEvent[], today: string): TrailsSite {
       slug: r.slug,
       path: placePath(place),
       h1: `Trails ${r.inName}`,
-      title: `Trails ${r.inName} : ${coursesWord(place.items.length)}`,
+      title: `Trails ${r.inName} : ${eventsWord(place.items.length)}`,
       description: clip(`${intro} Calendrier, distances et inscriptions.`),
-      subtitle: `${deps.length} ${deps.length > 1 ? 'départements' : 'département'} · ${coursesWord(place.items.length)}`,
+      subtitle: `${deps.length} ${deps.length > 1 ? 'départements' : 'département'} · ${eventsWord(place.items.length)}`,
       intro,
       items: place.items,
       listTitle: `Le calendrier des trails ${r.inName}`,
@@ -417,7 +417,7 @@ function buildSite(events: RaceEvent[], today: string): TrailsSite {
       slug: dep.slug,
       path: placePath(place),
       h1: `Trails ${dep.inName}`,
-      title: `Trails ${dep.inName} (${dep.code}) : ${coursesWord(place.items.length)}`,
+      title: `Trails ${dep.inName} (${dep.code}) : ${eventsWord(place.items.length)}`,
       description: clip(`${intro.replace(/ Dates, distances.*$/, '')} Calendrier, distances, dénivelé et inscriptions.`),
       subtitle: `${dep.name} (${dep.code}) · ${dep.region}`,
       intro,
@@ -451,7 +451,7 @@ function buildSite(events: RaceEvent[], today: string): TrailsSite {
       today,
     );
     const intro = introText(city.nearName, s, {
-      extra: items.length ? `Toutes à moins de ${CITY_RADIUS_KM} km à vol d’oiseau du centre ${city.nearName.replace(/^près /, '').replace(/ \(La Réunion\)$/, '')}.` : '',
+      extra: items.length ? `Tous à moins de ${CITY_RADIUS_KM} km à vol d’oiseau du centre ${city.nearName.replace(/^près /, '').replace(/ \(La Réunion\)$/, '')}.` : '',
     });
     const neighbours = CITIES.filter((c) => c !== city && cityItems.get(c)!.length && haversineKm(c.lat, c.lng, city.lat, city.lng) <= 150);
     pages.push({
@@ -460,7 +460,7 @@ function buildSite(events: RaceEvent[], today: string): TrailsSite {
       slug: city.slug,
       path: `trails/${city.slug}`,
       h1: `Trails ${city.nearName}`,
-      title: `Trails ${city.nearName} : ${coursesWord(items.length)}`,
+      title: `Trails ${city.nearName} : ${eventsWord(items.length)}`,
       description: clip(`${intro} Dates, distances et inscriptions.`),
       subtitle: `Dans un rayon de ${CITY_RADIUS_KM} km · ${dep.name}`,
       intro,
@@ -507,7 +507,7 @@ function buildSite(events: RaceEvent[], today: string): TrailsSite {
       slug: f.slug,
       path: `trails/${f.slug}`,
       h1: `${f.label} en France`,
-      title: `${f.label} en France : ${coursesWord(items.length)}`,
+      title: `${f.label} en France : ${eventsWord(items.length)}`,
       description: clip(`${intro.replace(` ${f.text}`, '')} ${f.criterion}.`),
       subtitle: f.criterion,
       intro,
@@ -547,7 +547,7 @@ function buildSite(events: RaceEvent[], today: string): TrailsSite {
       slug: x.slug,
       path: `trails/${x.slug}`,
       h1: `${f.label} ${place.inName}`,
-      title: `${f.label} ${place.inName} : ${coursesWord(x.items.length)}`,
+      title: `${f.label} ${place.inName} : ${eventsWord(x.items.length)}`,
       description: clip(`${intro} Dates et inscriptions.`),
       subtitle: `${f.criterion} · ${place.name}`,
       intro,
@@ -594,9 +594,9 @@ function buildSite(events: RaceEvent[], today: string): TrailsSite {
       slug: month.slug,
       path: `trails/${month.slug}`,
       h1: `Trails en ${month.label}`,
-      title: `Trails en ${month.label} : ${coursesWord(items.length)}`,
+      title: `Trails en ${month.label} : ${eventsWord(items.length)}`,
       description: clip(`${intro} Dates, lieux, distances et inscriptions.`),
-      subtitle: `${coursesWord(items.length)} en France et outre-mer`,
+      subtitle: `${eventsWord(items.length)} en France et outre-mer`,
       intro,
       items,
       listTitle: `Toutes les courses de ${month.label}`,
@@ -635,7 +635,7 @@ function buildSite(events: RaceEvent[], today: string): TrailsSite {
     path: 'trails/',
     h1: 'Trails par région, ville, format et mois',
     title: 'Trails par région, département, ville et format',
-    description: `Les ${allItems.length} courses de trail à venir en France, classées par région, département, grande ville, format et mois : trouve les trails près de chez toi.`,
+    description: `Les ${eventsWord(allItems.length)} de trail à venir en France, classés par région, département, grande ville, format et mois : trouve les trails près de chez toi.`,
     subtitle: '',
     intro: 'Les courses de trail à venir près de chez toi : par région et par département, autour des grandes villes, par format (du trail court à l’ultra) et mois par mois pour construire ta saison.',
     items: [],

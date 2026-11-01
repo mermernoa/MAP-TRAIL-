@@ -95,7 +95,7 @@ function Stats({ items, today }: { items: TrailItem[]; today: string }) {
   return (
     <dl className="massif-stats">
       <div>
-        <dt>Courses à venir</dt>
+        <dt>Événements à venir</dt>
         <dd>
           <CountUp value={s.count} format={(n) => String(Math.round(n))} />
         </dd>
@@ -114,7 +114,7 @@ function Stats({ items, today }: { items: TrailItem[]; today: string }) {
       )}
       {s.next && (
         <div>
-          <dt>Prochaine course</dt>
+          <dt>Prochain départ</dt>
           <dd>{formatDate(s.next.day, { year: false })}</dd>
         </div>
       )}

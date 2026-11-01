@@ -7,6 +7,7 @@ import { normalize } from '../lib/filters';
 import { MASSIFS } from '../lib/massifs';
 import { useFilterStore } from '../store/filters';
 import { SearchIcon } from './Icons';
+import { eventsWord } from '../lib/words';
 
 interface Props {
   events: RaceEvent[];
@@ -85,7 +86,7 @@ export function HomeSearch({ events, today }: Props) {
         key: `p-${p.label}`,
         group: 'Lieux',
         label: p.label,
-        detail: `${p.kind}, ${p.count} ${p.count > 1 ? 'courses' : 'course'}`,
+        detail: `${p.kind}, ${eventsWord(p.count)}`,
         go: () => searchMap(p.label),
       });
     }
