@@ -31,7 +31,9 @@ export const useCatalog = create<CatalogState>((set, get) => ({
     if (get().status === 'loading' || get().status === 'ready') return;
     set({ status: 'loading' });
     try {
-      const res = await fetch(new URL('data/races.json', document.baseURI));
+      // « no-cache » : le navigateur revérifie la base à chaque visite (réponse 304 si rien n'a
+      // changé), pour ne jamais afficher une ancienne liste de courses après une mise à jour.
+      const res = await fetch(new URL('data/races.json', document.baseURI), { cache: 'no-cache' });
       if (!res.ok) throw new Error(String(res.status));
       const data = (await res.json()) as { generatedAt: string; events: RaceEvent[] };
       const hidden = new Set(get().hidden);
