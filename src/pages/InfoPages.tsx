@@ -4,6 +4,7 @@ import { CONTACT_EMAIL } from '../lib/messages';
 import { SITE } from '../lib/site';
 import { accountsEnabled } from '../lib/supabase';
 import { useCatalog } from '../store/catalog';
+import { infoTitle } from '../lib/seoTitles';
 
 export const INFO_LINKS = [
   { to: '/a-propos', label: 'À propos' },
@@ -17,7 +18,7 @@ export const INFO_LINKS = [
 /** Gabarit commun des pages d'information : titre, sommaire des pages voisines, contenu. */
 export function InfoLayout({ title, lede, children }: { title: string; lede?: string; children: React.ReactNode }) {
   useEffect(() => {
-    document.title = `${title} – Take Ton Trail`;
+    document.title = infoTitle(title);
     return () => {
       document.title = 'Take Ton Trail';
     };

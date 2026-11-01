@@ -30,6 +30,7 @@ import {
 import { useRace } from '../store/races';
 import { useCourseTrack } from '../store/useCourseTrack';
 import { useToday } from '../store/useToday';
+import { raceTitle } from '../lib/seoTitles';
 
 export function RacePage() {
   const { id } = useParams();
@@ -64,7 +65,7 @@ function RaceDetail({ event }: { event: RaceEvent }) {
   const bodyRef = useReveal<HTMLDivElement>('.panel', [course.id, !!trackState.track]);
 
   useEffect(() => {
-    document.title = `${event.name} – Take Ton Trail`;
+    document.title = raceTitle(event.name, event.edition ?? event.dateStart.slice(0, 4), event.city);
     return () => {
       document.title = 'Take Ton Trail';
     };

@@ -9,6 +9,7 @@ import { applyFilters, SORT_LABELS, sortMatches, type SortKey } from '../lib/fil
 import { useFilterStore } from '../store/filters';
 import { useAllRaces } from '../store/races';
 import { useToday } from '../store/useToday';
+import { TITLES } from '../lib/seoTitles';
 
 const PAGE = 60;
 
@@ -18,6 +19,12 @@ function inBounds(lat: number, lng: number, b: MapBounds): boolean {
 }
 
 export function MapPage() {
+  useEffect(() => {
+    document.title = TITLES.map;
+    return () => {
+      document.title = 'Take Ton Trail';
+    };
+  }, []);
   const races = useAllRaces();
   const filters = useFilterStore((s) => s.filters);
   const sort = useFilterStore((s) => s.sort);

@@ -12,6 +12,7 @@ import { useSiteSettings } from '../store/siteSettings';
 import { RaceRow } from '../components/RaceRow';
 import { useAllRaces } from '../store/races';
 import { useToday } from '../store/useToday';
+import { TITLES } from '../lib/seoTitles';
 
 const plural = (n: number) => `${n} ${n > 1 ? 'courses' : 'course'}`;
 /** « 31 oct. », « 1er nov. » */
@@ -44,7 +45,7 @@ export function HomePage() {
   );
 
   useEffect(() => {
-    document.title = 'Take Ton Trail : toutes les courses de trail, du plus confidentiel au plus mythique';
+    document.title = TITLES.home;
     // Le décor de l'accueil attend la fin de l'écran de chargement.
     heroRef.current?.style.setProperty('--intro', `${Math.round(introDelay())}ms`);
     return () => {

@@ -26,6 +26,7 @@ import { useReveal, useParallax } from '../lib/motion';
 import { useFilterStore } from '../store/filters';
 import { useAllRaces } from '../store/races';
 import { useToday } from '../store/useToday';
+import { departementTitle, monthTitle, TITLES } from '../lib/seoTitles';
 
 const PAGE = 40;
 
@@ -50,7 +51,7 @@ export function TrailsPage() {
 
 function useTitle(title: string) {
   useEffect(() => {
-    document.title = `${title} – Take Ton Trail`;
+    document.title = title;
     return () => {
       document.title = 'Take Ton Trail';
     };
@@ -138,7 +139,7 @@ function DepartementView({ dep }: { dep: Departement }) {
   }, [list]);
   const heroRef = useParallax<HTMLElement>(0.35);
   const bodyRef = useReveal<HTMLDivElement>('.panel, .massif-intro', [dep.slug]);
-  useTitle(`Trails ${dep.inName}`);
+  useTitle(departementTitle(dep.inName, dep.code));
   const s = summarize(list, today);
 
   return (
@@ -258,7 +259,7 @@ function MonthView({ month }: { month: MonthPage }) {
   }, [list]);
   const heroRef = useParallax<HTMLElement>(0.35);
   const bodyRef = useReveal<HTMLDivElement>('.panel, .massif-intro', [month.slug]);
-  useTitle(`Trails en ${month.label}`);
+  useTitle(monthTitle(month.label));
   const s = summarize(list, today);
   const openMap = () => {
     const store = useFilterStore.getState();
@@ -353,7 +354,7 @@ function TrailsIndex() {
     return [...map].sort((a, b) => (a[0] === 'Outre-mer' ? 1 : b[0] === 'Outre-mer' ? -1 : a[0].localeCompare(b[0], 'fr')));
   }, [deps]);
   const bodyRef = useReveal<HTMLDivElement>('.massif-others', [deps.length]);
-  useTitle('Trails par département et par mois');
+  useTitle(TITLES.trailsIndex);
 
   return (
     <article className="collection-page trails-page">

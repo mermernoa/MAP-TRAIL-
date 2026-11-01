@@ -22,6 +22,7 @@ import {
   summarize,
 } from '../src/lib/departements';
 import { massifEvents, MASSIFS } from '../src/lib/massifs';
+import { collectionTitle, departementTitle, infoTitle, massifTitle, monthTitle, raceTitle, TITLES } from '../src/lib/seoTitles';
 
 const DIST = 'dist';
 const env = Object.fromEntries(
@@ -103,7 +104,8 @@ function render(p: Page): string {
     .replace('</head>', `    ${head}\n  </head>`)
     .replace(/\n\s*\n/g, '\n');
   // Contenu lisible sans JavaScript ; le site le remplace dès qu'il démarre.
-  html = html.replace('<div id="root"></div>', `<div id="root"><div class="prerender">${NAV}${p.body}${FOOT}</div></div>`);
+  const absolute = (h: string) => h.replace(/href="(?!https?:|\/|#|mailto:)(\.\/)?/g, 'href="/');
+  html = html.replace('<div id="root"></div>', `<div id="root"><div class="prerender">${absolute(NAV + p.body + FOOT)}</div></div>`);
   return html;
 }
 
@@ -112,17 +114,17 @@ const ORG = { '@type': 'Organization', name: 'Take Ton Trail', url: `${SITE_URL}
 
 pages.push({
   path: '',
-  title: 'Take Ton Trail – la carte et le calendrier des trails en France',
+  title: TITLES.home,
   description: `${upcoming.length} courses de trail à venir en France et outre-mer, du petit trail du coin à l’ultra mythique : carte en relief, calendrier, distances, D+, prix et dates d’inscription.`,
   body: `<h1>Du petit trail du coin à l’ultra mythique</h1><p>${upcoming.length} courses de trail à venir en France et outre-mer, sur une carte en relief et dans un calendrier. Filtre par distance, dénivelé, technicité, massif et date, puis construis ta saison.</p>${MASSIF_LINKS}${COLLECTION_LINKS}`,
   jsonLd: [
-    { '@context': 'https://schema.org', '@type': 'WebSite', name: 'Take Ton Trail', url: `${SITE_URL}/`, inLanguage: 'fr-FR' },
+    { '@context': 'https://schema.org', '@type': 'WebSite', name: 'Take Ton Trail', alternateName: ['TakeTonTrail', 'Take Ton Trail – trails en France'], url: `${SITE_URL}/`, inLanguage: 'fr-FR' },
     { '@context': 'https://schema.org', ...ORG },
   ],
 });
 pages.push({
   path: 'carte',
-  title: 'Carte des courses de trail en France – Take Ton Trail',
+  title: TITLES.map,
   description: 'Toutes les courses de trail sur une carte en relief 3D : filtre par distance, dénivelé, massif, date et prix, et trouve les courses près de chez toi.',
   body: `<h1>La carte des trails</h1><p>Toutes les courses de trail de France et d’outre-mer sur une carte en relief, avec leurs distances, leur dénivelé et leurs dates.</p>${MASSIF_LINKS}`,
 });
@@ -137,7 +139,7 @@ const monthSlug = (k: string) => monthsWithRaces(events, today).find((x) => x.mo
 const MONTHS = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
 pages.push({
   path: 'calendrier',
-  title: 'Calendrier des trails en France – Take Ton Trail',
+  title: TITLES.calendar,
   description: `Le calendrier des ${upcoming.length} prochaines courses de trail en France, mois par mois : dates, lieux, distances, dénivelé, prix et ouverture des inscriptions.`,
   body: `<h1>Calendrier des trails</h1>${[...byMonth]
     .map(([k, list]) => `<h2><a href="trails/${monthSlug(k)}">${MONTHS[Number(k.slice(5, 7)) - 1]} ${k.slice(0, 4)}</a></h2><ul>${list.map(raceLink).join('')}</ul>`)
@@ -145,7 +147,7 @@ pages.push({
 });
 pages.push({
   path: 'a-la-une',
-  title: 'Courses de trail à la une – Take Ton Trail',
+  title: TITLES.highlights,
   description: 'Nos coups de cœur, une course par thème (défi, mythique, pépite, nocturne, ultra, KV) et le prochain week-end de trail.',
   body: '<h1>À la une</h1><p>Nos coups de cœur, une course par thème et le prochain week-end de course.</p>',
 });
@@ -154,7 +156,7 @@ for (const m of MASSIFS) {
   const list = massifEvents(m, events, today);
   pages.push({
     path: `massif/${m.slug}`,
-    title: `Trails ${m.name} : ${list.length} courses – Take Ton Trail`,
+    title: massifTitle(m.name),
     description: clip(`${list.length} courses de trail à venir dans le massif ${m.name}. ${m.text}`),
     body: `<h1>Trails ${esc(m.name)}</h1><p>${esc(m.text)}</p><ul>${list.map(raceLink).join('')}</ul>`,
   });
@@ -163,7 +165,7 @@ for (const c of COLLECTIONS) {
   const items = collectionItems(c, events, today);
   pages.push({
     path: `collection/${c.slug}`,
-    title: `${c.title} : ${items.length} courses de trail – Take Ton Trail`,
+    title: collectionTitle(c.title),
     description: clip(`${c.tagline} ${c.text}`),
     body: `<h1>${esc(c.title)}</h1><p>${esc(c.text)}</p><ul>${items.map((i) => raceLink(i.event)).join('')}</ul>`,
   });
@@ -177,7 +179,7 @@ const DEP_LINKS = (list: typeof deps) =>
 const MONTH_LINKS = `<ul>${months.map(({ month, count }) => `<li><a href="trails/${month.slug}">Trails en ${esc(month.label)}</a> (${count})</li>`).join('')}</ul>`;
 pages.push({
   path: 'trails/',
-  title: 'Trails par département et par mois – Take Ton Trail',
+  title: TITLES.trailsIndex,
   description: `Les ${upcoming.length} courses de trail à venir en France, classées par département et par mois : trouve les trails près de chez toi et construis ta saison.`,
   body: `<h1>Trails par département et par mois</h1><h2>Par mois</h2>${MONTH_LINKS}<h2>Par département</h2>${DEP_LINKS(deps)}`,
 });
@@ -187,7 +189,7 @@ for (const { dep } of deps) {
   const neighbours = deps.filter((d) => d.dep.region === dep.region && d.dep !== dep);
   pages.push({
     path: `trails/${dep.slug}`,
-    title: `Trails ${dep.inName} (${dep.code}) : ${list.length} courses à venir – Take Ton Trail`,
+    title: departementTitle(dep.inName, dep.code),
     description: clip(`${intro} Calendrier, distances, dénivelé et inscriptions.`),
     body: `<h1>Trails ${esc(dep.inName)}</h1><p>${esc(intro)}</p><h2>Le calendrier des trails ${esc(dep.inName)}</h2><ul>${list.map(raceLink).join('')}</ul>${
       neighbours.length ? `<h2>Ailleurs en ${esc(dep.region)}</h2>${DEP_LINKS(neighbours)}` : ''
@@ -200,7 +202,7 @@ for (const { month } of months) {
   const intro = introText(`en ${month.label}`, summarize(list, today));
   pages.push({
     path: `trails/${month.slug}`,
-    title: `Trails en ${month.label} : ${list.length} courses en France – Take Ton Trail`,
+    title: monthTitle(month.label),
     description: clip(`${intro} Dates, lieux, distances et inscriptions.`),
     body: `<h1>Trails en ${esc(month.label)}</h1><p>${esc(intro)}</p><ul>${list.map(raceLink).join('')}</ul><h2>Les autres mois</h2>${MONTH_LINKS}`,
     noindex: list.length < MIN_INDEXED,
@@ -244,7 +246,7 @@ for (const e of events) {
   }
   pages.push({
     path: `course/${e.id}`,
-    title: `${e.name} ${year} – ${e.city} | Take Ton Trail`,
+    title: raceTitle(e.name, year, e.city),
     description: clip(`${e.name} à ${place(e)}, ${estimated ? 'date prévisionnelle : ' : ''}${when}. Parcours : ${dist}. Prix, inscriptions, carte et profil.`),
     lastmod: e.updatedAt,
     body: `<h1>${esc(e.name)}</h1><p>${esc(place(e))}${depLink(e)} · ${estimated ? 'Date prévisionnelle : ' : ''}${esc(when)}${massifLink(e.massif)}</p><h2>Parcours</h2><ul>${courses
@@ -266,7 +268,7 @@ const STATIC: [string, string, string, boolean?][] = [
   ['compte', 'Mon compte', 'Ton compte Take Ton Trail : ta saison sur tous tes appareils.', true],
 ];
 for (const [path, title, description, noindex] of STATIC) {
-  pages.push({ path, title: `${title} – Take Ton Trail`, description, body: `<h1>${esc(title)}</h1><p>${esc(description)}</p>`, noindex });
+  pages.push({ path, title: infoTitle(title), description, body: `<h1>${esc(title)}</h1><p>${esc(description)}</p>`, noindex });
 }
 
 for (const p of pages) {

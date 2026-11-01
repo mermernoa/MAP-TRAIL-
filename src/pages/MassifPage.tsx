@@ -14,6 +14,7 @@ import { useSiteSettings } from '../store/siteSettings';
 import { useFilterStore } from '../store/filters';
 import { useAllRaces } from '../store/races';
 import { useToday } from '../store/useToday';
+import { massifTitle } from '../lib/seoTitles';
 
 const PAGE = 30;
 
@@ -33,7 +34,7 @@ export function MassifPage() {
 
   useEffect(() => {
     if (!massif) return;
-    document.title = `Trails ${massif.title} – Take Ton Trail`;
+    document.title = massifTitle(massif.name);
     setShown(PAGE);
     setPhotoFailed(false);
     return () => {
