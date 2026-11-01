@@ -8,7 +8,9 @@
  */
 import type { Course, FullState, Popularity, RaceEvent, Technicity, UtmbCategory } from '../data/types';
 import { addDays, daysBetween, parseYMD, toISODate, weekday } from './dates';
+import { departementOf } from './departements';
 import { normalize } from './filters';
+import { haversineKm } from './metrics';
 
 /** En-têtes de l'onglet Courses, dans l'ordre de la feuille (ligne 2). */
 export const SHEET_HEADERS = [
@@ -482,6 +484,7 @@ export function convertSheet(input: string[][], publishedStatuses: string[] = PU
   }
 
   events.sort((a, b) => a.dateStart.localeCompare(b.dateStart) || a.name.localeCompare(b.name, 'fr'));
+  issues.push(...consistencyIssues(events));
   return {
     events,
     issues,
@@ -531,3 +534,59 @@ export function parseCsv(text: string): string[][] {
   }
   return rows;
 }
+
+const codeOf = (e: RaceEvent) => e.id.split('-')[0].toUpperCase();
+
+/**
+ * Contrôles entre lignes, signalés dans le rapport d'import (rien n'est modifié) :
+ * - coordonnées loin des autres courses du département indiqué (mauvaise commune homonyme,
+ *   ou mauvais département) : la course apparaît au mauvais endroit sur la carte et dans les pages ;
+ * - même course saisie deux fois (même nom, et même jour à moins de 50 km, ou même ville à moins
+ *   de 15 jours d'écart).
+ */
+export function consistencyIssues(events: RaceEvent[]): ImportIssue[] {
+  const issues: ImportIssue[] = [];
+  const byDep = new Map<string, RaceEvent[]>();
+  for (const e of events) {
+    const d = departementOf(e);
+    if (d) byDep.set(d.code, [...(byDep.get(d.code) ?? []), e]);
+  }
+  for (const [code, list] of byDep) {
+    if (list.length < 3) continue;
+    const median = (k: 'lat' | 'lng') => list.map((e) => e[k]).sort((a, b) => a - b)[Math.floor(list.length / 2)];
+    const center = { lat: median('lat'), lng: median('lng') };
+    const limit = code.length === 3 ? 150 : 130;
+    for (const e of list) {
+      const km = haversineKm(center.lat, center.lng, e.lat, e.lng);
+      if (km > limit) {
+        issues.push({
+          level: 'warning',
+          rowId: codeOf(e),
+          event: e.name,
+          message: `Coordonnées à ${Math.round(km)} km des autres courses du département « ${e.department} » (${e.lat}, ${e.lng}) : vérifier la commune et le département.`,
+        });
+      }
+    }
+  }
+  const key = (e: RaceEvent) => normalize(e.name).replace(/[^a-z0-9]/g, '');
+  const seen = new Map<string, RaceEvent[]>();
+  for (const e of events) {
+    const k = key(e);
+    const twin = (seen.get(k) ?? []).find(
+      (o) =>
+        (o.dateStart === e.dateStart && haversineKm(o.lat, o.lng, e.lat, e.lng) <= 50) ||
+        (normalize(o.city) === normalize(e.city) && Math.abs(daysBetween(o.dateStart, e.dateStart)) <= 15),
+    );
+    if (twin) {
+      issues.push({
+        level: 'warning',
+        rowId: codeOf(e),
+        event: e.name,
+        message: `Doublon probable de ${codeOf(twin)} (${twin.city}, ${twin.dateStart} ; ici ${e.city}, ${e.dateStart}) : garder une seule des deux.`,
+      });
+    }
+    seen.set(k, [...(seen.get(k) ?? []), e]);
+  }
+  return issues;
+}
+
