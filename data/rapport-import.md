@@ -1,18 +1,17 @@
 # Rapport d’import de la base des courses
 
-Import du 01/11/2026 18:09:54 depuis 4 fichier(s) JSON de l'API Sheets.
+Import du 01/11/2026 18:17:18 depuis 4 fichier(s) JSON de l'API Sheets.
 
 - 3185 lignes lues, 3167 publiées (statuts Validé, Prêt, En ligne), non publiées : 18 « À vérifier ».
-- 1265 événements et 3164 parcours sur le site.
+- 1266 événements et 3167 parcours sur le site.
 - 0 prix saisis en centimes (ex. 1 200,00 € pour 12 €) corrigés à l’import : à rectifier dans la feuille.
 - 522 événements à date « à confirmer » (affichés « Date prévisionnelle »), dont 405 ramenés au jour de la semaine de l’édition précédente (liste ci-dessous).
 
-## Lignes ignorées (2)
+## Lignes ignorées (0)
 
-- **EVT040-A** Trail des Hautes Vosges : Date de début manquante ou illisible : ligne ignorée.
-- **EVT460** Trail De Noel By Rossignol : Aucune coordonnée pour cet événement : il n’apparaît pas sur le site.
+Aucune.
 
-## À vérifier (57)
+## À vérifier (55)
 
 - **EVT001** La Foulée Des Monts D'Ain : Photo : le lien ouvre une page web, pas une image (photo ignorée).
 - **EVT002** Val'Oween Trail : Photo : vignette de recherche Google, à remplacer par le lien de l’image d’origine (photo ignorée).
@@ -61,8 +60,6 @@ Import du 01/11/2026 18:09:54 depuis 4 fichier(s) JSON de l'API Sheets.
 - **EVT114** Sainté trail urbain : Photo : vignette de recherche Google, à remplacer par le lien de l’image d’origine (photo ignorée).
 - **EVT115** Trail des jambes Allaire : Photo : vignette de recherche Google, à remplacer par le lien de l’image d’origine (photo ignorée).
 - **EVT124** Urban Trail d'Amplepuis : Dates étalées sur 61 jours (du 31/10/2026 au 31/12/2026) : date de fin ou dates des parcours à vérifier.
-- **EVT460-A** Trail De Noel By Rossignol : Latitude ou longitude manquante.
-- **EVT460-B** Trail De Noel By Rossignol : Latitude ou longitude manquante.
 - **EVT790** Grand Raid Kiprun 3 Vallées Moûtiers : Dates étalées sur 181 jours (du 31/01/2027 au 31/07/2027) : date de fin ou dates des parcours à vérifier.
 - **EVT819** Open Fast Hiking : Dates étalées sur 91 jours (du 06/02/2027 au 08/05/2027) : date de fin ou dates des parcours à vérifier.
 - **EVT824** Trail Glazig : Dates étalées sur 151 jours (du 06/02/2027 au 07/07/2027) : date de fin ou dates des parcours à vérifier.
