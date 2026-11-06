@@ -12,6 +12,10 @@ const PHOTOS = new Set([
   'ile-de-france',
   'normandie',
   'nouvelle-aquitaine',
+  'occitanie',
+  'outre-mer',
+  'pays-de-la-loire',
+  'provence-alpes-cote-d-azur',
 ]);
 
 export const regionPhoto = (regionSlug: string): string | null => (PHOTOS.has(regionSlug) ? `regions/${regionSlug}.webp` : null);
