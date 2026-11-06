@@ -20,6 +20,7 @@ import { type City, type PageLink, CITIES, CITY_RADIUS_KM, cityDep } from './cit
 import { haversineKm } from './metrics';
 import { cityPhoto, regionPhoto, TRAILS_PHOTO } from './regionPhotos';
 import { eventsWord } from './words';
+import { PAGE_STORIES, type PageStory } from './pageStories';
 import { seasonLabel, TITLE_MAX, trailsTitle } from './seoTitles';
 
 export type { PageLink } from './cities';
@@ -78,6 +79,8 @@ export interface TrailsPageData {
   center: { lat: number; lng: number } | null;
   /** Photo du haut de page (celle de la région), prioritaire sur le relief. */
   photo: string | null;
+  /** Texte rédigé (pages les plus cherchées), affiché sous la liste des courses. */
+  story?: PageStory;
   seed: number;
   /** Bouton « Voir sur la carte ». */
   map: { label: string; filters: Partial<Filters> } | null;
@@ -579,6 +582,7 @@ function buildSite(events: RaceEvent[], today: string): TrailsSite {
     seed: 11,
   });
 
+  for (const p of pages) if (PAGE_STORIES[p.slug] && p.kind !== 'index') p.story = PAGE_STORIES[p.slug];
   const bySlug = new Map(pages.map((p) => [p.slug, p]));
   const topDepartements = [...depPlaces.values()]
     .sort((a, b) => b.items.length - a.items.length || a.name.localeCompare(b.name, 'fr'))

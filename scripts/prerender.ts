@@ -246,7 +246,9 @@ for (const p of site.pages) {
     description: p.description,
     body: `<nav aria-label="Fil d’Ariane">${p.breadcrumb.map((l) => `<a href="${href(l.path)}">${esc(l.label)}</a>`).join(' / ')}</nav><h1>${esc(p.h1)}</h1>${
       p.subtitle ? `<p>${esc(p.subtitle)}</p>` : ''
-    }<p>${esc(p.intro)}</p>${p.items.length ? `<h2>${esc(p.listTitle)}</h2><ul>${p.items.map(itemLink).join('')}</ul>` : ''}${sections}`,
+    }<p>${esc(p.intro)}</p>${p.items.length ? `<h2>${esc(p.listTitle)}</h2><ul>${p.items.map(itemLink).join('')}</ul>` : ''}${
+      p.story ? `<h2>${esc(p.story.title)}</h2>${p.story.paragraphs.map((t) => `<p>${esc(t)}</p>`).join('')}` : ''
+    }${sections}`,
     jsonLd,
     noindex: p.noindex,
   });

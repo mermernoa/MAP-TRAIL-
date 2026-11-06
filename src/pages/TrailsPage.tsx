@@ -220,6 +220,16 @@ function TrailsView({ page }: { page: TrailsPageData }) {
           )}
         </section>
 
+        {page.story && (
+          <section className="trails-story" aria-labelledby="trails-story-title">
+            <p className="trails-story-kicker">Le mot de Take Ton Trail</p>
+            <h2 id="trails-story-title">{page.story.title}</h2>
+            {page.story.paragraphs.map((t) => (
+              <p key={t.slice(0, 24)}>{t}</p>
+            ))}
+          </section>
+        )}
+
         <Sections sections={page.sections} />
       </div>
     </article>

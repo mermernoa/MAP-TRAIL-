@@ -3168,3 +3168,51 @@ button.list-more {
     background: #f8f3fa;
   }
 }
+
+/* Texte rédigé des pages Trails (« Le mot de Take Ton Trail »). */
+.trails-story {
+  display: grid;
+  gap: 12px;
+  max-width: 78ch;
+  padding: 24px 26px;
+  border: 2px solid #071c3f;
+  border-left: 8px solid #fe66c4;
+  border-radius: 16px;
+  background: var(--surface, #ffffff);
+  box-shadow: 4px 5px 0 #071c3f;
+}
+
+.trails-story-kicker {
+  justify-self: start;
+  margin: 0;
+  padding: 2px 10px;
+  border: 2px solid #071c3f;
+  border-radius: 999px;
+  background: #fe66c4;
+  color: #071c3f;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.trails-story h2 {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(28px, 3.4vw, 38px);
+  line-height: 1.05;
+  color: var(--ink);
+}
+
+.trails-story p:not(.trails-story-kicker) {
+  margin: 0;
+  line-height: 1.6;
+  color: var(--ink-2, var(--ink));
+}
+
+@media (max-width: 640px) {
+  .trails-story {
+    padding: 18px 16px;
+    border-left-width: 6px;
+  }
+}
