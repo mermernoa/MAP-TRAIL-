@@ -19,6 +19,7 @@ import { type City, type PageLink, CITIES, CITY_RADIUS_KM, cityDep } from './cit
 import { haversineKm } from './metrics';
 import { cityPhoto, regionPhoto, TRAILS_PHOTO } from './regionPhotos';
 import { eventsWord } from './words';
+import { seasonLabel, TITLE_MAX, trailsTitle } from './seoTitles';
 
 export type { PageLink } from './cities';
 
@@ -204,7 +205,43 @@ export interface TrailsPageData {
   map: { label: string; filters: Partial<Filters> } | null;
 }
 
-const clip = (s: string, n = 158) => (s.length <= n ? s : `${s.slice(0, n - 1).replace(/[\s,;:·–-]+\S*$/, '')}…`);
+const SEASON = seasonLabel();
+const nfKm = new Intl.NumberFormat('fr-FR', { maximumFractionDigits: 1 });
+const nfInt = new Intl.NumberFormat('fr-FR');
+
+/** Titre (sans le nom du site) : le premier qui tient en 60 caractères avec « – Take Ton Trail », sinon le plus court qui tient seul. */
+function pickTitle(...candidates: string[]): string {
+  for (const c of candidates) if (trailsTitle(c).length <= TITLE_MAX) return c;
+  return candidates.find((c) => c.length <= TITLE_MAX) ?? candidates[candidates.length - 1];
+}
+
+/**
+ * Description pour Google : 155 caractères au plus, sans phrase coupée. La première phrase
+ * (nombre, distances, D+) est toujours là ; les suivantes (course phare, appel) seulement
+ * si elles tiennent entières.
+ */
+export const DESC_MAX = 155;
+function metaDescription(where: string, s: ReturnType<typeof summarize>, opts: { noun?: { one: string; many: string }; season?: boolean; extra?: string } = {}): string {
+  const noun = opts.noun ?? { one: 'course', many: 'courses' };
+  if (!s.count) return `Calendrier des trails ${where} : aucune course annoncée pour l’instant. Découvre les départements et les villes voisines.`;
+  let core = `${eventsWord(s.count)} de trail ${where}${opts.season === false ? '' : ` en ${SEASON}`}`;
+  if (s.courseCount) core += ` : ${nfInt.format(s.courseCount)} ${s.courseCount > 1 ? noun.many : noun.one}`;
+  if (s.longestKm > 0 && Number.isFinite(s.shortestKm)) {
+    core += s.shortestKm === s.longestKm ? ` de ${nfKm.format(s.longestKm)} km` : ` de ${nfKm.format(s.shortestKm)} à ${nfKm.format(s.longestKm)} km`;
+  }
+  const gain = s.maxGain > 0 ? `, jusqu’à ${nfInt.format(s.maxGain)} m D+` : '';
+  let out = (core + gain).length + 1 <= DESC_MAX ? `${core}${gain}.` : `${core}.`;
+  const extras = [
+    opts.extra,
+    s.famous[0] ? `À ne pas manquer : ${s.famous[0].name}.` : '',
+    'Dates, prix et inscriptions : trouve ton prochain dossard !',
+    'Dates, prix et inscriptions.',
+  ].filter(Boolean) as string[];
+  for (const e of extras) {
+    if (out.length + 1 + e.length <= DESC_MAX && !(e.startsWith('Dates, prix et inscriptions.') && out.includes('Dates, prix'))) out += ` ${e}`;
+  }
+  return out;
+}
 const HOME: PageLink = { label: 'Accueil', path: '' };
 const INDEX: PageLink = { label: 'Trails', path: 'trails/' };
 const seedOf = (s: string) => [...s].reduce((h, ch) => (h * 31 + ch.charCodeAt(0)) % 997, 7);
@@ -386,8 +423,8 @@ function buildSite(events: RaceEvent[], today: string): TrailsSite {
       slug: r.slug,
       path: placePath(place),
       h1: `Trails ${r.inName}`,
-      title: `Trails ${r.inName} : ${eventsWord(place.items.length)}`,
-      description: clip(`${intro} Calendrier, distances et inscriptions.`),
+      title: pickTitle(`Trail ${r.inName} : calendrier ${SEASON}`, `Trail ${r.inName} ${SEASON}`, `Trail ${r.inName}`),
+      description: metaDescription(r.inName, s),
       subtitle: `${deps.length} ${deps.length > 1 ? 'départements' : 'département'} · ${eventsWord(place.items.length)}`,
       intro,
       items: place.items,
@@ -423,8 +460,8 @@ function buildSite(events: RaceEvent[], today: string): TrailsSite {
       slug: dep.slug,
       path: placePath(place),
       h1: `Trails ${dep.inName}`,
-      title: `Trails ${dep.inName} (${dep.code}) : ${eventsWord(place.items.length)}`,
-      description: clip(`${intro.replace(/ Dates, distances.*$/, '')} Calendrier, distances, dénivelé et inscriptions.`),
+      title: pickTitle(`Trail ${dep.inName} (${dep.code}) : calendrier ${SEASON}`, `Trail ${dep.inName} (${dep.code}) ${SEASON}`, `Trail ${dep.inName} (${dep.code})`),
+      description: metaDescription(`${dep.inName} (${dep.code})`, s),
       subtitle: `${dep.name} (${dep.code}) · ${dep.region}`,
       intro,
       items: place.items,
@@ -467,8 +504,8 @@ function buildSite(events: RaceEvent[], today: string): TrailsSite {
       slug: city.slug,
       path: `trails/${city.slug}`,
       h1: `Trails ${city.nearName}`,
-      title: `Trails ${city.nearName} : ${eventsWord(items.length)}`,
-      description: clip(`${intro} Dates, distances et inscriptions.`),
+      title: pickTitle(`Trail ${city.nearName} : calendrier ${SEASON}`, `Trail ${city.nearName} ${SEASON}`, `Trail ${city.nearName}`),
+      description: metaDescription(city.nearName, s, { extra: `Tous à moins de ${CITY_RADIUS_KM} km.` }),
       subtitle: `Dans un rayon de ${CITY_RADIUS_KM} km · ${dep.name}`,
       intro,
       items: [...items].sort(byDate),
@@ -515,8 +552,8 @@ function buildSite(events: RaceEvent[], today: string): TrailsSite {
       slug: f.slug,
       path: `trails/${f.slug}`,
       h1: `${f.label} en France`,
-      title: `${f.label} en France : ${eventsWord(items.length)}`,
-      description: clip(`${intro.replace(` ${f.text}`, '')} ${f.criterion}.`),
+      title: pickTitle(`${f.label} en France : calendrier ${SEASON}`, `${f.label} en France ${SEASON}`, `${f.label} en France`),
+      description: metaDescription('en France', s, { noun: f.noun, extra: `${f.criterion}.` }),
       subtitle: f.criterion,
       intro,
       items,
@@ -556,8 +593,8 @@ function buildSite(events: RaceEvent[], today: string): TrailsSite {
       slug: x.slug,
       path: `trails/${x.slug}`,
       h1: `${f.label} ${place.inName}`,
-      title: `${f.label} ${place.inName} : ${eventsWord(x.items.length)}`,
-      description: clip(`${intro} Dates et inscriptions.`),
+      title: pickTitle(`${f.label} ${place.inName} : calendrier ${SEASON}`, `${f.label} ${place.inName} ${SEASON}`, `${f.label} ${place.inName}`),
+      description: metaDescription(place.inName, s, { noun: f.noun, extra: `${f.criterion}.` }),
       subtitle: `${f.criterion} · ${place.name}`,
       intro,
       items: x.items,
@@ -604,8 +641,8 @@ function buildSite(events: RaceEvent[], today: string): TrailsSite {
       slug: month.slug,
       path: `trails/${month.slug}`,
       h1: `Trails en ${month.label}`,
-      title: `Trails en ${month.label} : ${eventsWord(items.length)}`,
-      description: clip(`${intro} Dates, lieux, distances et inscriptions.`),
+      title: pickTitle(`Trail ${month.label} : le calendrier des courses`, `Trails en ${month.label} en France`, `Trails en ${month.label}`),
+      description: metaDescription(`en ${month.label} en France`, s, { season: false }),
       subtitle: `${eventsWord(items.length)} en France et outre-mer`,
       intro,
       items,
@@ -645,8 +682,8 @@ function buildSite(events: RaceEvent[], today: string): TrailsSite {
     slug: '',
     path: 'trails/',
     h1: 'Trails par région, ville, format et mois',
-    title: 'Trails par région, département, ville et format',
-    description: `Les ${eventsWord(allItems.length)} de trail à venir en France, classés par région, département, grande ville, format et mois : trouve les trails près de chez toi.`,
+    title: pickTitle(`Trail en France ${SEASON} : par région, ville, format`, 'Trails par région, département, ville et format'),
+    description: `${eventsWord(allItems.length)} de trail en ${SEASON}, par région, département, grande ville, format et mois : trouve les trails près de chez toi en un clic.`,
     subtitle: '',
     intro: 'Les courses de trail à venir près de chez toi : par région et par département, autour des grandes villes, par format (du trail court à l’ultra) et mois par mois pour construire ta saison.',
     items: [],

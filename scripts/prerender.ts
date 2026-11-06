@@ -15,7 +15,7 @@ import { departementOf, monthsWithRaces } from '../src/lib/departements';
 import { massifEvents, MASSIFS } from '../src/lib/massifs';
 import { courseNearbyLinks } from '../src/lib/cities';
 import { type TrailItem, trailsSite } from '../src/lib/trailPages';
-import { collectionTitle, infoTitle, massifTitle, raceTitle, TITLES, trailsTitle } from '../src/lib/seoTitles';
+import { collectionTitle, infoTitle, massifTitle, raceTitle, seasonLabel, TITLES, trailsTitle } from '../src/lib/seoTitles';
 import { coursesWord, eventsWord } from '../src/lib/words';
 
 const DIST = 'dist';
@@ -41,6 +41,18 @@ const COUNT = `${eventsWord(upcoming.length)} de trail à venir, soit ${coursesW
 const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 const nf = new Intl.NumberFormat('fr-FR', { maximumFractionDigits: 1 });
 const km = (v: number) => `${nf.format(v)} km`;
+/** Phrase de base + les compléments qui tiennent entiers en 155 caractères. */
+const longest = (core: string, extras: string[]) => extras.reduce((out, x) => (x && `${out} ${x}`.length <= 155 ? `${out} ${x}` : out), core);
+/** Phrases entières qui tiennent en `max` caractères (jamais de phrase coupée par « … »). */
+const sentences = (text: string, max = 155) => {
+  let out = '';
+  for (const part of text.match(/[^.!?]+[.!?]+(\s|$)/g) ?? [text]) {
+    const next = `${out}${part}`.trim();
+    if (next.length > max) break;
+    out = `${next} `;
+  }
+  return out.trim() || clip(text, max);
+};
 const clip = (s: string, n = 158) => (s.length <= n ? s : `${s.slice(0, n - 1).replace(/[\s,;:·–-]+\S*$/, '')}…`);
 const place = (e: RaceEvent) => `${e.city}${e.department ? `, ${e.department}` : e.region ? `, ${e.region}` : ''}`;
 
@@ -114,16 +126,26 @@ function render(p: Page): string {
 }
 
 const pages: Page[] = [];
-const DEP_HOME_LINKS = `<h2>Par département</h2><ul>${trailsSite(events, today)
-  .topDepartements.slice(0, 15)
-  .map(({ dep, count }) => `<li><a href="trails/${dep.slug}">Trails ${esc(dep.inName)}</a> (${count})</li>`)
-  .join('')}</ul><p><a href="trails/">Tous les départements, les grandes villes et les formats</a></p>`;
+// Liens vers les pages Trails depuis l'accueil (pré-rendu seulement) : Google découvre et
+// renforce ainsi les régions, les grandes villes, les formats et les départements les plus fournis.
+const DEP_HOME_LINKS = (() => {
+  const site = trailsSite(events, today);
+  const index = site.page('');
+  const list = (title: string) =>
+    (index?.sections.find((sec) => sec.title === title)?.links ?? [])
+      .map((l) => `<li><a href="${l.path}">${esc(l.label.startsWith('Près') ? `Trail ${l.label.charAt(0).toLowerCase()}${l.label.slice(1)}` : l.label)}</a>${l.count != null ? ` (${l.count})` : ''}</li>`)
+      .join('');
+  return `<h2>Trail par région</h2><ul>${list('Par région')}</ul><h2>Trail près des grandes villes</h2><ul>${list('Près des grandes villes')}</ul><h2>Par format</h2><ul>${list('Par format')}</ul><h2>Par département</h2><ul>${site.topDepartements
+    .slice(0, 15)
+    .map(({ dep, count }) => `<li><a href="trails/${dep.slug}">Trail ${esc(dep.inName)}</a> (${count})</li>`)
+    .join('')}</ul><p><a href="trails/">Tous les trails par région, département, ville, format et mois</a></p>`;
+})();
 const ORG = { '@type': 'Organization', name: 'Take Ton Trail', url: `${SITE_URL}/`, logo: `${SITE_URL}/icon-512.png` };
 
 pages.push({
   path: '',
   title: TITLES.home,
-  description: `${COUNT} en France et outre-mer, du petit trail du coin à l’ultra mythique : carte en relief, calendrier, distances, D+, prix et dates d’inscription.`,
+  description: sentences(`${COUNT} en France et outre-mer. Carte en relief, calendrier, D+ et prix : trouve ton prochain trail !`),
   body: `<h1>Du petit trail du coin à l’ultra mythique</h1><p>${COUNT} en France et outre-mer, sur une carte en relief et dans un calendrier. Filtre par distance, dénivelé, technicité, massif et date, puis construis ta saison.</p>${MASSIF_LINKS}${COLLECTION_LINKS}`,
   jsonLd: [
     { '@context': 'https://schema.org', '@type': 'WebSite', name: 'Take Ton Trail', alternateName: ['TakeTonTrail', 'Take Ton Trail – trails en France'], url: `${SITE_URL}/`, inLanguage: 'fr-FR' },
@@ -133,7 +155,7 @@ pages.push({
 pages.push({
   path: 'carte',
   title: TITLES.map,
-  description: 'Toutes les courses de trail sur une carte en relief 3D : filtre par distance, dénivelé, massif, date et prix, et trouve les courses près de chez toi.',
+  description: 'Tous les trails de France sur une carte en relief 3D. Filtre par distance, D+, date et prix, et trouve les courses près de chez toi.',
   body: `<h1>La carte des trails</h1><p>Toutes les courses de trail de France et d’outre-mer sur une carte en relief, avec leurs distances, leur dénivelé et leurs dates.</p>${MASSIF_LINKS}`,
 });
 
@@ -148,7 +170,7 @@ const MONTHS = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet'
 pages.push({
   path: 'calendrier',
   title: TITLES.calendar,
-  description: `Le calendrier des ${eventsWord(upcoming.length)} de trail à venir en France (${coursesWord(upcomingCourses)}), mois par mois : dates, lieux, distances, dénivelé, prix et ouverture des inscriptions.`,
+  description: sentences(`Calendrier trail ${seasonLabel()} : ${eventsWord(upcoming.length)} en France, mois par mois. Dates, lieux, distances, D+, prix et ouverture des inscriptions.`),
   body: `<h1>Calendrier des trails</h1>${[...byMonth]
     .map(([k, list]) => `<h2><a href="trails/${monthSlug(k)}">${MONTHS[Number(k.slice(5, 7)) - 1]} ${k.slice(0, 4)}</a></h2><ul>${list.map(raceLink).join('')}</ul>`)
     .join('')}`,
@@ -156,7 +178,7 @@ pages.push({
 pages.push({
   path: 'a-la-une',
   title: TITLES.highlights,
-  description: 'Nos coups de cœur, une course par thème (défi, mythique, pépite, nocturne, ultra, KV) et le prochain week-end de trail.',
+  description: 'Nos coups de cœur du moment : une course par thème (défi, mythique, pépite, nocturne, ultra, KV) et le prochain week-end de trail.',
   body: '<h1>À la une</h1><p>Nos coups de cœur, une course par thème et le prochain week-end de course.</p>',
 });
 
@@ -165,7 +187,7 @@ for (const m of MASSIFS) {
   pages.push({
     path: `massif/${m.slug}`,
     title: massifTitle(m.name),
-    description: clip(`${eventsWord(list.length)} de trail à venir dans le massif ${m.name}. ${m.text}`),
+    description: longest(`${eventsWord(list.length)} de trail dans le massif ${m.name} en ${seasonLabel()}.`, [sentences(m.text, 150), 'Dates, prix et inscriptions : trouve ton prochain dossard !']),
     body: `<h1>Trails ${esc(m.name)}</h1><p>${esc(m.text)}</p><ul>${list.map(raceLink).join('')}</ul>`,
   });
 }
@@ -174,7 +196,7 @@ for (const c of COLLECTIONS) {
   pages.push({
     path: `collection/${c.slug}`,
     title: collectionTitle(c.title),
-    description: clip(`${c.tagline} ${c.text}`),
+    description: [`${c.tagline} ${c.text}`, c.text, sentences(`${c.tagline} ${c.text}`)].filter((d) => d.length <= 155).sort((a, b) => b.length - a.length)[0],
     body: `<h1>${esc(c.title)}</h1><p>${esc(c.text)}</p><ul>${items.map((i) => raceLink(i.event)).join('')}</ul>`,
   });
 }
@@ -230,6 +252,40 @@ for (const p of site.pages) {
   });
 }
 
+/** « SaintéLyon 2026 à Lyon (Rhône), 5 décembre 2026 : 81, 46 et 23 km, jusqu’à 2 100 m D+. Dès 25 €. … » (155 caractères au plus). */
+function raceDescription(e: RaceEvent, courses: RaceEvent['courses'], year: string, when: string, estimated: boolean): string {
+  const dep = departementOf(e);
+  const kms = [...new Set(courses.map((c) => c.distanceKm))].sort((a, b) => b - a);
+  const listKm = kms.length === 1 ? km(kms[0]) : kms.length <= 3 ? `${kms.slice(0, -1).map((v) => nf.format(v)).join(', ')} et ${km(kms[kms.length - 1])}` : `${kms.length} parcours de ${nf.format(kms[kms.length - 1])} à ${km(kms[0])}`;
+  const gain = Math.max(0, ...courses.map((c) => c.elevationGain ?? 0));
+  const prices = courses.map((c) => c.priceEur).filter((v): v is number => v != null);
+  const range = when.split(' – ');
+  const date = `${estimated ? 'prévu ' : ''}${range.length === 2 ? `du ${range[0]} au ${range[1]}` : `le ${when}`}`;
+  const cores = [
+    `${e.name} ${year} à ${e.city}${dep ? ` (${dep.name})` : ''}, ${date} : ${listKm}${gain ? `, jusqu’à ${nf.format(gain)} m D+` : ''}.`,
+    `${e.name} ${year} à ${e.city}, ${date} : ${listKm}${gain ? `, jusqu’à ${nf.format(gain)} m D+` : ''}.`,
+    `${e.name} ${year} à ${e.city}, ${date} : ${listKm}.`,
+    `${e.name} ${year}, ${date} : ${listKm}.`,
+  ];
+  let out = cores.find((c) => c.length <= 155) ?? clip(cores[cores.length - 1], 155);
+  for (const extra of [prices.length ? `Dès ${nf.format(Math.min(...prices))} €.` : '', 'Inscriptions, carte et profil du parcours.', 'Inscriptions et parcours.']) {
+    if (extra && out.length + 1 + extra.length <= 155 && !(extra.startsWith('Inscriptions et') && out.includes('Inscriptions'))) out += ` ${extra}`;
+  }
+  return out;
+}
+
+/** Fil d'Ariane de la fiche (données structurées) : Accueil › Trails › département › course. */
+function raceBreadcrumb(e: RaceEvent): object {
+  const dep = departementOf(e);
+  const items = [
+    { name: 'Accueil', item: `${SITE_URL}/` },
+    { name: 'Trails', item: `${SITE_URL}/trails/` },
+    ...(dep ? [{ name: `Trail ${dep.inName}`, item: `${SITE_URL}/trails/${dep.slug}` }] : []),
+    { name: e.name, item: `${SITE_URL}/course/${e.id}` },
+  ];
+  return { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: items.map((x, i) => ({ '@type': 'ListItem', position: i + 1, ...x })) };
+}
+
 for (const e of events) {
   const courses = [...e.courses].sort((a, b) => b.distanceKm - a.distanceKm);
   const year = e.edition ?? e.dateStart.slice(0, 4);
@@ -268,18 +324,18 @@ for (const e of events) {
   pages.push({
     path: `course/${e.id}`,
     title: raceTitle(e.name, year, e.city),
-    description: clip(`${e.name} à ${place(e)}, ${estimated ? 'date prévisionnelle : ' : ''}${when}. Parcours : ${dist}. Prix, inscriptions, carte et profil.`),
+    description: raceDescription(e, courses, year, when, estimated),
     lastmod: e.updatedAt,
     body: `<h1>${esc(e.name)}</h1><p>${esc(place(e))}${depLink(e)} · ${estimated ? 'Date prévisionnelle : ' : ''}${esc(when)}${massifLink(e.massif)}</p><h2>Parcours</h2><ul>${courses
       .map((c) => `<li>${esc(c.name)} : ${km(c.distanceKm)}${c.elevationGain != null ? `, ${nf.format(c.elevationGain)} m D+` : ''}${c.priceEur != null ? `, ${nf.format(c.priceEur)} €` : ''}</li>`)
       .join('')}</ul>${e.description ? `<p>${esc(e.description)}</p>` : ''}${e.website ? `<p><a href="${esc(e.website)}" rel="nofollow">Site de l’organisation</a></p>` : ''}${nearbyLinks(e)}`,
     // Date pas encore publiée : pas de données d'événement (Google demande une date sûre).
-    jsonLd: estimated ? undefined : [ld],
+    jsonLd: [...(estimated ? [] : [ld]), raceBreadcrumb(e)],
   });
 }
 
 const STATIC: [string, string, string, boolean?][] = [
-  ['a-propos', 'À propos', 'Take Ton Trail rassemble toutes les courses de trail au même endroit : où, quand, combien de kilomètres et de dénivelé, à quel prix, et quand ouvrent les inscriptions.'],
+  ['a-propos', 'À propos', 'Toutes les courses de trail au même endroit : où, quand, combien de km et de D+, à quel prix, et quand ouvrent les inscriptions.'],
   ['contact', 'Contact', 'Une question, une idée, un partenariat ? Écris à Take Ton Trail : chaque message est lu.'],
   ['proposer-une-course', 'Proposer une course', 'Une course de trail manque à la carte ? Donne-nous l’essentiel : elle sera vérifiée sur son site officiel, puis ajoutée.'],
   ['signaler', 'Signaler une erreur', 'Une date a changé, un prix est faux ? Signale-le : la base est corrigée à la main.'],
