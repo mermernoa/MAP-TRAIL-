@@ -305,7 +305,7 @@ export function PrivacyPage() {
             </p>
             <p>
               <strong>Mesure d’audience (Google Analytics), seulement si tu l’acceptes.</strong> Avec ton accord, donné dans
-              le bandeau en bas de l’écran, Google Analytics (Google Ireland Ltd) dépose des cookies « _ga » et mesure les
+              le bandeau en bas de l’écran, Google Analytics (Google Ireland Ltd), via Google Tag Manager, dépose des cookies « _ga » et mesure les
               pages vues, la durée de visite, le type d’appareil et la provenance approximative (pays, ville). Ces données
               peuvent être transférées aux États-Unis, dans le cadre du Data Privacy Framework. Elles servent uniquement à
               savoir quelles pages sont utiles ; elles sont conservées 14 mois par Google, puis effacées. Ton choix est

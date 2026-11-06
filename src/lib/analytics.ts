@@ -1,8 +1,9 @@
 /**
- * Google Analytics 4, chargé seulement après accord du visiteur (exigence de la CNIL :
- * la mesure d'audience Google dépose des cookies et envoie des données hors de l'UE).
- * Identifiant de mesure : VITE_GA_ID (« G-XXXXXXXXXX ») dans .env.production. Sans lui,
- * rien n'est chargé et aucun bandeau n'apparaît.
+ * Mesure d'audience Google, chargée seulement après accord du visiteur (exigence de la CNIL :
+ * Google Analytics dépose des cookies et envoie des données hors de l'UE).
+ * VITE_GA_ID dans .env.production : un conteneur Google Tag Manager (« GTM-XXXXXXX », Google
+ * Analytics se règle alors dans Tag Manager) ou directement Google Analytics 4 (« G-XXXXXXXXXX »).
+ * Sans identifiant, rien n'est chargé et aucun bandeau n'apparaît.
  */
 export const GA_ID: string = (import.meta.env.VITE_GA_ID as string | undefined)?.trim() ?? '';
 
@@ -60,11 +61,21 @@ declare global {
 }
 
 let loaded = false;
+const isGtm = GA_ID.startsWith('GTM-');
 
 export function loadAnalytics(): void {
   if (loaded || !GA_ID || typeof document === 'undefined') return;
   loaded = true;
   window.dataLayer = window.dataLayer ?? [];
+  if (isGtm) {
+    // Google Tag Manager : le conteneur décide des balises (Google Analytics 4…).
+    window.dataLayer.push({ 'gtm.start': Date.now(), event: 'gtm.js' });
+    const s = document.createElement('script');
+    s.async = true;
+    s.src = `https://www.googletagmanager.com/gtm.js?id=${encodeURIComponent(GA_ID)}`;
+    document.head.appendChild(s);
+    return;
+  }
   window.gtag = function gtag() {
     // eslint-disable-next-line prefer-rest-params
     window.dataLayer!.push(arguments);
@@ -79,7 +90,13 @@ export function loadAnalytics(): void {
 }
 
 export function trackPageView(path: string, title: string): void {
-  if (!loaded || !window.gtag) return;
+  if (!loaded) return;
+  if (isGtm) {
+    // Événement « page_view » pour Tag Manager (déclencheur : Événement personnalisé page_view).
+    window.dataLayer!.push({ event: 'page_view', page_path: path, page_location: window.location.href, page_title: title });
+    return;
+  }
+  if (!window.gtag) return;
   window.gtag('event', 'page_view', { page_path: path, page_location: window.location.href, page_title: title });
 }
 
