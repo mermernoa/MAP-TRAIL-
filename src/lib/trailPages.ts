@@ -402,7 +402,7 @@ function buildSite(events: RaceEvent[], today: string): TrailsSite {
       ]),
       noindex: place.items.length < MIN_INDEXED || twin,
       center: r.name === 'Outre-mer' ? null : centerOf(place.items),
-      photo: regionPhoto(r.slug),
+      photo: null,
       seed: seedOf(r.slug),
     });
   }
@@ -442,7 +442,7 @@ function buildSite(events: RaceEvent[], today: string): TrailsSite {
       ]),
       noindex: place.items.length < MIN_INDEXED,
       center: centerOf(place.items),
-      photo: regionPhoto(place.region.slug),
+      photo: null,
       seed: dep.code.charCodeAt(0) + dep.code.length * 7,
     });
   }
@@ -488,7 +488,7 @@ function buildSite(events: RaceEvent[], today: string): TrailsSite {
       ]),
       noindex: !cityPublished(city),
       center: { lat: city.lat, lng: city.lng },
-      photo: regionPhoto(region.slug),
+      photo: null,
       seed: seedOf(city.slug),
       map: items.length
         ? { label: `Voir les courses ${city.nearName} sur la carte`, filters: { near: { lat: city.lat, lng: city.lng, radiusKm: CITY_RADIUS_KM, label: `Près ${city.nearName.slice(5)}` } } }
@@ -579,7 +579,7 @@ function buildSite(events: RaceEvent[], today: string): TrailsSite {
         },
       ]),
       center: place.region.name === 'Outre-mer' && place.kind === 'region' ? null : centerOf(x.items),
-      photo: regionPhoto(place.region.slug),
+      photo: null,
       seed: seedOf(x.slug),
     });
   }

@@ -1,6 +1,7 @@
 /**
- * Photos des pages Trails (public/regions/<slug de la région>.webp), fournies par Take Ton Trail.
- * Une région sans photo garde le relief 3D ou le décor de crêtes.
+ * Photos des régions (public/regions/<slug de la région>.webp), fournies par Take Ton Trail.
+ * Utilisées uniquement sur la page /trails/ : vignettes des régions et photo du haut de page.
+ * Une région sans photo garde le décor de crêtes.
  */
 const PHOTOS = new Set([
   'auvergne-rhone-alpes',
