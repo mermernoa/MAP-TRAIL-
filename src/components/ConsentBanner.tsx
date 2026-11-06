@@ -2,10 +2,28 @@ import { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { type Consent, GA_ID, loadAnalytics, onConsentChange, readConsent, setConsent, trackPageView } from '../lib/analytics';
 
+const BANNER_DELAY_MS = 3500;
+
 /** Bandeau de consentement à la mesure d'audience, et envoi des pages vues si accepté. */
 export function ConsentBanner() {
   const [consent, setLocal] = useState<Consent>(() => (GA_ID ? readConsent() : 'refuse'));
   const { pathname, search } = useLocation();
+  // Le bandeau arrive 3,5 s après le chargement complet de la page (images, polices…),
+  // pour laisser découvrir le site avant de poser la question.
+  const [ready, setReady] = useState(false);
+
+  useEffect(() => {
+    let timer = 0;
+    const start = () => {
+      timer = window.setTimeout(() => setReady(true), BANNER_DELAY_MS);
+    };
+    if (document.readyState === 'complete') start();
+    else window.addEventListener('load', start, { once: true });
+    return () => {
+      window.removeEventListener('load', start);
+      window.clearTimeout(timer);
+    };
+  }, []);
 
   useEffect(() => {
     const off = onConsentChange(setLocal);
@@ -21,7 +39,7 @@ export function ConsentBanner() {
     return () => window.clearTimeout(t);
   }, [consent, pathname, search]);
 
-  if (!GA_ID || consent !== null) return null;
+  if (!GA_ID || consent !== null || !ready) return null;
   return (
     <div className="consent" role="dialog" aria-live="polite" aria-labelledby="consent-title">
       <img className="consent-cookie" src="brand/cookie.webp" alt="" width={120} height={107} />
