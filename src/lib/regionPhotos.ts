@@ -10,6 +10,7 @@ const PHOTOS = new Set([
   'centre-val-de-loire',
   'corse',
   'grand-est',
+  'hauts-de-france',
   'ile-de-france',
   'normandie',
   'nouvelle-aquitaine',

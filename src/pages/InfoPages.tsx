@@ -102,7 +102,7 @@ export function AboutPage() {
 }
 
 /** Date de la dernière mise à jour des mentions légales et de la page Confidentialité. */
-const LEGAL_UPDATED = '14 octobre 2026';
+const LEGAL_UPDATED = '6 novembre 2026';
 
 /** Une donnée conservée : ce que c'est, pourquoi, combien de temps. */
 function DataRow({ what, why, until }: { what: string; why: string; until: string }) {
@@ -173,6 +173,15 @@ export function LegalPage() {
               <dd>Supabase, Inc. (supabase.com), serveurs situés dans l’Union européenne (Irlande)</dd>
             </div>
           )}
+          {GA_ID && (
+            <div>
+              <dt>Mesure d’audience, seulement avec ton accord</dt>
+              <dd>
+                Google Tag Manager et Google Analytics, Google Ireland Limited, Gordon House, Barrow Street, Dublin 4, Irlande
+                (voir la page <Link to="/confidentialite">Confidentialité</Link>)
+              </dd>
+            </div>
+          )}
         </dl>
       </section>
       <section>
@@ -199,7 +208,8 @@ export function LegalPage() {
         </p>
         <p>
           Les photos de courses restent la propriété de leurs auteurs ; chacune est créditée avec un lien vers son origine.
-          Les photos de paysage des massifs sont celles de Take Ton Trail. Pour faire retirer une photo ou corriger un crédit,
+          Les photos de paysage des massifs et des régions (page Trails) sont fournies par Take Ton Trail, comme
+          l’illustration des cookies du bandeau. Pour faire retirer une photo ou corriger un crédit,
           utilise le formulaire <Link to="/signaler?sujet=photo">Signaler une erreur</Link>.
         </p>
         <p>
@@ -255,6 +265,7 @@ export function PrivacyPage() {
           <li>Ta saison : courses suivies, statuts, objectifs, notes, et les courses que tu ajoutes à la main.</li>
           <li>Les traces GPX que tu importes sur une fiche.</li>
           <li>Les aides déjà vues (relief 3D) et, le temps de la visite, l’animation d’ouverture de la carte et le bandeau fermé.</li>
+          {GA_ID && <li>Ton choix sur les cookies de mesure d’audience, gardé 6 mois.</li>}
         </ul>
         <p>
           La localisation n’est demandée que si tu cliques sur « Près de chez moi » ou « Autour de moi ». Ta position sert à
@@ -304,12 +315,22 @@ export function PrivacyPage() {
               (saison, réglages, connexion au compte, ton choix sur la mesure d’audience) ne demande pas de consentement.
             </p>
             <p>
-              <strong>Mesure d’audience (Google Analytics), seulement si tu l’acceptes.</strong> Avec ton accord, donné dans
-              le bandeau en bas de l’écran, Google Analytics (Google Ireland Ltd), via Google Tag Manager, dépose des cookies « _ga » et mesure les
-              pages vues, la durée de visite, le type d’appareil et la provenance approximative (pays, ville). Ces données
-              peuvent être transférées aux États-Unis, dans le cadre du Data Privacy Framework. Elles servent uniquement à
-              savoir quelles pages sont utiles ; elles sont conservées 14 mois par Google, puis effacées. Ton choix est
-              gardé 6 mois, et tu peux le changer à tout moment :{' '}
+              <strong>Mesure d’audience, seulement si tu l’acceptes.</strong> À ta première visite, le bandeau « On refuse
+              pas le ravito ! » te demande ton accord : « Je dévalise le ravito ! » pour accepter, « Je trace ma route ! »
+              pour refuser. Refuser ne change rien à ce que tu peux faire sur le site, et tant que tu n’as pas répondu, rien
+              n’est chargé.
+            </p>
+            <p>
+              Si tu acceptes, Google Tag Manager et Google Analytics (Google Ireland Limited) sont chargés et déposent des
+              cookies « _ga » et « _ga_… ». Ils mesurent les pages vues, la durée de visite, le type d’appareil et de
+              navigateur, et la provenance approximative (pays, ville), sans nom ni adresse e-mail. Finalité : savoir quelles
+              pages sont utiles pour améliorer le site (base : ton consentement). Ces données peuvent être transférées aux
+              États-Unis, dans le cadre du Data Privacy Framework. Elles sont conservées 14 mois au plus par Google, puis
+              effacées.
+            </p>
+            <p>
+              Ton choix est gardé 6 mois, puis redemandé. Tu peux le changer à tout moment ; si tu retires ton accord, les
+              cookies de Google Analytics sont effacés :{' '}
               <button type="button" className="link-button" onClick={resetConsent}>
                 gérer mon choix
               </button>
@@ -327,8 +348,9 @@ export function PrivacyPage() {
           Comme pour toute page web, certains serveurs reçoivent l’adresse IP de ton appareil pour t’envoyer leurs fichiers :
           GitHub Pages (le site lui-même, États-Unis), OpenFreeMap, OpenTopoMap, l’IGN (Géoplateforme), Esri et Amazon Web
           Services (cartes et relief),
-          les sites d’origine des photos de courses, et Supabase si tu utilises un compte, les formulaires ou les traces
-          proposées. Ils ne reçoivent rien d’autre de Take Ton Trail.
+          les sites d’origine des photos de courses, Supabase si tu utilises un compte, les formulaires ou les traces
+          proposées{GA_ID ? ', et Google (Tag Manager, Analytics) seulement si tu as accepté la mesure d’audience' : ''}.
+          Ils ne reçoivent rien d’autre de Take Ton Trail.
         </p>
       </section>
       <section>

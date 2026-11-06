@@ -4366,31 +4366,52 @@ textarea {
   left: 16px;
   right: 16px;
   bottom: 16px;
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
   align-items: center;
-  gap: 12px 20px;
-  max-width: 760px;
+  gap: 10px 18px;
+  max-width: 780px;
   margin: 0 auto;
-  padding: 16px 18px;
+  padding: 16px 20px 16px 12px;
   border: 2px solid #071c3f;
-  border-radius: 16px;
+  border-radius: 18px;
   background: #ffffff;
   color: #071c3f;
   box-shadow: 5px 6px 0 #fe66c4;
+  animation: consent-in 0.5s cubic-bezier(0.3, 1.4, 0.5, 1) both;
 }
 
-.consent p {
-  flex: 1 1 320px;
+@keyframes consent-in {
+  from {
+    transform: translateY(24px);
+    opacity: 0;
+  }
+}
+
+.consent-cookie {
+  grid-row: span 2;
+  width: 112px;
+  height: auto;
+  transform: rotate(-8deg);
+  filter: drop-shadow(2px 3px 0 rgba(7, 28, 63, 0.25));
+}
+
+.consent-text {
+  display: grid;
+  gap: 4px;
+}
+
+.consent-text p {
   margin: 0;
   font-size: 14px;
   line-height: 1.45;
 }
 
-.consent b {
+.consent-text .consent-title {
   font-family: var(--font-display);
-  font-weight: 400;
-  font-size: 18px;
+  font-size: 26px;
+  line-height: 1.1;
+  color: #071c3f;
 }
 
 .consent a {
@@ -4399,7 +4420,38 @@ textarea {
 
 .consent-actions {
   display: flex;
+  flex-wrap: wrap;
   gap: 10px;
+}
+
+@media (max-width: 560px) {
+  .consent {
+    grid-template-columns: 72px minmax(0, 1fr);
+    padding: 14px 14px 14px 8px;
+  }
+
+  .consent-cookie {
+    grid-row: auto;
+    width: 72px;
+  }
+
+  .consent-text .consent-title {
+    font-size: 22px;
+  }
+
+  .consent-actions {
+    grid-column: 1 / -1;
+  }
+
+  .consent-actions .button {
+    flex: 1 1 auto;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .consent {
+    animation: none;
+  }
 }
 
 @media (prefers-color-scheme: dark) {
@@ -4407,6 +4459,10 @@ textarea {
     background: #071c3f;
     color: #ffffff;
     border-color: #fe66c4;
+  }
+
+  :root:not([data-theme='light']) .consent-text .consent-title {
+    color: #fe66c4;
   }
 
   :root:not([data-theme='light']) .consent a {
@@ -4418,6 +4474,10 @@ textarea {
   background: #071c3f;
   color: #ffffff;
   border-color: #fe66c4;
+}
+
+:root[data-theme='dark'] .consent-text .consent-title {
+  color: #fe66c4;
 }
 
 :root[data-theme='dark'] .consent a {

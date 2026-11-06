@@ -23,17 +23,22 @@ export function ConsentBanner() {
 
   if (!GA_ID || consent !== null) return null;
   return (
-    <div className="consent" role="dialog" aria-live="polite" aria-label="Mesure d’audience">
-      <p>
-        <b>On peut compter tes visites ?</b> Avec ton accord, Google Analytics mesure la fréquentation du site (pages vues,
-        durée, appareil) pour savoir ce qui est utile. Aucune publicité. <Link to="/confidentialite">En savoir plus</Link>
-      </p>
+    <div className="consent" role="dialog" aria-live="polite" aria-labelledby="consent-title">
+      <img className="consent-cookie" src="brand/cookie.webp" alt="" width={120} height={107} />
+      <div className="consent-text">
+        <p id="consent-title" className="consent-title">On refuse pas le ravito !</p>
+        <p>
+          Nos cookies servent à mesurer la fréquentation du site avec Google Analytics (pages vues, durée, appareil), pour
+          savoir ce qui t’est utile. Aucune publicité, et c’est toi qui choisis.{' '}
+          <Link to="/confidentialite">En savoir plus</Link>
+        </p>
+      </div>
       <div className="consent-actions">
         <button type="button" className="button" onClick={() => setConsent('refuse')}>
-          Refuser
+          Je trace ma route !
         </button>
         <button type="button" className="button button-primary" onClick={() => setConsent('accepte')}>
-          Accepter
+          Je dévalise le ravito !
         </button>
       </div>
     </div>
