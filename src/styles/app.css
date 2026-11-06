@@ -4358,3 +4358,68 @@ textarea {
   border-radius: 8px;
   background: #ffffff;
 }
+
+/* ---------- Bandeau de consentement (mesure d'audience) ---------- */
+.consent {
+  position: fixed;
+  z-index: 60;
+  left: 16px;
+  right: 16px;
+  bottom: 16px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 20px;
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 16px 18px;
+  border: 2px solid #071c3f;
+  border-radius: 16px;
+  background: #ffffff;
+  color: #071c3f;
+  box-shadow: 5px 6px 0 #fe66c4;
+}
+
+.consent p {
+  flex: 1 1 320px;
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.consent b {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 18px;
+}
+
+.consent a {
+  color: #854183;
+}
+
+.consent-actions {
+  display: flex;
+  gap: 10px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) .consent {
+    background: #071c3f;
+    color: #ffffff;
+    border-color: #fe66c4;
+  }
+
+  :root:not([data-theme='light']) .consent a {
+    color: #fe66c4;
+  }
+}
+
+:root[data-theme='dark'] .consent {
+  background: #071c3f;
+  color: #ffffff;
+  border-color: #fe66c4;
+}
+
+:root[data-theme='dark'] .consent a {
+  color: #fe66c4;
+}

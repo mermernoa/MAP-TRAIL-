@@ -5,6 +5,7 @@ import { SITE } from '../lib/site';
 import { accountsEnabled } from '../lib/supabase';
 import { useCatalog } from '../store/catalog';
 import { infoTitle } from '../lib/seoTitles';
+import { GA_ID, resetConsent } from '../lib/analytics';
 
 export const INFO_LINKS = [
   { to: '/a-propos', label: 'À propos' },
@@ -233,7 +234,7 @@ export function PrivacyPage() {
   return (
     <InfoLayout
       title="Confidentialité"
-      lede={`Le site fonctionne sans compte, sans publicité et sans traceur. Voici exactement ce qui est conservé, pourquoi, où, combien de temps, et comment l’effacer. Mise à jour le ${LEGAL_UPDATED}.`}
+      lede={`Le site fonctionne sans compte et sans publicité${GA_ID ? ', et ne mesure ton audience qu’avec ton accord' : ' et sans traceur'}. Voici exactement ce qui est conservé, pourquoi, où, combien de temps, et comment l’effacer. Mise à jour le ${LEGAL_UPDATED}.`}
     >
       <section>
         <h2>Qui est responsable de tes données</h2>
@@ -296,11 +297,32 @@ export function PrivacyPage() {
       )}
       <section>
         <h2>Cookies et services extérieurs</h2>
-        <p>
-          Le site ne dépose aucun cookie publicitaire, de réseau social ni de mesure d’audience. Le seul stockage utilisé est
-          celui nécessaire au fonctionnement (saison, réglages, connexion au compte) : il ne demande donc pas de
-          consentement.
-        </p>
+        {GA_ID ? (
+          <>
+            <p>
+              Le site ne dépose aucun cookie publicitaire ni de réseau social. Le stockage nécessaire au fonctionnement
+              (saison, réglages, connexion au compte, ton choix sur la mesure d’audience) ne demande pas de consentement.
+            </p>
+            <p>
+              <strong>Mesure d’audience (Google Analytics), seulement si tu l’acceptes.</strong> Avec ton accord, donné dans
+              le bandeau en bas de l’écran, Google Analytics (Google Ireland Ltd) dépose des cookies « _ga » et mesure les
+              pages vues, la durée de visite, le type d’appareil et la provenance approximative (pays, ville). Ces données
+              peuvent être transférées aux États-Unis, dans le cadre du Data Privacy Framework. Elles servent uniquement à
+              savoir quelles pages sont utiles ; elles sont conservées 14 mois par Google, puis effacées. Ton choix est
+              gardé 6 mois, et tu peux le changer à tout moment :{' '}
+              <button type="button" className="link-button" onClick={resetConsent}>
+                gérer mon choix
+              </button>
+              .
+            </p>
+          </>
+        ) : (
+          <p>
+            Le site ne dépose aucun cookie publicitaire, de réseau social ni de mesure d’audience. Le seul stockage utilisé
+            est celui nécessaire au fonctionnement (saison, réglages, connexion au compte) : il ne demande donc pas de
+            consentement.
+          </p>
+        )}
         <p>
           Comme pour toute page web, certains serveurs reçoivent l’adresse IP de ton appareil pour t’envoyer leurs fichiers :
           GitHub Pages (le site lui-même, États-Unis), OpenFreeMap, OpenTopoMap, l’IGN (Géoplateforme), Esri et Amazon Web

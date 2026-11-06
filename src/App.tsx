@@ -21,6 +21,7 @@ import { startAccount, useAccount } from './store/account';
 import { useCatalog } from './store/catalog';
 import { useSeasonStore } from './store/season';
 import { trackView, useSiteSettings } from './store/siteSettings';
+import { ConsentBanner } from './components/ConsentBanner';
 
 // Espace admin : chargé seulement quand on l'ouvre.
 const AdminPage = lazy(() => import('./pages/AdminPage'));
@@ -276,6 +277,7 @@ export function App() {
         </CatalogGate>
       </main>
       <Footer />
+      <ConsentBanner />
     </BrowserRouter>
   );
 }
