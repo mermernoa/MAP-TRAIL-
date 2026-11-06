@@ -276,6 +276,8 @@ function TrailsIndex({ page }: { page: TrailsPageData }) {
         {page.sections.map((s) =>
           s.look === 'regions' ? (
             <RegionCards key={s.title} section={s} />
+          ) : s.look === 'cities' ? (
+            <CityCards key={s.title} section={s} />
           ) : s.look === 'formats' ? (
             <FormatTiles key={s.title} section={s} />
           ) : s.look === 'months' ? (
@@ -328,6 +330,57 @@ function RegionCards({ section }: { section: LinkSection }) {
           );
         })}
       </ul>
+    </nav>
+  );
+}
+
+/**
+ * Grandes villes : vignettes photo (comme une carte postale épinglée) pour celles qui ont
+ * une photo, pastilles pour les autres.
+ */
+function CityCards({ section }: { section: LinkSection }) {
+  const [broken, setBroken] = useState<Set<string>>(() => new Set());
+  const withPhoto = section.links.filter((l) => l.photo && !broken.has(l.photo));
+  const others = section.links.filter((l) => !l.photo || broken.has(l.photo));
+  return (
+    <nav className="trails-block" aria-label={section.title}>
+      <h2 className="trails-block-title">{section.title}</h2>
+      {withPhoto.length > 0 && (
+        <ul className="trails-city-grid">
+          {withPhoto.map((l, i) => {
+            const name = l.label.replace(/^Près (de |d’|du )/, '');
+            const prefix = l.label.slice(0, l.label.length - name.length);
+            return (
+              <li key={l.path} style={{ '--tilt': `${[1.1, -0.8, 0.6, -1.3, 0.9, -0.5][i % 6]}deg` } as React.CSSProperties}>
+                <Link to={to(l.path)} className="trails-city">
+                  <span className="trails-city-frame">
+                    <img src={l.photo!} alt="" loading="lazy" onError={() => setBroken((b) => new Set(b).add(l.photo!))} />
+                    {l.count != null && <span className="poster-count trails-city-count">{eventsLabel(l.count)}</span>}
+                  </span>
+                  <span className="trails-city-name">
+                    <small>{prefix.trim()}</small> {name}
+                  </span>
+                </Link>
+              </li>
+            );
+          })}
+        </ul>
+      )}
+      {others.length > 0 && (
+        <div className="massif-others trails-city-others">
+          {withPhoto.length > 0 && <h3 className="trails-city-others-title">Et aussi</h3>}
+          <ul>
+            {others.map((l) => (
+              <li key={l.path}>
+                <Link to={to(l.path)} className="chip-link">
+                  {l.label}
+                  {l.count != null && ` · ${l.count}`}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
     </nav>
   );
 }

@@ -3044,3 +3044,127 @@ button.list-more {
     gap: 10px;
   }
 }
+
+/* Grandes villes : cartes postales épinglées (photo + nom), pastilles pour les autres. */
+.trails-city-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: 26px 20px;
+  margin: 0;
+  padding: 10px 4px 6px;
+  list-style: none;
+}
+
+.trails-city-grid > li {
+  min-width: 0;
+}
+
+.trails-city {
+  display: grid;
+  gap: 10px;
+  padding: 10px 10px 12px;
+  border: 2px solid #071c3f;
+  border-radius: 6px;
+  background: #ffffff;
+  color: #071c3f;
+  text-decoration: none;
+  box-shadow: 4px 5px 0 #071c3f;
+  transform: rotate(var(--tilt, 0deg));
+  transition:
+    transform 0.3s cubic-bezier(0.3, 1.4, 0.5, 1),
+    box-shadow 0.3s ease;
+  position: relative;
+}
+
+/* Punaise rose. */
+.trails-city::before {
+  content: '';
+  position: absolute;
+  top: -9px;
+  left: 50%;
+  width: 16px;
+  height: 16px;
+  margin-left: -8px;
+  border: 2px solid #071c3f;
+  border-radius: 50%;
+  background: #fe66c4;
+  z-index: 1;
+}
+
+.trails-city:hover,
+.trails-city:focus-visible {
+  transform: rotate(0deg) translateY(-5px);
+  box-shadow: 6px 9px 0 #fe66c4;
+}
+
+.trails-city-frame {
+  position: relative;
+  display: block;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  border-radius: 3px;
+  background: #071c3f;
+}
+
+.trails-city-frame img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.6s ease;
+}
+
+.trails-city:hover .trails-city-frame img {
+  transform: scale(1.06);
+}
+
+.trails-city-count {
+  position: absolute;
+  left: 8px;
+  bottom: 8px;
+  margin: 0;
+}
+
+.trails-city-name {
+  font-family: var(--font-display);
+  font-size: 24px;
+  line-height: 1.05;
+  text-align: center;
+}
+
+.trails-city-name small {
+  display: block;
+  font-family: var(--font);
+  font-size: 12px;
+  font-weight: 700;
+  color: #854183;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.trails-city-others {
+  gap: 10px;
+}
+
+.trails-city-others-title {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 24px;
+  color: var(--ink);
+}
+
+@media (max-width: 640px) {
+  .trails-city-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 22px 14px;
+  }
+
+  .trails-city-name {
+    font-size: 19px;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) .trails-city {
+    background: #f8f3fa;
+  }
+}

@@ -17,7 +17,7 @@ import { normalize } from './filters';
 import { massifByName } from './massifs';
 import { type City, type PageLink, CITIES, CITY_RADIUS_KM, cityDep } from './cities';
 import { haversineKm } from './metrics';
-import { regionPhoto, TRAILS_PHOTO } from './regionPhotos';
+import { cityPhoto, regionPhoto, TRAILS_PHOTO } from './regionPhotos';
 import { eventsWord } from './words';
 
 export type { PageLink } from './cities';
@@ -171,7 +171,7 @@ export interface LinkSection {
   title: string;
   links: PageLink[];
   /** Mise en forme particulière sur l'index : vignettes photo, tuiles de mois… */
-  look?: 'regions' | 'formats' | 'months';
+  look?: 'regions' | 'cities' | 'formats' | 'months';
 }
 
 export type TrailsKind = 'index' | 'region' | 'departement' | 'ville' | 'format' | 'croisement' | 'mois';
@@ -654,7 +654,7 @@ function buildSite(events: RaceEvent[], today: string): TrailsSite {
     breadcrumb: [HOME],
     sections: nonEmpty([
       { title: 'Par région', look: 'regions', links: regionsSorted.map((p) => ({ ...depLink(p), photo: regionPhoto(p.slug) })) },
-      { title: 'Près des grandes villes', links: CITIES.filter((c) => cityItems.get(c)!.length).map(cityLink) },
+      { title: 'Près des grandes villes', look: 'cities', links: CITIES.filter((c) => cityItems.get(c)!.length).map((c) => ({ ...cityLink(c), photo: cityPhoto(c.name) })) },
       { title: 'Par format', look: 'formats', links: FORMATS.map(formatLink) },
       { title: 'Par mois', look: 'months', links: monthList.map(({ month, count }) => ({ label: month.label, path: `trails/${month.slug}`, count })) },
       ...regionsSorted.map((r) => ({ title: `Départements ${r.region.inName}`, links: [...depPlaces.values()].filter((d) => d.region === r.region).map(depLink) })),

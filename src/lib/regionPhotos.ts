@@ -24,3 +24,16 @@ export const regionPhoto = (regionSlug: string): string | null => (PHOTOS.has(re
 
 /** Haut de la page /trails/. */
 export const TRAILS_PHOTO = 'regions/trails.webp';
+
+/** Photos des grandes villes (public/villes/<nom>.webp), elles aussi seulement sur /trails/. */
+const CITY_PHOTOS: Record<string, string> = {
+  Rennes: 'rennes',
+  Rouen: 'rouen',
+  'Saint-Denis': 'saint-denis-la-reunion',
+  Strasbourg: 'strasbourg',
+  Toulon: 'toulon',
+  Toulouse: 'toulouse',
+};
+
+export const cityPhoto = (cityName: string): string | null => (CITY_PHOTOS[cityName] ? `villes/${CITY_PHOTOS[cityName]}.webp` : null);
+
