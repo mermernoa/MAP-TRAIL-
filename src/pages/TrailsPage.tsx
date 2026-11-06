@@ -161,7 +161,9 @@ function TrailsView({ page }: { page: TrailsPageData }) {
   const heroRef = useParallax<HTMLElement>(0.35);
   const bodyRef = useReveal<HTMLDivElement>('.panel, .massif-intro', [page.slug]);
   useTitle(page.title);
-  const terrain = page.center != null;
+  const [photoFailed, setPhotoFailed] = useState(false);
+  const photo = page.photo && !photoFailed ? page.photo : null;
+  const terrain = page.center != null || photo != null;
   const openMap = () => {
     if (!page.map) return;
     const store = useFilterStore.getState();
@@ -173,8 +175,10 @@ function TrailsView({ page }: { page: TrailsPageData }) {
 
   return (
     <article className={`${terrain ? 'massif-page' : 'collection-page'} trails-page`}>
-      <header ref={heroRef} className={`race-hero ${terrain ? 'massif-hero' : 'collection-hero'}`}>
-        {page.center ? (
+      <header ref={heroRef} className={`race-hero ${terrain ? 'massif-hero' : 'collection-hero'} ${photo ? 'has-photo' : ''}`}>
+        {photo ? (
+          <img className="race-hero-photo" src={photo} alt="" onError={() => setPhotoFailed(true)} />
+        ) : page.center ? (
           <TerrainHero lat={page.center.lat} lng={page.center.lng} track={null} />
         ) : (
           <div className="collection-hero-night" aria-hidden="true">
@@ -223,25 +227,153 @@ function TrailsView({ page }: { page: TrailsPageData }) {
 }
 
 function TrailsIndex({ page }: { page: TrailsPageData }) {
-  const bodyRef = useReveal<HTMLDivElement>('.massif-others', [page.sections.length]);
+  const events = useAllRaces();
+  const today = useToday();
+  const heroRef = useParallax<HTMLElement>(0.35);
+  const bodyRef = useReveal<HTMLDivElement>('.trails-block', [page.sections.length]);
+  const [photoFailed, setPhotoFailed] = useState(false);
   useTitle(page.title);
+  const totals = useMemo(() => {
+    const upcoming = events.filter((e) => !e.custom && e.dateEnd >= today);
+    return { events: upcoming.length, courses: upcoming.reduce((n, e) => n + e.courses.filter((c) => c.start.slice(0, 10) >= today).length, 0) };
+  }, [events, today]);
+  const regions = page.sections.find((s) => s.look === 'regions')?.links.length ?? 0;
+  const photo = page.photo && !photoFailed ? page.photo : null;
+
   return (
-    <article className="collection-page trails-page">
-      <header className="race-hero collection-hero">
-        <div className="collection-hero-night" aria-hidden="true">
-          <RidgeProfile kind="aiguilles" seed={page.seed} className="collection-hero-ridge" />
-        </div>
+    <article className="collection-page trails-page trails-index">
+      <header ref={heroRef} className={`race-hero trails-index-hero ${photo ? 'has-photo' : 'collection-hero'}`}>
+        {photo ? (
+          <img className="race-hero-photo" src={photo} alt="" onError={() => setPhotoFailed(true)} />
+        ) : (
+          <div className="collection-hero-night" aria-hidden="true">
+            <RidgeProfile kind="aiguilles" seed={page.seed} className="collection-hero-ridge" />
+          </div>
+        )}
         <div className="race-hero-shade" aria-hidden="true" />
         <div className="race-hero-content">
           <Breadcrumb links={page.breadcrumb} />
           <h1 className="race-title">{page.h1}</h1>
           <p className="collection-lede">{page.intro}</p>
+          <ul className="trails-facts" aria-label="La base en chiffres">
+            <li>
+              <b>{nf.format(totals.events)}</b> événements
+            </li>
+            <li>
+              <b>{nf.format(totals.courses)}</b> courses
+            </li>
+            {regions > 0 && (
+              <li>
+                <b>{regions}</b> régions
+              </li>
+            )}
+          </ul>
         </div>
+        <RidgeProfile kind="hautes" seed={page.seed} className="massif-hero-ridge" />
       </header>
 
-      <div ref={bodyRef} className="collection-body">
-        <Sections sections={page.sections} />
+      <div ref={bodyRef} className="collection-body trails-index-body">
+        {page.sections.map((s) =>
+          s.look === 'regions' ? (
+            <RegionCards key={s.title} section={s} />
+          ) : s.look === 'formats' ? (
+            <FormatTiles key={s.title} section={s} />
+          ) : s.look === 'months' ? (
+            <MonthTiles key={s.title} section={s} />
+          ) : (
+            <nav key={s.title} className="massif-others trails-block" aria-label={s.title}>
+              <h2 className="trails-block-title">{s.title}</h2>
+              <ul>
+                {s.links.map((l) => (
+                  <li key={l.path}>
+                    <Link to={to(l.path)} className="chip-link">
+                      {l.label}
+                      {l.count != null && ` · ${l.count}`}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </nav>
+          ),
+        )}
       </div>
     </article>
+  );
+}
+
+const eventsLabel = (n: number) => `${nf.format(n)} ${n > 1 ? 'événements' : 'événement'}`;
+
+/** Régions en vignettes photo, dans le style des affiches de collections. */
+function RegionCards({ section }: { section: LinkSection }) {
+  const [broken, setBroken] = useState<Set<string>>(() => new Set());
+  return (
+    <nav className="trails-block" aria-label={section.title}>
+      <h2 className="trails-block-title">{section.title}</h2>
+      <ul className="trails-region-grid">
+        {section.links.map((l, i) => {
+          const photo = l.photo && !broken.has(l.photo) ? l.photo : null;
+          return (
+            <li key={l.path} style={{ '--tilt': `${[-1.2, 0.9, -0.5, 1.3, -0.9][i % 5]}deg` } as React.CSSProperties}>
+              <Link to={to(l.path)} className={`poster trails-region ${photo ? 'has-photo' : ''}`}>
+                {photo ? (
+                  <img className="poster-photo" src={photo} alt="" loading="lazy" onError={() => setBroken((b) => new Set(b).add(photo))} />
+                ) : (
+                  <RidgeProfile kind={(['hautes', 'puys', 'ballons', 'aiguilles', 'plis'] as const)[i % 5]} seed={i + 5} className="poster-ridge" />
+                )}
+                <span className="poster-shade" aria-hidden="true" />
+                {l.count != null && <span className="poster-count">{eventsLabel(l.count)}</span>}
+                <span className="poster-title">{l.label}</span>
+              </Link>
+            </li>
+          );
+        })}
+      </ul>
+    </nav>
+  );
+}
+
+/** Formats en tuiles épaisses, rose et bleu nuit en alternance. */
+function FormatTiles({ section }: { section: LinkSection }) {
+  return (
+    <nav className="trails-block" aria-label={section.title}>
+      <h2 className="trails-block-title">{section.title}</h2>
+      <ul className="trails-format-grid">
+        {section.links.map((l) => (
+          <li key={l.path}>
+            <Link to={to(l.path)} className="trails-format">
+              <span className="trails-format-label">{l.label}</span>
+              {l.count != null && <span className="trails-format-count">{eventsLabel(l.count)}</span>}
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </nav>
+  );
+}
+
+/** Mois en pages de calendrier. */
+function MonthTiles({ section }: { section: LinkSection }) {
+  return (
+    <nav className="trails-block" aria-label={section.title}>
+      <h2 className="trails-block-title">{section.title}</h2>
+      <ul className="trails-month-grid">
+        {section.links.map((l) => {
+          const [name, year] = l.label.split(' ');
+          return (
+            <li key={l.path}>
+              <Link to={to(l.path)} className="trails-month">
+                <span className="trails-month-name">{name}</span>
+                <span className="trails-month-year">{year}</span>
+                {l.count != null && (
+                  <span className="trails-month-count">
+                    {nf.format(l.count)} <small>{l.count > 1 ? 'événements' : 'événement'}</small>
+                  </span>
+                )}
+              </Link>
+            </li>
+          );
+        })}
+      </ul>
+    </nav>
   );
 }

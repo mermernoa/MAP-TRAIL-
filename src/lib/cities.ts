@@ -12,6 +12,8 @@ export interface PageLink {
   /** Adresse sans barre initiale, '' pour l'accueil. */
   path: string;
   count?: number;
+  /** Photo de la vignette (pages régions de l'index). */
+  photo?: string | null;
 }
 
 // ——— Grandes villes ———

@@ -2787,3 +2787,260 @@ button.list-more {
   font-size: 24px;
 }
 
+
+/* ---------- Index des pages Trails (/trails/) ---------- */
+.trails-index-hero {
+  min-height: min(78vh, 680px);
+}
+
+.trails-index-hero .race-title {
+  color: #fe66c4;
+  -webkit-text-stroke: 2px #071c3f;
+  paint-order: stroke fill;
+  text-shadow: 4px 5px 0 #071c3f;
+  max-width: 14ch;
+}
+
+.trails-index-hero .collection-lede {
+  max-width: 58ch;
+  color: #ffffff;
+  text-shadow: 0 1px 12px rgba(4, 14, 32, 0.6);
+}
+
+.trails-facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 8px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.trails-facts li {
+  padding: 6px 14px;
+  border: 2px solid #071c3f;
+  border-radius: 999px;
+  background: #ffffff;
+  color: #071c3f;
+  font-weight: 700;
+  box-shadow: 3px 3px 0 #071c3f;
+  transform: rotate(-1.5deg);
+}
+
+.trails-facts li:nth-child(2) {
+  background: #fe66c4;
+  transform: rotate(1.2deg);
+}
+
+.trails-facts li:nth-child(3) {
+  background: #c554a5;
+  color: #ffffff;
+  transform: rotate(-0.6deg);
+}
+
+.trails-facts b {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 1.25em;
+}
+
+.trails-index-body {
+  gap: 56px;
+}
+
+.trails-block {
+  display: grid;
+  gap: 18px;
+  min-width: 0;
+}
+
+.trails-block-title,
+.massif-others.trails-block h2.trails-block-title {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(34px, 4.4vw, 54px);
+  line-height: 1;
+  color: var(--ink);
+}
+
+.trails-block-title::after {
+  content: '';
+  display: block;
+  width: 72px;
+  height: 6px;
+  margin-top: 10px;
+  border-radius: 999px;
+  background: #fe66c4;
+}
+
+/* Régions : vignettes photo (même dessin que les affiches de collections, en paysage). */
+.trails-region-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 22px;
+  margin: 0;
+  padding: 6px 4px 8px;
+  list-style: none;
+}
+
+.trails-region-grid > li {
+  min-width: 0;
+}
+
+.trails-region {
+  aspect-ratio: 4 / 3;
+}
+
+.trails-region .poster-title {
+  font-size: 26px;
+}
+
+/* Formats : tuiles épaisses, rose et bleu nuit en alternance. */
+.trails-format-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 14px;
+  margin: 0;
+  padding: 0 4px 6px 0;
+  list-style: none;
+}
+
+.trails-format {
+  display: grid;
+  gap: 6px;
+  height: 100%;
+  padding: 16px 18px;
+  border: 2px solid #071c3f;
+  border-radius: 14px;
+  background: #fe66c4;
+  color: #071c3f;
+  text-decoration: none;
+  box-shadow: 4px 4px 0 #071c3f;
+  transition:
+    transform 0.25s cubic-bezier(0.3, 1.4, 0.5, 1),
+    box-shadow 0.25s ease;
+}
+
+.trails-format-grid > li:nth-child(even) .trails-format {
+  background: #071c3f;
+  color: #ffffff;
+  box-shadow: 4px 4px 0 #fe66c4;
+}
+
+.trails-format:hover,
+.trails-format:focus-visible {
+  transform: translateY(-4px) rotate(-0.8deg);
+}
+
+.trails-format-label {
+  font-family: var(--font-display);
+  font-size: 24px;
+  line-height: 1.05;
+}
+
+.trails-format-count {
+  font-size: 13px;
+  font-weight: 700;
+  opacity: 0.85;
+}
+
+/* Mois : pages de calendrier façon dossard. */
+.trails-month-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 14px;
+  margin: 0;
+  padding: 0 4px 6px 0;
+  list-style: none;
+}
+
+.trails-month {
+  display: grid;
+  justify-items: center;
+  gap: 2px;
+  padding: 0 0 12px;
+  overflow: hidden;
+  border: 2px solid #071c3f;
+  border-radius: 12px;
+  background: var(--surface, #ffffff);
+  color: #071c3f;
+  text-decoration: none;
+  box-shadow: 3px 3px 0 #071c3f;
+  transition: transform 0.25s cubic-bezier(0.3, 1.4, 0.5, 1);
+}
+
+.trails-month:hover,
+.trails-month:focus-visible {
+  transform: translateY(-4px);
+}
+
+.trails-month-name {
+  justify-self: stretch;
+  padding: 6px 4px;
+  background: #fe66c4;
+  border-bottom: 2px solid #071c3f;
+  text-align: center;
+  font-family: var(--font-display);
+  font-size: 20px;
+  text-transform: capitalize;
+}
+
+.trails-month-year {
+  font-size: 12px;
+  font-weight: 700;
+  color: #854183;
+}
+
+.trails-month-count {
+  display: grid;
+  justify-items: center;
+  font-family: var(--font-display);
+  font-size: 34px;
+  line-height: 1;
+}
+
+.trails-month-count small {
+  font-family: var(--font);
+  font-size: 12px;
+  font-weight: 700;
+  color: #472f61;
+}
+
+@media (max-width: 640px) {
+  .trails-index-hero {
+    min-height: 560px;
+  }
+
+  .trails-index-hero .race-title {
+    max-width: none;
+    font-size: clamp(34px, 10vw, 44px);
+    -webkit-text-stroke-width: 1.5px;
+    text-shadow: 3px 3px 0 #071c3f;
+  }
+
+  .trails-block .trails-block-title {
+    font-size: 32px;
+  }
+
+  .trails-region-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+  }
+
+  .trails-region .poster-title {
+    font-size: 20px;
+  }
+
+  .trails-format-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .trails-format-label {
+    font-size: 19px;
+  }
+
+  .trails-month-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+  }
+}

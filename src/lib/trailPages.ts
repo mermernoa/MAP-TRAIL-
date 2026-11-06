@@ -17,6 +17,7 @@ import { normalize } from './filters';
 import { massifByName } from './massifs';
 import { type City, type PageLink, CITIES, CITY_RADIUS_KM, cityDep } from './cities';
 import { haversineKm } from './metrics';
+import { regionPhoto, TRAILS_PHOTO } from './regionPhotos';
 import { eventsWord } from './words';
 
 export type { PageLink } from './cities';
@@ -169,6 +170,8 @@ export interface TrailItem {
 export interface LinkSection {
   title: string;
   links: PageLink[];
+  /** Mise en forme particulière sur l'index : vignettes photo, tuiles de mois… */
+  look?: 'regions' | 'formats' | 'months';
 }
 
 export type TrailsKind = 'index' | 'region' | 'departement' | 'ville' | 'format' | 'croisement' | 'mois';
@@ -194,6 +197,8 @@ export interface TrailsPageData {
   noindex: boolean;
   /** Centre du relief en tête de page (sinon un décor de crêtes). */
   center: { lat: number; lng: number } | null;
+  /** Photo du haut de page (celle de la région), prioritaire sur le relief. */
+  photo: string | null;
   seed: number;
   /** Bouton « Voir sur la carte ». */
   map: { label: string; filters: Partial<Filters> } | null;
@@ -397,6 +402,7 @@ function buildSite(events: RaceEvent[], today: string): TrailsSite {
       ]),
       noindex: place.items.length < MIN_INDEXED || twin,
       center: r.name === 'Outre-mer' ? null : centerOf(place.items),
+      photo: regionPhoto(r.slug),
       seed: seedOf(r.slug),
     });
   }
@@ -436,6 +442,7 @@ function buildSite(events: RaceEvent[], today: string): TrailsSite {
       ]),
       noindex: place.items.length < MIN_INDEXED,
       center: centerOf(place.items),
+      photo: regionPhoto(place.region.slug),
       seed: dep.code.charCodeAt(0) + dep.code.length * 7,
     });
   }
@@ -481,6 +488,7 @@ function buildSite(events: RaceEvent[], today: string): TrailsSite {
       ]),
       noindex: !cityPublished(city),
       center: { lat: city.lat, lng: city.lng },
+      photo: regionPhoto(region.slug),
       seed: seedOf(city.slug),
       map: items.length
         ? { label: `Voir les courses ${city.nearName} sur la carte`, filters: { near: { lat: city.lat, lng: city.lng, radiusKm: CITY_RADIUS_KM, label: `Près ${city.nearName.slice(5)}` } } }
@@ -522,6 +530,7 @@ function buildSite(events: RaceEvent[], today: string): TrailsSite {
       ]),
       noindex: items.length < MIN_INDEXED,
       center: null,
+      photo: null,
       seed: seedOf(f.slug),
     });
   }
@@ -570,6 +579,7 @@ function buildSite(events: RaceEvent[], today: string): TrailsSite {
         },
       ]),
       center: place.region.name === 'Outre-mer' && place.kind === 'region' ? null : centerOf(x.items),
+      photo: regionPhoto(place.region.slug),
       seed: seedOf(x.slug),
     });
   }
@@ -614,6 +624,7 @@ function buildSite(events: RaceEvent[], today: string): TrailsSite {
       ]),
       noindex: items.length < MIN_INDEXED,
       center: null,
+      photo: null,
       seed: month.m * 3 + month.y,
       map: items.length
         ? {
@@ -642,13 +653,14 @@ function buildSite(events: RaceEvent[], today: string): TrailsSite {
     listTitle: '',
     breadcrumb: [HOME],
     sections: nonEmpty([
-      { title: 'Par région', links: regionsSorted.map(depLink) },
+      { title: 'Par région', look: 'regions', links: regionsSorted.map((p) => ({ ...depLink(p), photo: regionPhoto(p.slug) })) },
       { title: 'Près des grandes villes', links: CITIES.filter((c) => cityItems.get(c)!.length).map(cityLink) },
-      { title: 'Par format', links: FORMATS.map(formatLink) },
-      { title: 'Par mois', links: monthList.map(({ month, count }) => ({ label: month.label, path: `trails/${month.slug}`, count })) },
+      { title: 'Par format', look: 'formats', links: FORMATS.map(formatLink) },
+      { title: 'Par mois', look: 'months', links: monthList.map(({ month, count }) => ({ label: month.label, path: `trails/${month.slug}`, count })) },
       ...regionsSorted.map((r) => ({ title: `Départements ${r.region.inName}`, links: [...depPlaces.values()].filter((d) => d.region === r.region).map(depLink) })),
     ]),
     center: null,
+    photo: TRAILS_PHOTO,
     seed: 11,
   });
 
