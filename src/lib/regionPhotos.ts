@@ -57,6 +57,8 @@ const CITY_PHOTOS: Record<string, string> = {
   Paris: 'paris',
   Pau: 'pau',
   Perpignan: 'perpignan',
+  Poitiers: 'poitiers',
+  Reims: 'reims',
   Rennes: 'rennes',
   Rouen: 'rouen',
   'Saint-Denis': 'saint-denis-la-reunion',
