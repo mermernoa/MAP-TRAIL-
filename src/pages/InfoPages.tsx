@@ -7,14 +7,8 @@ import { useCatalog } from '../store/catalog';
 import { infoTitle } from '../lib/seoTitles';
 import { GA_ID, resetConsent } from '../lib/analytics';
 
-export const INFO_LINKS = [
-  { to: '/a-propos', label: 'À propos' },
-  { to: '/contact', label: 'Contact' },
-  { to: '/signaler', label: 'Signaler une erreur' },
-  { to: '/proposer-une-course', label: 'Proposer une course' },
-  { to: '/mentions-legales', label: 'Mentions légales' },
-  { to: '/confidentialite', label: 'Confidentialité' },
-];
+import { INFO_LINKS } from '../lib/infoLinks';
+export { INFO_LINKS };
 
 /** Gabarit commun des pages d'information : titre, sommaire des pages voisines, contenu. */
 export function InfoLayout({ title, lede, children }: { title: string; lede?: string; children: React.ReactNode }) {

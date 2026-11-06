@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import type { RaceEvent } from '../data/types';
 import {
   consistencyIssues,
+  tidyName,
   convertSheet,
   fixPrice,
   isTentativeDate,
@@ -170,5 +171,15 @@ describe('contrôles entre lignes', () => {
       ev('evt8-tru', 'Trail des truffières', 'Saint-Paul', 'Drôme (26)', 44.35, 4.77, '2026-11-15'),
     ]);
     expect(issues.map((i) => i.rowId)).toEqual(['EVT4', 'EVT6']);
+  });
+});
+
+describe('noms des événements', () => {
+  it('met les petits mots en minuscules sans toucher aux noms propres', () => {
+    expect(tidyName("La Foulée Des Monts D'Ain")).toBe("La Foulée des Monts d'Ain");
+    expect(tidyName("Le Téléthon D'ille")).toBe("Le Téléthon d'Ille");
+    expect(tidyName('Trail Du Val De Scie')).toBe('Trail du Val de Scie');
+    expect(tidyName('Trail de La Turbie')).toBe('Trail de La Turbie');
+    expect(tidyName('Des Lacs Et Des Bois')).toBe('Des Lacs et des Bois');
   });
 });

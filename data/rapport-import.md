@@ -1,6 +1,6 @@
 # Rapport d’import de la base des courses
 
-Import du 01/11/2026 18:17:18 depuis 4 fichier(s) JSON de l'API Sheets.
+Import du 06/11/2026 23:29:33 depuis 4 fichier(s) JSON de l'API Sheets.
 
 - 3185 lignes lues, 3167 publiées (statuts Validé, Prêt, En ligne), non publiées : 18 « À vérifier ».
 - 1266 événements et 3167 parcours sur le site.
@@ -13,12 +13,12 @@ Aucune.
 
 ## À vérifier (55)
 
-- **EVT001** La Foulée Des Monts D'Ain : Photo : le lien ouvre une page web, pas une image (photo ignorée).
+- **EVT001** La Foulée des Monts d'Ain : Photo : le lien ouvre une page web, pas une image (photo ignorée).
 - **EVT002** Val'Oween Trail : Photo : vignette de recherche Google, à remplacer par le lien de l’image d’origine (photo ignorée).
 - **EVT003** 1000D Suisse Normande Trail : Photo : vignette de recherche Google, à remplacer par le lien de l’image d’origine (photo ignorée).
 - **EVT005** Eco Valet’trail : Photo : vignette de recherche Google, à remplacer par le lien de l’image d’origine (photo ignorée).
 - **EVT007** La Dionysienne - Course nature : Photo : vignette de recherche Google, à remplacer par le lien de l’image d’origine (photo ignorée).
-- **EVT011** Alpi Trail De Pichauris : Photo : vignette de recherche Google, à remplacer par le lien de l’image d’origine (photo ignorée).
+- **EVT011** Alpi Trail de Pichauris : Photo : vignette de recherche Google, à remplacer par le lien de l’image d’origine (photo ignorée).
 - **EVT013** Trail des Gorges de la Jonte : Photo : vignette de recherche Google, à remplacer par le lien de l’image d’origine (photo ignorée).
 - **EVT023** Royat Trail Tour : Photo : vignette de recherche Google, à remplacer par le lien de l’image d’origine (photo ignorée).
 - **EVT028** Trail de l'Arclusaz : Photo : vignette de recherche Google, à remplacer par le lien de l’image d’origine (photo ignorée).
@@ -137,7 +137,7 @@ La feuille reprend le jour et le mois de l’édition précédente avec l’ann�
 | **EVT470** Foulées du Père Noël | lundi 7 décembre 2026 | dimanche 6 décembre 2026 |
 | **EVT471** Trail de Noël | lundi 7 décembre 2026 | dimanche 6 décembre 2026 |
 | **EVT472** Trail du Loperhethon | lundi 7 décembre 2026 | dimanche 6 décembre 2026 |
-| **EVT473** Le Téléthon D'ille | lundi 7 décembre 2026 | dimanche 6 décembre 2026 |
+| **EVT473** Le Téléthon d'Ille | lundi 7 décembre 2026 | dimanche 6 décembre 2026 |
 | **EVT474** Trail urbain de Lannion | lundi 7 décembre 2026 | dimanche 6 décembre 2026 |
 | **EVT475** Run range by night | lundi 7 décembre 2026 | dimanche 6 décembre 2026 |
 | **EVT476** Trail de la chesnaie | mardi 8 décembre 2026 | dimanche 6 décembre 2026 |
@@ -154,12 +154,12 @@ La feuille reprend le jour et le mois de l’édition précédente avec l’ann�
 | **EVT528** Trail ajolais | lundi 14 décembre 2026 | dimanche 13 décembre 2026 |
 | **EVT529** Course Nature Guignennaise | lundi 14 décembre 2026 | dimanche 13 décembre 2026 |
 | **EVT543** Trail charette | dimanche 20 décembre 2026 | samedi 19 décembre 2026 |
-| **EVT551** Trail Du Facteur | dimanche 20 décembre 2026 | samedi 19 décembre 2026 |
+| **EVT551** Trail du Facteur | dimanche 20 décembre 2026 | samedi 19 décembre 2026 |
 | **EVT552** La 1418 noctrail | dimanche 20 décembre 2026 | samedi 19 décembre 2026 |
 | **EVT553** Trail nocturne de Vervins | dimanche 20 décembre 2026 | samedi 19 décembre 2026 |
 | **EVT554** LHSA trail aventure | lundi 21 décembre 2026 | dimanche 20 décembre 2026 |
 | **EVT556** Trail hivernal des Villards by Dare2B | lundi 21 décembre 2026 | dimanche 20 décembre 2026 |
-| **EVT557** Trail De Noël de Dampierre-sur-Linotte | lundi 21 décembre 2026 | dimanche 20 décembre 2026 |
+| **EVT557** Trail de Noël de Dampierre-sur-Linotte | lundi 21 décembre 2026 | dimanche 20 décembre 2026 |
 | **EVT558** La vandrimaraise | mardi 22 décembre 2026 | dimanche 20 décembre 2026 |
 | **EVT563** Corrida pédestre de Moutiers | lundi 28 décembre 2026 | dimanche 27 décembre 2026 |
 | **EVT564** Trail de la via romana occitana | lundi 28 décembre 2026 | dimanche 27 décembre 2026 |
@@ -196,7 +196,7 @@ La feuille reprend le jour et le mois de l’édition précédente avec l’ann�
 | **EVT611** La caropolitaine | lundi 11 janvier 2027 | dimanche 10 janvier 2027 |
 | **EVT612** Trail du calvaire Aramon | lundi 11 janvier 2027 | dimanche 10 janvier 2027 |
 | **EVT613** Beille Trail | lundi 11 janvier 2027 | dimanche 10 janvier 2027 |
-| **EVT614** Trail Des Vikings | lundi 11 janvier 2027 | dimanche 10 janvier 2027 |
+| **EVT614** Trail des Vikings | lundi 11 janvier 2027 | dimanche 10 janvier 2027 |
 | **EVT615** Raid du morne Pitault | lundi 11 janvier 2027 | dimanche 10 janvier 2027 |
 | **EVT616** RURban Noz Trail de Daoulas | lundi 11 janvier 2027 | dimanche 10 janvier 2027 |
 | **EVT617** Les foulées du malbec | mardi 12 janvier 2027 | dimanche 10 janvier 2027 |
@@ -257,7 +257,7 @@ La feuille reprend le jour et le mois de l’édition précédente avec l’ann�
 | **EVT692** Trail Chantelle sports nature | dimanche 24 janvier 2027 | samedi 23 janvier 2027 |
 | **EVT693** Le dernier homme debout Morvan | dimanche 24 janvier 2027 | samedi 23 janvier 2027 |
 | **EVT694** Trail Tous Pour Alex | dimanche 24 janvier 2027 | samedi 23 janvier 2027 |
-| **EVT695** Foulée De La Cote Ouest | dimanche 24 janvier 2027 | samedi 23 janvier 2027 |
+| **EVT695** Foulée de La Cote Ouest | dimanche 24 janvier 2027 | samedi 23 janvier 2027 |
 | **EVT696** Tbz trail de baziege survivor | dimanche 24 janvier 2027 | samedi 23 janvier 2027 |
 | **EVT697** Trail solidaire urbain des manuscrits | dimanche 24 janvier 2027 | samedi 23 janvier 2027 |
 | **EVT698** L'hivernale de la grande champagne | dimanche 24 janvier 2027 | samedi 23 janvier 2027 |
@@ -279,7 +279,7 @@ La feuille reprend le jour et le mois de l’édition précédente avec l’ann�
 | **EVT714** Trail des pirates | lundi 25 janvier 2027 | dimanche 24 janvier 2027 |
 | **EVT715** Urban trail lillebonne | lundi 25 janvier 2027 | dimanche 24 janvier 2027 |
 | **EVT716** Trail des moines | lundi 25 janvier 2027 | dimanche 24 janvier 2027 |
-| **EVT717** Trail Des Neiges | lundi 25 janvier 2027 | dimanche 24 janvier 2027 |
+| **EVT717** Trail des Neiges | lundi 25 janvier 2027 | dimanche 24 janvier 2027 |
 | **EVT718** La martiniquaise | lundi 25 janvier 2027 | dimanche 24 janvier 2027 |
 | **EVT719** Le nordic trail | lundi 25 janvier 2027 | dimanche 24 janvier 2027 |
 | **EVT720** Etampes trolls | lundi 25 janvier 2027 | dimanche 24 janvier 2027 |
@@ -301,7 +301,7 @@ La feuille reprend le jour et le mois de l’édition précédente avec l’ann�
 | **EVT743** Virées du golf | dimanche 31 janvier 2027 | samedi 30 janvier 2027 |
 | **EVT744** Trail Blanc Joux-Plane | dimanche 31 janvier 2027 | samedi 30 janvier 2027 |
 | **EVT747** Maxicross | dimanche 31 janvier 2027 | samedi 30 janvier 2027 |
-| **EVT748** Trail Blanc Du Grandvaux | dimanche 31 janvier 2027 | samedi 30 janvier 2027 |
+| **EVT748** Trail Blanc du Grandvaux | dimanche 31 janvier 2027 | samedi 30 janvier 2027 |
 | **EVT749** Raidlight winter trail | dimanche 31 janvier 2027 | samedi 30 janvier 2027 |
 | **EVT750** THCN - Traversée des Hautes Côtes-de-Nuit | dimanche 31 janvier 2027 | samedi 30 janvier 2027 |
 | **EVT751** Le trail blanc du Semnoz | dimanche 31 janvier 2027 | samedi 30 janvier 2027 |
@@ -371,7 +371,7 @@ La feuille reprend le jour et le mois de l’édition précédente avec l’ann�
 | **EVT838** L'Eynavay'trail | lundi 8 février 2027 | dimanche 7 février 2027 |
 | **EVT839** Foulées et Trail des résistants | lundi 8 février 2027 | dimanche 7 février 2027 |
 | **EVT840** La mazerollaise | lundi 8 février 2027 | dimanche 7 février 2027 |
-| **EVT841** Trail Des 2 Clochers | lundi 8 février 2027 | dimanche 7 février 2027 |
+| **EVT841** Trail des 2 Clochers | lundi 8 février 2027 | dimanche 7 février 2027 |
 | **EVT842** Les courses des casemates | lundi 8 février 2027 | dimanche 7 février 2027 |
 | **EVT843** Trail des loups | lundi 8 février 2027 | dimanche 7 février 2027 |
 | **EVT844** Trail du bois de Trémelin | lundi 8 février 2027 | dimanche 7 février 2027 |

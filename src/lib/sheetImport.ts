@@ -299,7 +299,7 @@ export function convertSheet(input: string[][], publishedStatuses: string[] = PU
   const events: RaceEvent[] = [];
   for (const [code, rows] of groups) {
     rows.sort((a, b) => get(a, 'ID course').localeCompare(get(b, 'ID course')));
-    const name = mostCommon(rows.map((r) => get(r, "Nom de l'événement")));
+    const name = tidyName(mostCommon(rows.map((r) => get(r, "Nom de l'événement"))));
     const warn = (rowId: string, message: string, level: ImportIssue['level'] = 'warning') =>
       issues.push({ level, rowId, event: name, message });
 
@@ -533,6 +533,24 @@ export function parseCsv(text: string): string[][] {
     rows.push(row);
   }
   return rows;
+}
+
+/**
+ * Petits mots en minuscules dans un nom saisi « Tout En Majuscules » : « La Foulée Des Monts
+ * D'Ain » → « La Foulée des Monts d'Ain ». Le premier mot et les articles La / Le / Les
+ * (souvent dans un nom propre : La Turbie, La Charolaise) ne bougent pas. L'adresse de la
+ * fiche ne change pas (elle est déjà en minuscules).
+ */
+export function tidyName(name: string): string {
+  return name
+    .split(' ')
+    .map((w, i) => {
+      if (i === 0) return w;
+      if (/^(De|Des|Du|Et|Aux|Au|En|Sur|Sous)$/.test(w)) return w.toLowerCase();
+      const m = w.match(/^(D|L)(['’])(\p{L})(.*)$/u);
+      return m ? `${m[1].toLowerCase()}${m[2]}${m[3].toUpperCase()}${m[4]}` : w;
+    })
+    .join(' ');
 }
 
 const codeOf = (e: RaceEvent) => e.id.split('-')[0].toUpperCase();

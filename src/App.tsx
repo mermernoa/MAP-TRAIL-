@@ -9,10 +9,8 @@ import { CalendarPage } from './pages/CalendarPage';
 import { CollectionPage } from './pages/CollectionPage';
 import { HighlightsPage } from './pages/HighlightsPage';
 import { HomePage } from './pages/HomePage';
-import { AboutPage, LegalPage, PrivacyPage } from './pages/InfoPages';
 import { MapPage } from './pages/MapPage';
 import { MassifPage } from './pages/MassifPage';
-import { ContactPage, ProposePage, ReportPage } from './pages/MessagePages';
 import { RacePage } from './pages/RacePage';
 import { SeasonPage } from './pages/SeasonPage';
 import { ROUTER_BASENAME } from './lib/base';
@@ -25,6 +23,13 @@ import { ConsentBanner } from './components/ConsentBanner';
 
 // Espace admin : chargé seulement quand on l'ouvre.
 const AdminPage = lazy(() => import('./pages/AdminPage'));
+// Pages d'information et formulaires : peu visitées, chargées à la demande.
+const AboutPage = lazy(() => import('./pages/InfoPages').then((m) => ({ default: m.AboutPage })));
+const LegalPage = lazy(() => import('./pages/InfoPages').then((m) => ({ default: m.LegalPage })));
+const PrivacyPage = lazy(() => import('./pages/InfoPages').then((m) => ({ default: m.PrivacyPage })));
+const ContactPage = lazy(() => import('./pages/MessagePages').then((m) => ({ default: m.ContactPage })));
+const ProposePage = lazy(() => import('./pages/MessagePages').then((m) => ({ default: m.ProposePage })));
+const ReportPage = lazy(() => import('./pages/MessagePages').then((m) => ({ default: m.ReportPage })));
 // Pages Trails (régions, villes, formats…) : chargées à la demande, comme l'espace admin.
 const TrailsPage = lazy(() => import('./pages/TrailsPage').then((m) => ({ default: m.TrailsPage })));
 
@@ -196,12 +201,12 @@ function PageRoutes() {
         <Route path="/massif/:slug" element={<MassifPage />} />
         <Route path="/trails" element={<LazyPage><TrailsPage /></LazyPage>} />
         <Route path="/trails/:slug" element={<LazyPage><TrailsPage /></LazyPage>} />
-        <Route path="/a-propos" element={<AboutPage />} />
-        <Route path="/contact" element={<ContactPage />} />
-        <Route path="/signaler" element={<ReportPage />} />
-        <Route path="/proposer-une-course" element={<ProposePage />} />
-        <Route path="/mentions-legales" element={<LegalPage />} />
-        <Route path="/confidentialite" element={<PrivacyPage />} />
+        <Route path="/a-propos" element={<LazyPage><AboutPage /></LazyPage>} />
+        <Route path="/contact" element={<LazyPage><ContactPage /></LazyPage>} />
+        <Route path="/signaler" element={<LazyPage><ReportPage /></LazyPage>} />
+        <Route path="/proposer-une-course" element={<LazyPage><ProposePage /></LazyPage>} />
+        <Route path="/mentions-legales" element={<LazyPage><LegalPage /></LazyPage>} />
+        <Route path="/confidentialite" element={<LazyPage><PrivacyPage /></LazyPage>} />
         <Route path="/course/:id" element={<RacePage />} />
         <Route path="/ma-saison" element={<SeasonPage />} />
         <Route path="/compte" element={<AccountPage />} />

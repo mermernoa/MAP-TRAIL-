@@ -1,5 +1,6 @@
 import type { RaceEvent } from '../data/types';
-import { type Departement, DEPARTEMENTS, departementOf, slugify } from './departements';
+import { type Departement, DEPARTEMENTS, departementOf, regionOf, slugify } from './departements';
+import { FORMATS, formatPath } from './formats';
 import { haversineKm } from './metrics';
 
 /**
@@ -99,6 +100,16 @@ export function nearestCity(lat: number, lng: number): { city: City; km: number 
   return best;
 }
 
+// Nombre d'événements par format, calculé une fois par base et par jour.
+const countCache = new WeakMap<RaceEvent[], { today: string; counts: number[] }>();
+function formatCounts(events: RaceEvent[], upcoming: RaceEvent[], today: string): number[] {
+  const hit = countCache.get(events);
+  if (hit && hit.today === today) return hit.counts;
+  const counts = FORMATS.map((f) => upcoming.filter((e) => e.courses.some((c) => c.start.slice(0, 10) >= today && f.pick(e, c))).length);
+  countCache.set(events, { today, counts });
+  return counts;
+}
+
 /** Liens discrets en bas d'une fiche course : la grande ville la plus proche et le département. */
 export function courseNearbyLinks(event: RaceEvent, events: RaceEvent[], today: string): PageLink[] {
   if (event.custom) return [];
@@ -113,6 +124,17 @@ export function courseNearbyLinks(event: RaceEvent, events: RaceEvent[], today: 
   if (dep) {
     const count = upcoming.filter((e) => departementOf(e) === dep).length;
     if (count > 1) out.push({ label: `Autres trails ${dep.inName}`, path: `trails/${dep.slug}`, count });
+    const region = regionOf(dep);
+    const inRegion = upcoming.filter((e) => departementOf(e)?.region === dep.region).length;
+    if (inRegion > count) out.push({ label: `Trails ${region.inName}`, path: `trails/${region.slug}`, count: inRegion });
   }
+  // Les formats de la course (« Ultra-trails en France »…), vers leur page nationale.
+  const future = (e: RaceEvent) => e.courses.filter((c) => c.start.slice(0, 10) >= today);
+  const counts = formatCounts(events, upcoming, today);
+  FORMATS.forEach((f, i) => {
+    if (future(event).some((c) => f.pick(event, c)) && counts[i] > 1) {
+      out.push({ label: f.collection ? f.label : `${f.label} en France`, path: formatPath(f), count: counts[i] });
+    }
+  });
   return out;
 }

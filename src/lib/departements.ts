@@ -141,6 +141,29 @@ byName.set('reunion', DEPARTEMENTS.find((d) => d.code === '974')!);
 const byCode = new Map(DEPARTEMENTS.map((d) => [d.code, d]));
 
 /** Département d'une course, d'après la colonne libre de la feuille (nom d'abord, puis numéro). */
+// ——— Régions ———
+
+export interface Region {
+  name: string;
+  slug: string;
+  /** « en Occitanie », « dans le Grand Est », « dans les Hauts-de-France ». */
+  inName: string;
+}
+
+const REGION_PREP: Record<string, string> = {
+  'Grand Est': 'dans le ',
+  'Hauts-de-France': 'dans les ',
+  'Pays de la Loire': 'dans les ',
+};
+
+export const REGIONS: Region[] = [...new Set(DEPARTEMENTS.map((d) => d.region))].map((name) => ({
+  name,
+  slug: slugify(name),
+  inName: name === 'Outre-mer' ? 'en outre-mer' : `${REGION_PREP[name] ?? 'en '}${name}`,
+}));
+
+export const regionOf = (d: Departement): Region => REGIONS.find((r) => r.name === d.region)!;
+
 export function departementOf(e: Pick<RaceEvent, 'department'>): Departement | undefined {
   const raw = e.department?.trim();
   if (!raw) return undefined;

@@ -76,7 +76,7 @@ describe('pages Trails', () => {
     expect(lyon.title).toMatch(/^Trail près de Lyon : calendrier \d{4}/);
     expect(lyon.items[0].km).toBeGreaterThan(5);
     expect(lyon.map?.filters.near).toMatchObject({ radiusKm: 50, label: 'Près de Lyon' });
-    expect(courseNearbyLinks(events[0], events, TODAY).map((l) => l.path)).toEqual(['trails/pres-de-lyon', 'trails/rhone']);
+    expect(courseNearbyLinks(events[0], events, TODAY).map((l) => l.path).slice(0, 2)).toEqual(['trails/pres-de-lyon', 'trails/rhone']);
   });
 
   it('donne des adresses, des titres et des descriptions uniques sur la vraie base', () => {

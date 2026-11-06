@@ -303,7 +303,8 @@ for (const e of events) {
     eventStatus: 'https://schema.org/EventScheduled',
     eventAttendanceMode: 'https://schema.org/OfflineEventAttendanceMode',
     url: `${SITE_URL}/course/${e.id}`,
-    image: [OG_IMAGE],
+    // La vraie photo de la course quand la base en a une (meilleure chance de résultat enrichi).
+    image: e.image ? [e.image, OG_IMAGE] : [OG_IMAGE],
     description: clip(`${e.name}, course de trail à ${place(e)}. Parcours : ${dist}.`, 300),
     location: {
       '@type': 'Place',

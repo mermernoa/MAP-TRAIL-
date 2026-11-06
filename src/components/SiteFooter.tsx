@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { CONTACT_EMAIL } from '../lib/messages';
-import { INFO_LINKS } from '../pages/InfoPages';
+import { INFO_LINKS } from '../lib/infoLinks';
 
 const EXPLORE_LINKS: { to: string; label: string; section?: string }[] = [
   { to: '/carte', label: 'Carte' },
