@@ -30,6 +30,7 @@ const PrivacyPage = lazy(() => import('./pages/InfoPages').then((m) => ({ defaul
 const ContactPage = lazy(() => import('./pages/MessagePages').then((m) => ({ default: m.ContactPage })));
 const ProposePage = lazy(() => import('./pages/MessagePages').then((m) => ({ default: m.ProposePage })));
 const ReportPage = lazy(() => import('./pages/MessagePages').then((m) => ({ default: m.ReportPage })));
+const OrganizersPage = lazy(() => import('./pages/InfoPages').then((m) => ({ default: m.OrganizersPage })));
 // Pages Trails (régions, villes, formats…) : chargées à la demande, comme l'espace admin.
 const TrailsPage = lazy(() => import('./pages/TrailsPage').then((m) => ({ default: m.TrailsPage })));
 
@@ -205,6 +206,7 @@ function PageRoutes() {
         <Route path="/contact" element={<LazyPage><ContactPage /></LazyPage>} />
         <Route path="/signaler" element={<LazyPage><ReportPage /></LazyPage>} />
         <Route path="/proposer-une-course" element={<LazyPage><ProposePage /></LazyPage>} />
+        <Route path="/organisateurs" element={<LazyPage><OrganizersPage /></LazyPage>} />
         <Route path="/mentions-legales" element={<LazyPage><LegalPage /></LazyPage>} />
         <Route path="/confidentialite" element={<LazyPage><PrivacyPage /></LazyPage>} />
         <Route path="/course/:id" element={<RacePage />} />

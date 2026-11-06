@@ -4,6 +4,7 @@ export const INFO_LINKS = [
   { to: '/contact', label: 'Contact' },
   { to: '/signaler', label: 'Signaler une erreur' },
   { to: '/proposer-une-course', label: 'Proposer une course' },
+  { to: '/organisateurs', label: 'Organisateurs' },
   { to: '/mentions-legales', label: 'Mentions légales' },
   { to: '/confidentialite', label: 'Confidentialité' },
 ];

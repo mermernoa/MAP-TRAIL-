@@ -1,9 +1,10 @@
-import { useEffect } from 'react';
-import { Link, NavLink } from 'react-router-dom';
+import { useEffect, useMemo, useState } from 'react';
+import { Link, NavLink, useSearchParams } from 'react-router-dom';
 import { CONTACT_EMAIL } from '../lib/messages';
 import { SITE } from '../lib/site';
 import { accountsEnabled } from '../lib/supabase';
 import { useCatalog } from '../store/catalog';
+import { normalize } from '../lib/filters';
 import { infoTitle } from '../lib/seoTitles';
 import { GA_ID, resetConsent } from '../lib/analytics';
 
@@ -359,3 +360,99 @@ export function PrivacyPage() {
     </InfoLayout>
   );
 }
+
+const SITE_URL = ((import.meta.env.VITE_SITE_URL as string | undefined) ?? 'https://taketontrail.fr').replace(/\/$/, '');
+const BADGES = [
+  { id: 'clair', label: 'Badge clair (fond blanc)', src: 'badge/take-ton-trail-clair.png' },
+  { id: 'sombre', label: 'Badge sombre (fond bleu nuit)', src: 'badge/take-ton-trail-sombre.png' },
+] as const;
+
+/** /organisateurs : le badge « Notre course sur Take Ton Trail » à coller sur le site de la course. */
+export function OrganizersPage() {
+  const events = useCatalog((s) => s.events);
+  const [params, setParams] = useSearchParams();
+  const [query, setQuery] = useState('');
+  const [copied, setCopied] = useState<string | null>(null);
+  const selected = events.find((e) => e.id === params.get('course')) ?? null;
+  const matches = useMemo(() => {
+    const q = normalize(query.trim());
+    if (q.length < 2) return [];
+    return events.filter((e) => normalize(`${e.name} ${e.city}`).includes(q)).slice(0, 8);
+  }, [events, query]);
+  const target = selected ? `${SITE_URL}/course/${selected.id}` : `${SITE_URL}/`;
+  const code = (src: string) =>
+    `<a href="${target}" title="${selected ? `${selected.name.replace(/"/g, '&quot;')} sur Take Ton Trail` : 'Take Ton Trail'}"><img src="${SITE_URL}/${src}" alt="Notre course sur Take Ton Trail" width="246" height="84"></a>`;
+  const copy = async (id: string, text: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopied(id);
+      window.setTimeout(() => setCopied(null), 2000);
+    } catch {
+      setCopied(null);
+    }
+  };
+
+  return (
+    <InfoLayout
+      title="Organisateurs"
+      lede="Ta course est sur Take Ton Trail ? Fais-le savoir ! Colle notre badge sur ton site : tes coureurs retrouvent la fiche, la carte et le calendrier, et ta course gagne en visibilité."
+    >
+      <section>
+        <h2>1. Choisis ta course</h2>
+        {selected ? (
+          <p>
+            Course choisie : <strong>{selected.name}</strong> ({selected.city}).{' '}
+            <button type="button" className="link-button" onClick={() => setParams({}, { replace: true })}>
+              Changer
+            </button>
+          </p>
+        ) : (
+          <>
+            <label className="organizers-search">
+              <span>Nom de la course ou ville</span>
+              <input type="search" value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Ex. : SaintéLyon, Annecy…" />
+            </label>
+            {matches.length > 0 && (
+              <ul className="organizers-results">
+                {matches.map((e) => (
+                  <li key={e.id}>
+                    <button type="button" className="chip-link" onClick={() => setParams({ course: e.id }, { replace: true })}>
+                      {e.name} · {e.city}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
+            <p className="muted">Sans course choisie, le badge renvoie vers l’accueil de Take Ton Trail.</p>
+          </>
+        )}
+      </section>
+      <section>
+        <h2>2. Copie le code du badge</h2>
+        <p>Colle ce code là où tu veux afficher le badge (page d’accueil, page d’inscription, pied de page…). Il fonctionne sur tous les sites : WordPress, Wix, Squarespace, site fait maison…</p>
+        <div className="organizers-badges">
+          {BADGES.map((b) => (
+            <figure key={b.id} className={`organizers-badge organizers-badge-${b.id}`}>
+              <img src={b.src} alt="Notre course sur Take Ton Trail" width={246} height={84} />
+              <figcaption>{b.label}</figcaption>
+              <textarea readOnly value={code(b.src)} rows={4} onFocus={(e) => e.currentTarget.select()} aria-label={`Code du ${b.label.toLowerCase()}`} />
+              <button type="button" className="button button-primary" onClick={() => copy(b.id, code(b.src))}>
+                {copied === b.id ? 'Copié !' : 'Copier le code'}
+              </button>
+            </figure>
+          ))}
+        </div>
+      </section>
+      <section>
+        <h2>3. Garde ta fiche à jour</h2>
+        <p>
+          Nouvelle date, nouveau parcours, prix ou ouverture des inscriptions :{' '}
+          <Link to={selected ? `/signaler?course=${encodeURIComponent(selected.id)}` : '/signaler'}>signale-le</Link>, la fiche est
+          corrigée à la main. Ta course n’est pas encore sur le site ? <Link to="/proposer-une-course">Propose-la</Link>. Une
+          question, un partenariat : <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>.
+        </p>
+      </section>
+    </InfoLayout>
+  );
+}
+

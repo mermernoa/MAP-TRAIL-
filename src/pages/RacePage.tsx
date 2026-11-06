@@ -358,6 +358,12 @@ function RaceDetail({ event }: { event: RaceEvent }) {
                 <Link to={`/signaler?course=${encodeURIComponent(event.id)}`}>Signaler une erreur</Link>
               </p>
             )}
+            {!event.custom && (
+              <p className="data-note">
+                Tu organises cette course ?{' '}
+                <Link to={`/organisateurs?course=${encodeURIComponent(event.id)}`}>Ajoute le badge Take Ton Trail sur ton site</Link>
+              </p>
+            )}
           </aside>
         </div>
         {nearby.length > 0 && (

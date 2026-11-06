@@ -89,7 +89,7 @@ const depLink = (e: RaceEvent) => {
 };
 
 const NAV = `<nav><a href="./">Accueil</a> · <a href="carte">Carte</a> · <a href="calendrier">Calendrier</a> · <a href="a-la-une">À la une</a> · <a href="ma-saison">Ma saison</a></nav>`;
-const FOOT = `<footer><p><a href="trails/">Trails par région, ville, format et mois</a> · <a href="a-propos">À propos</a> · <a href="contact">Contact</a> · <a href="proposer-une-course">Proposer une course</a> · <a href="mentions-legales">Mentions légales</a> · <a href="confidentialite">Confidentialité</a></p></footer>`;
+const FOOT = `<footer><p><a href="trails/">Trails par région, ville, format et mois</a> · <a href="a-propos">À propos</a> · <a href="contact">Contact</a> · <a href="proposer-une-course">Proposer une course</a> · <a href="organisateurs">Organisateurs</a> · <a href="mentions-legales">Mentions légales</a> · <a href="confidentialite">Confidentialité</a></p></footer>`;
 const MASSIF_LINKS = `<h2>Par massif</h2><ul>${MASSIFS.map((m) => `<li><a href="massif/${m.slug}">${esc(m.name)}</a></li>`).join('')}</ul>`;
 const COLLECTION_LINKS = `<h2>Par envie</h2><ul>${COLLECTIONS.map((c) => `<li><a href="collection/${c.slug}">${esc(c.title)}</a> : ${esc(c.tagline)}</li>`).join('')}</ul>`;
 
@@ -341,6 +341,7 @@ const STATIC: [string, string, string, boolean?][] = [
   ['a-propos', 'À propos', 'Toutes les courses de trail au même endroit : où, quand, combien de km et de D+, à quel prix, et quand ouvrent les inscriptions.'],
   ['contact', 'Contact', 'Une question, une idée, un partenariat ? Écris à Take Ton Trail : chaque message est lu.'],
   ['proposer-une-course', 'Proposer une course', 'Une course de trail manque à la carte ? Donne-nous l’essentiel : elle sera vérifiée sur son site officiel, puis ajoutée.'],
+  ['organisateurs', 'Organisateurs : le badge Take Ton Trail', 'Ta course est sur Take Ton Trail ? Colle notre badge sur ton site : tes coureurs retrouvent la fiche, la carte et le calendrier.'],
   ['signaler', 'Signaler une erreur', 'Une date a changé, un prix est faux ? Signale-le : la base est corrigée à la main.'],
   ['mentions-legales', 'Mentions légales', 'Éditeur, hébergement, sources des données et responsabilité du site Take Ton Trail.'],
   ['confidentialite', 'Confidentialité', 'Ce que Take Ton Trail conserve, pourquoi, où, combien de temps, et comment l’effacer.'],
