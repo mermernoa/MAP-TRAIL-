@@ -74,6 +74,16 @@ export const cityPhoto = (cityName: string): string | null => (CITY_PHOTOS[cityN
 
 
 /** Photos des formats (public/formats/<slug du format>.webp), elles aussi seulement sur /trails/. */
-const FORMAT_PHOTOS = new Set(['trails-courts', 'ultra-trails', 'trails-nocturnes', 'trails-blancs', 'trails-a-deux-ou-en-relais']);
+const FORMAT_PHOTOS = new Set([
+  'trails-courts',
+  'trails-20-a-40-km',
+  'trails-longs',
+  'ultra-trails',
+  'trails-nocturnes',
+  'trails-blancs',
+  'trails-a-deux-ou-en-relais',
+  'kilometres-verticaux',
+  'trails-pas-chers',
+]);
 
 export const formatPhoto = (formatSlug: string): string | null => (FORMAT_PHOTOS.has(formatSlug) ? `formats/${formatSlug}.webp` : null);

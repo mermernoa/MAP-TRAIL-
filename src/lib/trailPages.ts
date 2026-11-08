@@ -177,6 +177,24 @@ export interface TrailsSite {
 const cache = new WeakMap<RaceEvent[], Map<string, TrailsSite>>();
 
 /** Toutes les pages Trails pour cette base et ce jour (mémorisé). */
+/** Ordre des formats sur l'index : par distance, puis les formats à part, les petits prix en dernier. */
+const INDEX_FORMAT_ORDER = [
+  'trails-courts',
+  'trails-20-a-40-km',
+  'trails-longs',
+  'ultra-trails',
+  'trails-nocturnes',
+  'trails-blancs',
+  'trails-a-deux-ou-en-relais',
+  'kilometres-verticaux',
+  'trails-pas-chers',
+];
+const indexFormats = () => [...FORMATS].sort((a, b) => rank(a.slug) - rank(b.slug));
+const rank = (slug: string) => {
+  const i = INDEX_FORMAT_ORDER.indexOf(slug);
+  return i < 0 ? INDEX_FORMAT_ORDER.length : i;
+};
+
 export function trailsSite(events: RaceEvent[], today: string): TrailsSite {
   let byDay = cache.get(events);
   if (!byDay) cache.set(events, (byDay = new Map()));
@@ -573,7 +591,7 @@ function buildSite(events: RaceEvent[], today: string): TrailsSite {
     sections: nonEmpty([
       { title: 'Par région', look: 'regions', links: regionsSorted.map((p) => ({ ...depLink(p), photo: regionPhoto(p.slug) })) },
       { title: 'Près des grandes villes', look: 'cities', links: CITIES.filter((c) => cityItems.get(c)!.length).map((c) => ({ ...cityLink(c), photo: cityPhoto(c.name) })) },
-      { title: 'Par format', look: 'formats', links: FORMATS.map((f) => ({ ...formatLink(f), photo: formatPhoto(f.slug), hint: f.criterion })) },
+      { title: 'Par format', look: 'formats', links: indexFormats().map((f) => ({ ...formatLink(f), photo: formatPhoto(f.slug), hint: f.criterion })) },
       { title: 'Par mois', look: 'months', links: monthList.map(({ month, count }) => ({ label: month.label, path: `trails/${month.slug}`, count })) },
       ...regionsSorted.map((r) => ({ title: `Départements ${r.region.inName}`, links: [...depPlaces.values()].filter((d) => d.region === r.region).map(depLink) })),
     ]),
