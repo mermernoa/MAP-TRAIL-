@@ -72,3 +72,8 @@ const CITY_PHOTOS: Record<string, string> = {
 
 export const cityPhoto = (cityName: string): string | null => (CITY_PHOTOS[cityName] ? `villes/${CITY_PHOTOS[cityName]}.webp` : null);
 
+
+/** Photos des formats (public/formats/<slug du format>.webp), elles aussi seulement sur /trails/. */
+const FORMAT_PHOTOS = new Set(['trails-courts', 'ultra-trails', 'trails-nocturnes', 'trails-blancs', 'trails-a-deux-ou-en-relais']);
+
+export const formatPhoto = (formatSlug: string): string | null => (FORMAT_PHOTOS.has(formatSlug) ? `formats/${formatSlug}.webp` : null);

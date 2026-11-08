@@ -395,20 +395,28 @@ function CityCards({ section }: { section: LinkSection }) {
   );
 }
 
-/** Formats en tuiles épaisses, rose et bleu nuit en alternance. */
+/** Formats en cartes photo ; sans photo, la carte garde son aplat rose ou bleu nuit. */
 function FormatTiles({ section }: { section: LinkSection }) {
+  const [broken, setBroken] = useState<Set<string>>(() => new Set());
   return (
     <nav className="trails-block" aria-label={section.title}>
       <h2 className="trails-block-title">{section.title}</h2>
       <ul className="trails-format-grid">
-        {section.links.map((l) => (
-          <li key={l.path}>
-            <Link to={to(l.path)} className="trails-format">
-              <span className="trails-format-label">{l.label}</span>
-              {l.count != null && <span className="trails-format-count">{eventsLabel(l.count)}</span>}
-            </Link>
-          </li>
-        ))}
+        {section.links.map((l) => {
+          const photo = l.photo && !broken.has(l.photo) ? l.photo : null;
+          return (
+            <li key={l.path}>
+              <Link to={to(l.path)} className={photo ? 'trails-format has-photo' : 'trails-format'}>
+                {photo && <img src={photo} alt="" loading="lazy" onError={() => setBroken((b) => new Set(b).add(photo))} />}
+                {l.count != null && <span className="trails-format-count">{eventsLabel(l.count)}</span>}
+                <span className="trails-format-text">
+                  <span className="trails-format-label">{l.label}</span>
+                  {l.hint && <span className="trails-format-hint">{l.hint}</span>}
+                </span>
+              </Link>
+            </li>
+          );
+        })}
       </ul>
     </nav>
   );

@@ -15,6 +15,8 @@ export interface PageLink {
   count?: number;
   /** Photo de la vignette (pages régions de l'index). */
   photo?: string | null;
+  /** Précision sous le titre (« Parcours de moins de 20 km »). */
+  hint?: string;
 }
 
 // ——— Grandes villes ———

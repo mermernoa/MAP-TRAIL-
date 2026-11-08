@@ -18,7 +18,7 @@ import { massifByName } from './massifs';
 import { FORMATS, formatPath, type TrailFormat } from './formats';
 import { type City, type PageLink, CITIES, CITY_RADIUS_KM, cityDep } from './cities';
 import { haversineKm } from './metrics';
-import { cityPhoto, regionPhoto, TRAILS_PHOTO } from './regionPhotos';
+import { cityPhoto, formatPhoto, regionPhoto, TRAILS_PHOTO } from './regionPhotos';
 import { eventsWord } from './words';
 import { PAGE_STORIES, type PageStory } from './pageStories';
 import { seasonLabel, TITLE_MAX, trailsTitle } from './seoTitles';
@@ -573,7 +573,7 @@ function buildSite(events: RaceEvent[], today: string): TrailsSite {
     sections: nonEmpty([
       { title: 'Par région', look: 'regions', links: regionsSorted.map((p) => ({ ...depLink(p), photo: regionPhoto(p.slug) })) },
       { title: 'Près des grandes villes', look: 'cities', links: CITIES.filter((c) => cityItems.get(c)!.length).map((c) => ({ ...cityLink(c), photo: cityPhoto(c.name) })) },
-      { title: 'Par format', look: 'formats', links: FORMATS.map(formatLink) },
+      { title: 'Par format', look: 'formats', links: FORMATS.map((f) => ({ ...formatLink(f), photo: formatPhoto(f.slug), hint: f.criterion })) },
       { title: 'Par mois', look: 'months', links: monthList.map(({ month, count }) => ({ label: month.label, path: `trails/${month.slug}`, count })) },
       ...regionsSorted.map((r) => ({ title: `Départements ${r.region.inName}`, links: [...depPlaces.values()].filter((d) => d.region === r.region).map(depLink) })),
     ]),
