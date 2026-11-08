@@ -3141,6 +3141,27 @@ button.list-more {
   color: #fe66c4;
 }
 
+/* Une région sur deux : panneaux roses, numéro en bleu nuit. */
+.trails-dep-grid.is-pink .trails-dep-sign {
+  background: #fe66c4;
+  color: #071c3f;
+  filter: drop-shadow(3px 3px 0 #071c3f);
+}
+
+.trails-dep-grid.is-pink .trails-dep-code {
+  border-color: #071c3f;
+  background: #071c3f;
+  color: #ffffff;
+}
+
+.trails-dep-grid.is-pink .trails-dep-count {
+  color: #472f61;
+}
+
+.trails-dep-grid.is-pink .trails-dep-photo {
+  box-shadow: 4px 4px 0 #fe66c4;
+}
+
 /* Mois : cartes postales « Bons baisers de… » : photo de saison avec marge blanche,
    timbre rose dentelé (nombre d'événements) et cachet de la poste (année). */
 .trails-month-grid {

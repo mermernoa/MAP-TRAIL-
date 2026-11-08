@@ -293,7 +293,7 @@ function TrailsIndex({ page }: { page: TrailsPageData }) {
           ) : s.look === 'months' ? (
             <MonthTiles key={s.title} section={s} />
           ) : s.look === 'departements' ? (
-            <DepartementSigns key={s.title} section={s} />
+            <DepartementSigns key={s.title} section={s} pink={page.sections.filter((o) => o.look === 'departements').indexOf(s) % 2 === 1} />
           ) : (
             <nav key={s.title} className="massif-others trails-block" aria-label={s.title}>
               <h2 className="trails-block-title">{s.title}</h2>
@@ -424,13 +424,14 @@ function FormatTiles({ section }: { section: LinkSection }) {
   );
 }
 
-/** Départements en panneaux de randonnée : photo, puis flèche avec le numéro et le nom. */
-function DepartementSigns({ section }: { section: LinkSection }) {
+/** Départements en panneaux de randonnée : photo, puis flèche avec le numéro et le nom.
+ * Une région sur deux a ses panneaux en rose. */
+function DepartementSigns({ section, pink }: { section: LinkSection; pink: boolean }) {
   const [broken, setBroken] = useState<Set<string>>(() => new Set());
   return (
     <nav className="trails-block" aria-label={section.title}>
       <h2 className="trails-block-title">{section.title}</h2>
-      <ul className="trails-dep-grid">
+      <ul className={pink ? 'trails-dep-grid is-pink' : 'trails-dep-grid'}>
         {section.links.map((l) => {
           const photo = l.photo && !broken.has(l.photo) ? l.photo : null;
           return (
