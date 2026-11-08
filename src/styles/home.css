@@ -3127,12 +3127,10 @@ button.list-more {
 }
 
 .trails-dep-name {
-  overflow: hidden;
   font-family: var(--font-display);
   font-size: 21px;
   line-height: 1.05;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  overflow-wrap: anywhere;
 }
 
 .trails-dep-count {
@@ -3160,6 +3158,18 @@ button.list-more {
 
 .trails-dep-grid.is-pink .trails-dep-photo {
   box-shadow: 4px 4px 0 #fe66c4;
+}
+
+.trails-dep-grid.is-pink .trails-dep-photo.is-empty {
+  background:
+    repeating-linear-gradient(-45deg, rgba(254, 102, 196, 0.18) 0 2px, transparent 2px 14px),
+    #071c3f;
+}
+
+.trails-dep-grid.is-pink .trails-dep-photo.is-empty span {
+  color: #fe66c4;
+  -webkit-text-stroke-color: #ffffff;
+  text-shadow: 4px 4px 0 #ffffff;
 }
 
 /* Mois : cartes postales « Bons baisers de… » : photo de saison avec marge blanche,
