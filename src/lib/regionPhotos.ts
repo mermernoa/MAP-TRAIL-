@@ -87,3 +87,6 @@ const FORMAT_PHOTOS = new Set([
 ]);
 
 export const formatPhoto = (formatSlug: string): string | null => (FORMAT_PHOTOS.has(formatSlug) ? `formats/${formatSlug}.webp` : null);
+
+/** Photos des mois (public/mois/01.webp … 12.webp), en cartes postales sur /trails/ uniquement. */
+export const monthPhoto = (m: number): string | null => (m >= 1 && m <= 12 ? `mois/${String(m).padStart(2, '0')}.webp` : null);

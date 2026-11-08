@@ -3017,66 +3017,179 @@ button.list-more {
   background: #fe66c4;
 }
 
-/* Mois : pages de calendrier façon dossard. */
+/* Mois : cartes postales « Bons baisers de… » : photo de saison avec marge blanche,
+   timbre rose dentelé (nombre d'événements) et cachet de la poste (année). */
 .trails-month-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-  gap: 14px;
+  grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+  gap: 26px 22px;
   margin: 0;
-  padding: 0 4px 6px 0;
+  padding: 6px 6px 10px 2px;
   list-style: none;
 }
 
+.trails-month-grid > li {
+  min-width: 0;
+}
+
 .trails-month {
-  display: grid;
-  justify-items: center;
-  gap: 2px;
-  padding: 0 0 12px;
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  aspect-ratio: 3 / 2;
   overflow: hidden;
-  border: 2px solid #071c3f;
-  border-radius: 12px;
-  background: var(--surface, #ffffff);
-  color: #071c3f;
+  border: 7px solid #ffffff;
+  outline: 2px solid #071c3f;
+  border-radius: 4px;
+  background: #071c3f;
+  color: #ffffff;
   text-decoration: none;
-  box-shadow: 3px 3px 0 #071c3f;
-  transition: transform 0.25s cubic-bezier(0.3, 1.4, 0.5, 1);
+  box-shadow: 5px 6px 0 2px #071c3f;
+  transform: rotate(var(--tilt, 0deg));
+  isolation: isolate;
+  transition:
+    transform 0.3s cubic-bezier(0.3, 1.4, 0.5, 1),
+    box-shadow 0.3s ease;
 }
 
 .trails-month:hover,
 .trails-month:focus-visible {
-  transform: translateY(-4px);
+  transform: rotate(0deg) translateY(-5px) scale(1.02);
+  box-shadow: 7px 9px 0 2px #fe66c4;
 }
 
-.trails-month-name {
-  justify-self: stretch;
-  padding: 6px 4px;
-  background: #fe66c4;
-  border-bottom: 2px solid #071c3f;
-  text-align: center;
-  font-family: var(--font-display);
-  font-size: 20px;
-  text-transform: capitalize;
+.trails-month img {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.6s cubic-bezier(0.2, 0.7, 0.2, 1);
 }
 
-.trails-month-year {
-  font-size: 12px;
-  font-weight: 700;
-  color: #854183;
+.trails-month:hover img,
+.trails-month:focus-visible img {
+  transform: scale(1.06);
 }
 
-.trails-month-count {
+/* Voile bleu nuit en bas à gauche, sous le nom du mois. */
+.trails-month::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(20deg, rgba(7, 28, 63, 0.85) 0%, rgba(7, 28, 63, 0.35) 42%, rgba(7, 28, 63, 0) 65%);
+}
+
+.trails-month-text {
   display: grid;
-  justify-items: center;
-  font-family: var(--font-display);
-  font-size: 34px;
+  padding: 0 14px 10px;
   line-height: 1;
 }
 
-.trails-month-count small {
-  font-family: var(--font);
+.trails-month-text small {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-shadow: 0 1px 4px rgba(7, 28, 63, 0.8);
+}
+
+.trails-month-name {
+  font-family: var(--font-display);
+  font-size: 44px;
+  line-height: 1;
+  color: #ffffff;
+  text-transform: capitalize;
+  -webkit-text-stroke: 1.5px #071c3f;
+  paint-order: stroke fill;
+  text-shadow: 3px 3px 0 #fe66c4;
+}
+
+.trails-month-year {
+  margin-top: 2px;
   font-size: 12px;
   font-weight: 700;
-  color: #472f61;
+  color: #fe66c4;
+  letter-spacing: 0.12em;
+}
+
+/* Timbre : bord dentelé (trous ronds sur fond blanc) autour d'une vignette rose. */
+.trails-month-stamp {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  padding: 4px;
+  background: radial-gradient(circle, transparent 2.3px, #ffffff 2.8px) -2px -2px / 8px 8px;
+  transform: rotate(4deg);
+  filter: drop-shadow(1px 2px 0 rgba(7, 28, 63, 0.55));
+}
+
+.trails-month-stamp > span {
+  display: grid;
+  justify-items: center;
+  min-width: 66px;
+  padding: 6px 6px 5px;
+  border: 1.5px solid #071c3f;
+  background: #fe66c4;
+  color: #071c3f;
+}
+
+.trails-month-stamp b {
+  font-family: var(--font-display);
+  font-size: 26px;
+  font-weight: 400;
+  line-height: 1;
+}
+
+.trails-month-stamp small {
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+/* Cachet de la poste, tamponné en travers du bord du timbre. */
+.trails-month-postmark {
+  position: absolute;
+  top: 26px;
+  right: 98px;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  width: 58px;
+  height: 58px;
+  border: 2px solid rgba(255, 255, 255, 0.85);
+  border-radius: 50%;
+  color: rgba(255, 255, 255, 0.92);
+  transform: rotate(-14deg);
+  pointer-events: none;
+}
+
+.trails-month-postmark::before {
+  content: '';
+  position: absolute;
+  inset: 4px;
+  border: 1px dashed rgba(255, 255, 255, 0.7);
+  border-radius: 50%;
+}
+
+.trails-month-postmark span {
+  max-width: 44px;
+  font-size: 7px;
+  font-weight: 700;
+  line-height: 1.1;
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.trails-month-postmark b {
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 1;
 }
 
 @media (max-width: 640px) {
@@ -3128,9 +3241,24 @@ button.list-more {
     font-size: 11px;
   }
 
+  /* Les cartes postales défilent à l'horizontale. */
   .trails-month-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 10px;
+    grid-template-columns: none;
+    grid-auto-flow: column;
+    grid-auto-columns: 82%;
+    gap: 16px;
+    overflow-x: auto;
+    padding: 8px 6px 18px 4px;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: thin;
+  }
+
+  .trails-month-grid > li {
+    scroll-snap-align: center;
+  }
+
+  .trails-month-name {
+    font-size: 38px;
   }
 }
 

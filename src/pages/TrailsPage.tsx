@@ -422,24 +422,40 @@ function FormatTiles({ section }: { section: LinkSection }) {
   );
 }
 
-/** Mois en pages de calendrier. */
+/** « Bons baisers d’avril », « Bons baisers de mai ». */
+const fromMonth = (name: string) => (/^[aeiouyâéèêîôû]/i.test(name) ? 'Bons baisers d’' : 'Bons baisers de ');
+
+/** Mois en cartes postales : photo de saison, timbre du nombre d'événements, cachet de l'année. */
 function MonthTiles({ section }: { section: LinkSection }) {
+  const [broken, setBroken] = useState<Set<string>>(() => new Set());
   return (
     <nav className="trails-block" aria-label={section.title}>
       <h2 className="trails-block-title">{section.title}</h2>
       <ul className="trails-month-grid">
-        {section.links.map((l) => {
+        {section.links.map((l, i) => {
           const [name, year] = l.label.split(' ');
+          const photo = l.photo && !broken.has(l.photo) ? l.photo : null;
           return (
-            <li key={l.path}>
+            <li key={l.path} style={{ '--tilt': `${[-1, 0.8, -0.5, 1.2, -0.9, 0.5][i % 6]}deg` } as React.CSSProperties}>
               <Link to={to(l.path)} className="trails-month">
-                <span className="trails-month-name">{name}</span>
-                <span className="trails-month-year">{year}</span>
+                {photo && <img src={photo} alt="" loading="lazy" onError={() => setBroken((b) => new Set(b).add(photo))} />}
                 {l.count != null && (
-                  <span className="trails-month-count">
-                    {nf.format(l.count)} <small>{l.count > 1 ? 'événements' : 'événement'}</small>
+                  <span className="trails-month-stamp">
+                    <span>
+                      <b>{nf.format(l.count)}</b>
+                      <small>{l.count > 1 ? 'événements' : 'événement'}</small>
+                    </span>
                   </span>
                 )}
+                <span className="trails-month-postmark" aria-hidden="true">
+                  <span>Take Ton Trail</span>
+                  <b>{year}</b>
+                </span>
+                <span className="trails-month-text">
+                  <small>{fromMonth(name)}</small>
+                  <span className="trails-month-name">{name}</span>
+                  <span className="trails-month-year">{year}</span>
+                </span>
               </Link>
             </li>
           );
