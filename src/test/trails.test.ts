@@ -65,15 +65,15 @@ describe('pages Trails', () => {
     expect(site.page('ultra-trails-savoie')).toBeUndefined();
     // 7 courses courtes sur 10 : presque toute la page de l'Isère, pas de doublon.
     expect(site.page('trails-courts-isere')).toBeUndefined();
-    // Moins de 3 courses : la page existe mais n'est pas proposée à Google.
-    expect(site.page('savoie')?.noindex).toBe(true);
+    // Un département est proposé à Google dès sa première course.
+    expect(site.page('savoie')?.noindex).toBe(false);
     expect(site.page('isere')?.noindex).toBe(false);
   });
 
   it('donne la distance à la ville et un bouton vers la carte filtrée', () => {
     const events = [1, 2, 3].map((i) => race(`l${i}`, 'Rhône (69)', 45.76 + i * 0.05, 4.84, [course(`l${i}-c`, 20)]));
     const lyon = trailsSite(events, TODAY).page('pres-de-lyon')!;
-    expect(lyon.title).toMatch(/^Trail près de Lyon : calendrier \d{4}/);
+    expect(lyon.title).toMatch(/^Trail près de Lyon : calendrier des courses \d{4}/);
     expect(lyon.items[0].km).toBeGreaterThan(5);
     expect(lyon.map?.filters.near).toMatchObject({ radiusKm: 50, label: 'Près de Lyon' });
     expect(courseNearbyLinks(events[0], events, TODAY).map((l) => l.path).slice(0, 2)).toEqual(['trails/pres-de-lyon', 'trails/rhone']);

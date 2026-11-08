@@ -32,7 +32,9 @@ const OG_IMAGE = `${SITE_URL}/og-image.png`;
 const today = new Date().toISOString().slice(0, 10);
 
 const template = readFileSync(join(DIST, 'index.html'), 'utf8');
-const { events } = JSON.parse(readFileSync(join(DIST, 'data/races.json'), 'utf8')) as { events: RaceEvent[] };
+const { events, generatedAt } = JSON.parse(readFileSync(join(DIST, 'data/races.json'), 'utf8')) as { events: RaceEvent[]; generatedAt?: string };
+/** Date de la dernière mise à jour de la base : les pages Trails changent avec elle (plan du site). */
+const DATA_DAY = generatedAt?.slice(0, 10);
 const upcoming = events.filter((e) => e.dateEnd >= today).sort((a, b) => a.dateStart.localeCompare(b.dateStart));
 // Un événement (une fiche) regroupe une ou plusieurs courses (ses parcours).
 const upcomingCourses = upcoming.reduce((n, e) => n + e.courses.filter((c) => c.start.slice(0, 10) >= today).length, 0);
@@ -242,6 +244,7 @@ for (const p of site.pages) {
     .join('');
   pages.push({
     path: p.path,
+    lastmod: DATA_DAY,
     title: trailsTitle(p.title),
     description: p.description,
     body: `<nav aria-label="Fil d’Ariane">${p.breadcrumb.map((l) => `<a href="${href(l.path)}">${esc(l.label)}</a>`).join(' / ')}</nav><h1>${esc(p.h1)}</h1>${

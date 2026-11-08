@@ -102,11 +102,17 @@ function pickTitle(...candidates: string[]): string {
  * si elles tiennent entières.
  */
 export const DESC_MAX = 155;
-function metaDescription(where: string, s: ReturnType<typeof summarize>, opts: { noun?: { one: string; many: string }; season?: boolean; extra?: string } = {}): string {
+function metaDescription(
+  where: string,
+  s: ReturnType<typeof summarize>,
+  opts: { noun?: { one: string; many: string }; season?: boolean; extra?: string; lead?: string } = {},
+): string {
   const noun = opts.noun ?? { one: 'course', many: 'courses' };
   if (!s.count) return `Calendrier des trails ${where} : aucune course annoncée pour l’instant. Découvre les départements et les villes voisines.`;
-  let core = `${eventsWord(s.count)} de trail ${where}${opts.season === false ? '' : ` en ${SEASON}`}`;
-  if (s.courseCount) core += ` : ${nfInt.format(s.courseCount)} ${s.courseCount > 1 ? noun.many : noun.one}`;
+  // La description commence par la requête (« Trail dans la Somme (80) : … ») : Google met en gras ce qui correspond.
+  const season = opts.season === false ? '' : ` en ${SEASON}`;
+  let core = opts.lead ? `${opts.lead} : ${eventsWord(s.count)}${season}` : `${eventsWord(s.count)} de trail ${where}${season}`;
+  if (s.courseCount) core += `${opts.lead ? ',' : ' :'} ${nfInt.format(s.courseCount)} ${s.courseCount > 1 ? noun.many : noun.one}`;
   if (s.longestKm > 0 && Number.isFinite(s.shortestKm)) {
     core += s.shortestKm === s.longestKm ? ` de ${nfKm.format(s.longestKm)} km` : ` de ${nfKm.format(s.shortestKm)} à ${nfKm.format(s.longestKm)} km`;
   }
@@ -146,8 +152,6 @@ function overlap(a: TrailItem[], b: TrailItem[]): number {
  */
 export const CROSS_MAX_SHARE = 0.75;
 const CROSS_MAX_OVERLAP = 0.8;
-/** Au-delà, une page « près de… » répète celle du département ou de la région : noindex. */
-const CITY_MAX_OVERLAP = 0.85;
 
 interface Place {
   kind: 'region' | 'departement';
@@ -231,22 +235,6 @@ function buildSite(events: RaceEvent[], today: string): TrailsSite {
     }
     cityItems.set(city, items);
   }
-  // Ville presque identique à une ville plus grande déjà publiée (deux centres très proches) : noindex.
-  const cityTwin = new Map<City, City>();
-  CITIES.forEach((city, i) => {
-    const mine = new Set(cityItems.get(city)!.map((x) => x.event));
-    if (mine.size < MIN_INDEXED) return;
-    for (const bigger of CITIES.slice(0, i)) {
-      if (cityTwin.has(bigger)) continue;
-      const theirs = cityItems.get(bigger)!.map((x) => x.event);
-      const common = theirs.filter((e) => mine.has(e)).length;
-      if (common / Math.max(mine.size, theirs.length) >= 0.8) {
-        cityTwin.set(city, bigger);
-        return;
-      }
-    }
-  });
-
   // Formats de chaque parcours, calculés une seule fois (les règles passent par des recherches de mots).
   const formatsOf = new Map<Course, Set<TrailFormat>>();
   for (const i of allItems) for (const c of i.courses) formatsOf.set(c, new Set(FORMATS.filter((f) => f.pick(i.event, c))));
@@ -292,8 +280,9 @@ function buildSite(events: RaceEvent[], today: string): TrailsSite {
   const regionCrumb = (r: Region): PageLink => ({ label: r.name, path: `trails/${r.slug}` });
   const placeCrumbs = (p: Place): PageLink[] => (p.kind === 'region' ? [HOME, INDEX] : [HOME, INDEX, regionCrumb(p.region)]);
   const citiesOfDep = (d: Departement) => CITIES.filter((c) => c.dep === d.code && cityItems.get(c)!.length > 0);
-  const placeTwin = (c: City) => [...depPlaces.values(), ...regionPlaces.values()].some((p) => overlap(p.items, cityItems.get(c)!) >= CITY_MAX_OVERLAP);
-  const cityPublished = (c: City) => cityItems.get(c)!.length >= MIN_INDEXED && !cityTwin.has(c) && !placeTwin(c);
+  // Chaque page « près de… » répond à sa propre requête (« trail près d'Amiens ») : indexée dès 3 courses,
+  // même si sa liste ressemble à celle du département.
+  const cityPublished = (c: City) => cityItems.get(c)!.length >= MIN_INDEXED;
   const nonEmpty = (sections: LinkSection[]) => sections.filter((s) => s.links.length);
 
   const pages: TrailsPageData[] = [];
@@ -322,8 +311,8 @@ function buildSite(events: RaceEvent[], today: string): TrailsSite {
       slug: r.slug,
       path: placePath(place),
       h1: `Trails ${r.inName}`,
-      title: pickTitle(`Trail ${r.inName} : calendrier ${SEASON}`, `Trail ${r.inName} ${SEASON}`, `Trail ${r.inName}`),
-      description: metaDescription(r.inName, s),
+      title: pickTitle(`Trail ${r.inName} : calendrier des courses ${SEASON}`, `Trail ${r.inName} : calendrier ${SEASON}`, `Trail ${r.inName} ${SEASON}`, `Trail ${r.inName}`),
+      description: metaDescription(r.inName, s, { lead: `Trail ${r.inName}` }),
       subtitle: `${deps.length} ${deps.length > 1 ? 'départements' : 'département'} · ${eventsWord(place.items.length)}`,
       intro,
       items: place.items,
@@ -359,8 +348,8 @@ function buildSite(events: RaceEvent[], today: string): TrailsSite {
       slug: dep.slug,
       path: placePath(place),
       h1: `Trails ${dep.inName}`,
-      title: pickTitle(`Trail ${dep.inName} (${dep.code}) : calendrier ${SEASON}`, `Trail ${dep.inName} (${dep.code}) ${SEASON}`, `Trail ${dep.inName} (${dep.code})`),
-      description: metaDescription(`${dep.inName} (${dep.code})`, s),
+      title: pickTitle(`Trail ${dep.inName} (${dep.code}) : calendrier des courses ${SEASON}`, `Trail ${dep.inName} (${dep.code}) : calendrier ${SEASON}`, `Trail ${dep.inName} (${dep.code}) ${SEASON}`, `Trail ${dep.inName} (${dep.code})`),
+      description: metaDescription(`${dep.inName} (${dep.code})`, s, { lead: `Trail ${dep.inName} (${dep.code})` }),
       subtitle: `${dep.name} (${dep.code}) · ${dep.region}`,
       intro,
       items: place.items,
@@ -376,7 +365,8 @@ function buildSite(events: RaceEvent[], today: string): TrailsSite {
           links: [...others.map(depLink), { label: `Toute la région ${place.region.name}`, path: `trails/${place.region.slug}` }],
         },
       ]),
-      noindex: place.items.length < MIN_INDEXED,
+      // Chaque département répond à « trail dans le/la … » : indexé dès sa première course.
+      noindex: place.items.length === 0,
       center: centerOf(place.items),
       photo: departementPhoto(dep.slug),
       seed: dep.code.charCodeAt(0) + dep.code.length * 7,
@@ -403,8 +393,8 @@ function buildSite(events: RaceEvent[], today: string): TrailsSite {
       slug: city.slug,
       path: `trails/${city.slug}`,
       h1: `Trails ${city.nearName}`,
-      title: pickTitle(`Trail ${city.nearName} : calendrier ${SEASON}`, `Trail ${city.nearName} ${SEASON}`, `Trail ${city.nearName}`),
-      description: metaDescription(city.nearName, s, { extra: `Tous à moins de ${CITY_RADIUS_KM} km.` }),
+      title: pickTitle(`Trail ${city.nearName} : calendrier des courses ${SEASON}`, `Trail ${city.nearName} : calendrier ${SEASON}`, `Trail ${city.nearName} ${SEASON}`, `Trail ${city.nearName}`),
+      description: metaDescription(city.nearName, s, { lead: `Trail ${city.nearName}`, extra: `Tous à moins de ${CITY_RADIUS_KM} km.` }),
       subtitle: `Dans un rayon de ${CITY_RADIUS_KM} km · ${dep.name}`,
       intro,
       items: [...items].sort(byDate),
@@ -452,7 +442,7 @@ function buildSite(events: RaceEvent[], today: string): TrailsSite {
       path: `trails/${f.slug}`,
       h1: `${f.label} en France`,
       title: pickTitle(`${f.label} en France : calendrier ${SEASON}`, `${f.label} en France ${SEASON}`, `${f.label} en France`),
-      description: metaDescription('en France', s, { noun: f.noun, extra: `${f.criterion}.` }),
+      description: metaDescription('en France', s, { lead: `${f.label} en France`, noun: f.noun, extra: `${f.criterion}.` }),
       subtitle: f.criterion,
       intro,
       items,
@@ -493,7 +483,7 @@ function buildSite(events: RaceEvent[], today: string): TrailsSite {
       path: `trails/${x.slug}`,
       h1: `${f.label} ${place.inName}`,
       title: pickTitle(`${f.label} ${place.inName} : calendrier ${SEASON}`, `${f.label} ${place.inName} ${SEASON}`, `${f.label} ${place.inName}`),
-      description: metaDescription(place.inName, s, { noun: f.noun, extra: `${f.criterion}.` }),
+      description: metaDescription(place.inName, s, { lead: `${f.label} ${place.inName}`, noun: f.noun, extra: `${f.criterion}.` }),
       subtitle: `${f.criterion} · ${place.name}`,
       intro,
       items: x.items,
@@ -540,8 +530,8 @@ function buildSite(events: RaceEvent[], today: string): TrailsSite {
       slug: month.slug,
       path: `trails/${month.slug}`,
       h1: `Trails en ${month.label}`,
-      title: pickTitle(`Trail ${month.label} : le calendrier des courses`, `Trails en ${month.label} en France`, `Trails en ${month.label}`),
-      description: metaDescription(`en ${month.label} en France`, s, { season: false }),
+      title: pickTitle(`Trail en ${month.label} : le calendrier des courses`, `Trail ${month.label} : le calendrier des courses`, `Trails en ${month.label} en France`, `Trails en ${month.label}`),
+      description: metaDescription(`en ${month.label} en France`, s, { lead: `Trail en ${month.label}`, season: false }),
       subtitle: `${eventsWord(items.length)} en France et outre-mer`,
       intro,
       items,
