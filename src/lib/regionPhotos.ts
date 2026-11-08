@@ -100,6 +100,7 @@ const DEPARTEMENT_PHOTOS = new Set([
   'alpes-maritimes',
   'ardeche',
   'ardennes',
+  'ariege',
   'aube',
   'aude',
   'aveyron',
@@ -133,6 +134,7 @@ const DEPARTEMENT_PHOTOS = new Set([
   'haute-marne',
   'haute-saone',
   'haute-savoie',
+  'haute-vienne',
   'hautes-alpes',
   'hautes-pyrenees',
   'herault',
@@ -179,6 +181,7 @@ const DEPARTEMENT_PHOTOS = new Set([
   'var',
   'vaucluse',
   'vendee',
+  'vienne',
   'vosges',
   'yonne',
 ]);
