@@ -109,7 +109,9 @@ const DEPARTEMENT_PHOTOS = new Set([
   'nievre',
   'puy-de-dome',
   'rhone',
+  'saone-et-loire',
   'savoie',
+  'yonne',
 ]);
 
 export const departementPhoto = (slug: string): string | null => (DEPARTEMENT_PHOTOS.has(slug) ? `departements/${slug}.webp` : null);
