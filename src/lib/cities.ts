@@ -17,6 +17,8 @@ export interface PageLink {
   photo?: string | null;
   /** Précision sous le titre (« Parcours de moins de 20 km »). */
   hint?: string;
+  /** Numéro du département (« 38 »), sur les panneaux de l'index. */
+  code?: string;
 }
 
 // ——— Grandes villes ———

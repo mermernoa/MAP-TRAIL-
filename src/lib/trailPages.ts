@@ -18,7 +18,7 @@ import { massifByName } from './massifs';
 import { FORMATS, formatPath, type TrailFormat } from './formats';
 import { type City, type PageLink, CITIES, CITY_RADIUS_KM, cityDep } from './cities';
 import { haversineKm } from './metrics';
-import { cityPhoto, formatPhoto, monthPhoto, regionPhoto, TRAILS_PHOTO } from './regionPhotos';
+import { cityPhoto, departementPhoto, formatPhoto, monthPhoto, regionPhoto, TRAILS_PHOTO } from './regionPhotos';
 import { eventsWord } from './words';
 import { PAGE_STORIES, type PageStory } from './pageStories';
 import { seasonLabel, TITLE_MAX, trailsTitle } from './seoTitles';
@@ -51,7 +51,7 @@ export interface LinkSection {
   title: string;
   links: PageLink[];
   /** Mise en forme particulière sur l'index : vignettes photo, tuiles de mois… */
-  look?: 'regions' | 'cities' | 'formats' | 'months';
+  look?: 'regions' | 'cities' | 'formats' | 'months' | 'departements';
 }
 
 export type TrailsKind = 'index' | 'region' | 'departement' | 'ville' | 'format' | 'croisement' | 'mois';
@@ -593,7 +593,13 @@ function buildSite(events: RaceEvent[], today: string): TrailsSite {
       { title: 'Près des grandes villes', look: 'cities', links: CITIES.filter((c) => cityItems.get(c)!.length).map((c) => ({ ...cityLink(c), photo: cityPhoto(c.name) })) },
       { title: 'Par format', look: 'formats', links: indexFormats().map((f) => ({ ...formatLink(f), photo: formatPhoto(f.slug), hint: f.criterion })) },
       { title: 'Par mois', look: 'months', links: monthList.map(({ month, count }) => ({ label: month.label, path: `trails/${month.slug}`, count, photo: monthPhoto(month.m) })) },
-      ...regionsSorted.map((r) => ({ title: `Départements ${r.region.inName}`, links: [...depPlaces.values()].filter((d) => d.region === r.region).map(depLink) })),
+      ...regionsSorted.map((r) => {
+        const links = [...depPlaces.values()]
+          .filter((d) => d.region === r.region)
+          .map((d) => ({ ...depLink(d), photo: departementPhoto(d.slug), code: d.dep?.code }));
+        // Panneaux photo dès qu'un département de la région a sa photo ; sinon de simples liens.
+        return { title: `Départements ${r.region.inName}`, look: links.some((l) => l.photo) ? ('departements' as const) : undefined, links };
+      }),
     ]),
     center: null,
     photo: TRAILS_PHOTO,

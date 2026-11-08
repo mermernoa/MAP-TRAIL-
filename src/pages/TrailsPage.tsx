@@ -292,6 +292,8 @@ function TrailsIndex({ page }: { page: TrailsPageData }) {
             <FormatTiles key={s.title} section={s} />
           ) : s.look === 'months' ? (
             <MonthTiles key={s.title} section={s} />
+          ) : s.look === 'departements' ? (
+            <DepartementSigns key={s.title} section={s} />
           ) : (
             <nav key={s.title} className="massif-others trails-block" aria-label={s.title}>
               <h2 className="trails-block-title">{s.title}</h2>
@@ -412,6 +414,41 @@ function FormatTiles({ section }: { section: LinkSection }) {
                 <span className="trails-format-text">
                   <span className="trails-format-label">{l.label}</span>
                   {l.hint && <span className="trails-format-hint">{l.hint}</span>}
+                </span>
+              </Link>
+            </li>
+          );
+        })}
+      </ul>
+    </nav>
+  );
+}
+
+/** Départements en panneaux de randonnée : photo, puis flèche avec le numéro et le nom. */
+function DepartementSigns({ section }: { section: LinkSection }) {
+  const [broken, setBroken] = useState<Set<string>>(() => new Set());
+  return (
+    <nav className="trails-block" aria-label={section.title}>
+      <h2 className="trails-block-title">{section.title}</h2>
+      <ul className="trails-dep-grid">
+        {section.links.map((l) => {
+          const photo = l.photo && !broken.has(l.photo) ? l.photo : null;
+          return (
+            <li key={l.path}>
+              <Link to={to(l.path)} className="trails-dep">
+                <span className={photo ? 'trails-dep-photo' : 'trails-dep-photo is-empty'}>
+                  {photo ? (
+                    <img src={photo} alt="" loading="lazy" onError={() => setBroken((b) => new Set(b).add(photo))} />
+                  ) : (
+                    <span aria-hidden="true">{l.code}</span>
+                  )}
+                </span>
+                <span className="trails-dep-sign">
+                  {l.code && <span className="trails-dep-code">{l.code}</span>}
+                  <span className="trails-dep-text">
+                    <span className="trails-dep-name">{l.label}</span>
+                    {l.count != null && <span className="trails-dep-count">{eventsLabel(l.count)}</span>}
+                  </span>
                 </span>
               </Link>
             </li>

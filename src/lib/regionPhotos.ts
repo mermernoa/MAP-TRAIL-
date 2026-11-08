@@ -90,3 +90,8 @@ export const formatPhoto = (formatSlug: string): string | null => (FORMAT_PHOTOS
 
 /** Photos des mois (public/mois/01.webp … 12.webp), en cartes postales sur /trails/ uniquement. */
 export const monthPhoto = (m: number): string | null => (m >= 1 && m <= 12 ? `mois/${String(m).padStart(2, '0')}.webp` : null);
+
+/** Photos des départements (public/departements/<slug>.webp), en panneaux sur /trails/ uniquement. */
+const DEPARTEMENT_PHOTOS = new Set(['ain', 'allier', 'ardeche', 'cantal', 'drome', 'haute-loire', 'haute-savoie', 'isere', 'loire', 'savoie']);
+
+export const departementPhoto = (slug: string): string | null => (DEPARTEMENT_PHOTOS.has(slug) ? `departements/${slug}.webp` : null);

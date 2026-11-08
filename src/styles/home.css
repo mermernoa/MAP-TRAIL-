@@ -3017,6 +3017,130 @@ button.list-more {
   background: #fe66c4;
 }
 
+/* Départements : panneaux de randonnée. La photo, puis une flèche bleu nuit qui déborde
+   sur le bas de la photo, avec le numéro du département en pastille rose. */
+.trails-dep-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 22px 20px;
+  margin: 0;
+  padding: 4px 8px 8px 2px;
+  list-style: none;
+}
+
+.trails-dep-grid > li {
+  min-width: 0;
+}
+
+.trails-dep {
+  display: grid;
+  color: #071c3f;
+  text-decoration: none;
+}
+
+.trails-dep-photo {
+  position: relative;
+  display: block;
+  aspect-ratio: 3 / 2;
+  overflow: hidden;
+  border: 2px solid #071c3f;
+  border-radius: 12px;
+  background: #071c3f;
+  box-shadow: 4px 4px 0 #071c3f;
+}
+
+.trails-dep-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.6s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+.trails-dep:hover .trails-dep-photo img,
+.trails-dep:focus-visible .trails-dep-photo img {
+  transform: scale(1.06);
+}
+
+/* Sans photo : le numéro du département en grand sur un fond rayé rose. */
+.trails-dep-photo.is-empty {
+  display: grid;
+  place-items: center;
+  background:
+    repeating-linear-gradient(-45deg, rgba(255, 255, 255, 0.16) 0 2px, transparent 2px 14px),
+    #fe66c4;
+}
+
+.trails-dep-photo.is-empty span {
+  font-family: var(--font-display);
+  font-size: 84px;
+  line-height: 1;
+  color: #ffffff;
+  -webkit-text-stroke: 2px #071c3f;
+  paint-order: stroke fill;
+  text-shadow: 4px 4px 0 #071c3f;
+}
+
+/* La flèche : une planche bleu nuit avec la pointe à droite, deux vis et une ombre rose. */
+.trails-dep-sign {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  justify-self: start;
+  max-width: calc(100% - 6px);
+  margin: -26px 0 0 12px;
+  padding: 8px 30px 8px 10px;
+  background: #071c3f;
+  color: #ffffff;
+  clip-path: polygon(0 0, calc(100% - 22px) 0, 100% 50%, calc(100% - 22px) 100%, 0 100%);
+  filter: drop-shadow(3px 3px 0 #fe66c4);
+  transform: rotate(-2deg);
+  transform-origin: left center;
+  transition: transform 0.3s cubic-bezier(0.3, 1.4, 0.5, 1);
+}
+
+.trails-dep:hover .trails-dep-sign,
+.trails-dep:focus-visible .trails-dep-sign {
+  transform: rotate(0deg) translateX(6px);
+}
+
+.trails-dep-code {
+  flex: none;
+  display: grid;
+  place-items: center;
+  min-width: 38px;
+  height: 38px;
+  padding: 0 4px;
+  border: 2px solid #ffffff;
+  border-radius: 8px;
+  background: #fe66c4;
+  color: #071c3f;
+  font-family: var(--font-display);
+  font-size: 21px;
+  line-height: 1;
+}
+
+.trails-dep-text {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.trails-dep-name {
+  overflow: hidden;
+  font-family: var(--font-display);
+  font-size: 21px;
+  line-height: 1.05;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.trails-dep-count {
+  font-size: 12px;
+  font-weight: 700;
+  color: #fe66c4;
+}
+
 /* Mois : cartes postales « Bons baisers de… » : photo de saison avec marge blanche,
    timbre rose dentelé (nombre d'événements) et cachet de la poste (année). */
 .trails-month-grid {
@@ -3239,6 +3363,37 @@ button.list-more {
     left: 8px;
     padding: 3px 8px;
     font-size: 11px;
+  }
+
+  .trails-dep-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px 12px;
+  }
+
+  .trails-dep-sign {
+    gap: 6px;
+    margin: -18px 0 0 6px;
+    padding: 5px 20px 5px 6px;
+    clip-path: polygon(0 0, calc(100% - 14px) 0, 100% 50%, calc(100% - 14px) 100%, 0 100%);
+  }
+
+  .trails-dep-code {
+    min-width: 28px;
+    height: 28px;
+    font-size: 16px;
+    border-radius: 6px;
+  }
+
+  .trails-dep-name {
+    font-size: 16px;
+  }
+
+  .trails-dep-count {
+    font-size: 10.5px;
+  }
+
+  .trails-dep-photo.is-empty span {
+    font-size: 54px;
   }
 
   /* Les cartes postales défilent à l'horizontale. */
