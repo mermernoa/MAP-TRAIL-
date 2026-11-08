@@ -1,11 +1,11 @@
 # Rapport d’import de la base des courses
 
-Import du 06/11/2026 23:29:33 depuis 4 fichier(s) JSON de l'API Sheets.
+Import du 08/11/2026 15:17:49 depuis 4 fichier(s) JSON de l'API Sheets.
 
-- 3185 lignes lues, 3167 publiées (statuts Validé, Prêt, En ligne), non publiées : 18 « À vérifier ».
-- 1266 événements et 3167 parcours sur le site.
+- 3251 lignes lues, 3175 publiées (statuts Validé, Prêt, En ligne), non publiées : 76 « À vérifier ».
+- 1274 événements et 3175 parcours sur le site.
 - 0 prix saisis en centimes (ex. 1 200,00 € pour 12 €) corrigés à l’import : à rectifier dans la feuille.
-- 522 événements à date « à confirmer » (affichés « Date prévisionnelle »), dont 405 ramenés au jour de la semaine de l’édition précédente (liste ci-dessous).
+- 530 événements à date « à confirmer » (affichés « Date prévisionnelle »), dont 411 ramenés au jour de la semaine de l’édition précédente (liste ci-dessous).
 
 ## Lignes ignorées (0)
 
@@ -69,7 +69,7 @@ Aucune.
 - **EVT1266** La TransPyreneA - 100% Basque : Dates étalées sur 17 jours (du 01/08/2027 au 18/08/2027) : date de fin ou dates des parcours à vérifier.
 - **EVT241** Maloya trail : Doublon probable de EVT240 (Sainte Rose, 2026-11-11 ; ici Saint-Philippe, 2026-11-11) : garder une seule des deux.
 
-## Dates à confirmer déplacées (405)
+## Dates à confirmer déplacées (411)
 
 La feuille reprend le jour et le mois de l’édition précédente avec l’année suivante, ce qui décale le jour de la semaine (dimanche 9 novembre 2025 → lundi 9 novembre 2026). Le site affiche la date au même jour de la semaine que l’édition précédente. Reportez la vraie date dans la feuille dès qu’elle est annoncée.
 
@@ -480,3 +480,9 @@ La feuille reprend le jour et le mois de l’édition précédente avec l’ann�
 | **EVT1023** Trail Blanc de la Rosière | dimanche 7 février 2027 | samedi 6 février 2027 |
 | **EVT1024** Fresn'Urban Trail | mardi 9 février 2027 | dimanche 7 février 2027 |
 | **EVT1025** Winter Trail d'Alix | mardi 9 février 2027 | dimanche 7 février 2027 |
+| **EVT1303** Kilomètre Vertical de Saint-Martin-Vésubie | lundi 5 avril 2027 | dimanche 4 avril 2027 |
+| **EVT1305** Kilomètre Vertical du Criou | lundi 16 août 2027 | dimanche 15 août 2027 |
+| **EVT1306** La Verticale du Valbuche | lundi 9 août 2027 | dimanche 8 août 2027 |
+| **EVT1308** Verticale du Grand Serre | lundi 27 septembre 2027 | dimanche 26 septembre 2027 |
+| **EVT1309** Kilomètre Vertical du Blayeul | dimanche 10 octobre 2027 | samedi 9 octobre 2027 |
+| **EVT1311** Verti'Calabass | lundi 1er novembre 2027 | dimanche 31 octobre 2027 |
