@@ -1,6 +1,6 @@
 /**
  * Photos des régions (public/regions/<slug de la région>.webp), fournies par Take Ton Trail.
- * Utilisées uniquement sur la page /trails/ : vignettes des régions et photo du haut de page.
+ * Vignettes de l’index /trails/ et photo du haut des pages Trails (jamais sur l’accueil).
  * Une région sans photo garde le décor de crêtes.
  */
 const PHOTOS = new Set([
@@ -25,7 +25,7 @@ export const regionPhoto = (regionSlug: string): string | null => (PHOTOS.has(re
 /** Haut de la page /trails/. */
 export const TRAILS_PHOTO = 'regions/trails.webp';
 
-/** Photos des grandes villes (public/villes/<nom>.webp), elles aussi seulement sur /trails/. */
+/** Photos des grandes villes (public/villes/<nom>.webp), vignettes de l’index et haut des pages Trails. */
 const CITY_PHOTOS: Record<string, string> = {
   'Aix-en-Provence': 'aix-en-provence',
   Amiens: 'amiens',
@@ -73,7 +73,7 @@ const CITY_PHOTOS: Record<string, string> = {
 export const cityPhoto = (cityName: string): string | null => (CITY_PHOTOS[cityName] ? `villes/${CITY_PHOTOS[cityName]}.webp` : null);
 
 
-/** Photos des formats (public/formats/<slug du format>.webp), elles aussi seulement sur /trails/. */
+/** Photos des formats (public/formats/<slug du format>.webp), vignettes de l’index et haut des pages Trails. */
 const FORMAT_PHOTOS = new Set([
   'trails-courts',
   'trails-20-a-40-km',
@@ -88,10 +88,10 @@ const FORMAT_PHOTOS = new Set([
 
 export const formatPhoto = (formatSlug: string): string | null => (FORMAT_PHOTOS.has(formatSlug) ? `formats/${formatSlug}.webp` : null);
 
-/** Photos des mois (public/mois/01.webp … 12.webp), en cartes postales sur /trails/ uniquement. */
+/** Photos des mois (public/mois/01.webp … 12.webp), cartes postales de l’index et haut des pages de mois. */
 export const monthPhoto = (m: number): string | null => (m >= 1 && m <= 12 ? `mois/${String(m).padStart(2, '0')}.webp` : null);
 
-/** Photos des départements (public/departements/<slug>.webp), en panneaux sur /trails/ uniquement. */
+/** Photos des départements (public/departements/<slug>.webp), panneaux de l’index et haut des pages de département. */
 const DEPARTEMENT_PHOTOS = new Set([
   'ain',
   'aisne',

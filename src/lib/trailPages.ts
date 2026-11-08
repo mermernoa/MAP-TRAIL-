@@ -338,7 +338,7 @@ function buildSite(events: RaceEvent[], today: string): TrailsSite {
       ]),
       noindex: place.items.length < MIN_INDEXED || twin,
       center: r.name === 'Outre-mer' ? null : centerOf(place.items),
-      photo: null,
+      photo: regionPhoto(r.slug),
       seed: seedOf(r.slug),
     });
   }
@@ -378,7 +378,7 @@ function buildSite(events: RaceEvent[], today: string): TrailsSite {
       ]),
       noindex: place.items.length < MIN_INDEXED,
       center: centerOf(place.items),
-      photo: null,
+      photo: departementPhoto(dep.slug),
       seed: dep.code.charCodeAt(0) + dep.code.length * 7,
     });
   }
@@ -424,7 +424,7 @@ function buildSite(events: RaceEvent[], today: string): TrailsSite {
       ]),
       noindex: !cityPublished(city),
       center: { lat: city.lat, lng: city.lng },
-      photo: null,
+      photo: cityPhoto(city.name),
       seed: seedOf(city.slug),
       map: items.length
         ? { label: `Voir les courses ${city.nearName} sur la carte`, filters: { near: { lat: city.lat, lng: city.lng, radiusKm: CITY_RADIUS_KM, label: `Près ${city.nearName.slice(5)}` } } }
@@ -466,7 +466,7 @@ function buildSite(events: RaceEvent[], today: string): TrailsSite {
       ]),
       noindex: items.length < MIN_INDEXED,
       center: null,
-      photo: null,
+      photo: formatPhoto(f.slug),
       seed: seedOf(f.slug),
     });
   }
@@ -515,7 +515,7 @@ function buildSite(events: RaceEvent[], today: string): TrailsSite {
         },
       ]),
       center: place.region.name === 'Outre-mer' && place.kind === 'region' ? null : centerOf(x.items),
-      photo: null,
+      photo: (x.place.kind === 'departement' ? departementPhoto(x.place.slug) : regionPhoto(x.place.slug)) ?? formatPhoto(x.format.slug),
       seed: seedOf(x.slug),
     });
   }
@@ -560,7 +560,7 @@ function buildSite(events: RaceEvent[], today: string): TrailsSite {
       ]),
       noindex: items.length < MIN_INDEXED,
       center: null,
-      photo: null,
+      photo: monthPhoto(month.m),
       seed: month.m * 3 + month.y,
       map: items.length
         ? {
