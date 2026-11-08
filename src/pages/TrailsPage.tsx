@@ -422,8 +422,22 @@ function FormatTiles({ section }: { section: LinkSection }) {
   );
 }
 
-/** « Bons baisers d’avril », « Bons baisers de mai ». */
-const fromMonth = (name: string) => (/^[aeiouyâéèêîôû]/i.test(name) ? 'Bons baisers d’' : 'Bons baisers de ');
+/** Ce que chaque mois réserve aux traileurs, au-dessus du nom du mois (« La chaleur de juillet »). */
+const MONTH_LINES: Record<string, string> = {
+  janvier: 'Les trails blancs de',
+  fevrier: 'La neige de',
+  mars: 'La boue de',
+  avril: 'Les premiers dossards d’',
+  mai: 'Les crêtes fleuries de',
+  juin: 'Les longues journées de',
+  juillet: 'La chaleur de',
+  aout: 'Les grands ultras d’',
+  septembre: 'Les derniers cols de',
+  octobre: 'Les feuilles mortes d’',
+  novembre: 'Le brouillard de',
+  decembre: 'Les nocturnes de',
+};
+const monthLine = (path: string) => MONTH_LINES[path.replace(/^trails\//, '').replace(/-\d{4}$/, '')] ?? '';
 
 /** Mois en cartes postales : photo de saison, timbre du nombre d'événements, cachet de l'année. */
 function MonthTiles({ section }: { section: LinkSection }) {
@@ -452,7 +466,7 @@ function MonthTiles({ section }: { section: LinkSection }) {
                   <b>{year}</b>
                 </span>
                 <span className="trails-month-text">
-                  <small>{fromMonth(name)}</small>
+                  <small>{monthLine(l.path)}</small>
                   <span className="trails-month-name">{name}</span>
                   <span className="trails-month-year">{year}</span>
                 </span>
