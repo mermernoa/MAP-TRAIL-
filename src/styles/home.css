@@ -2703,6 +2703,66 @@ button.list-more {
   color: rgba(255, 255, 255, 0.9);
 }
 
+/* Touches roses des affiches : ombre rose décalée, date en feuillet de calendrier
+   (mois sur bandeau rose), étiquette rose, trait rose sous le nom, distance en rose. */
+.spot-card {
+  box-shadow: 5px 6px 0 #fe66c4;
+}
+
+.spot-card:hover,
+.spot-card:focus-visible {
+  box-shadow: 8px 10px 0 #fe66c4;
+}
+
+.spot-date {
+  gap: 0;
+  padding: 0 0 4px;
+  overflow: hidden;
+  box-shadow: 2px 2px 0 #fe66c4;
+  transform: rotate(3deg);
+}
+
+.spot-date-month {
+  justify-self: stretch;
+  padding: 2px 8px;
+  border-bottom: 2px solid #071c3f;
+  background: #fe66c4;
+  color: #071c3f;
+  font-size: 11px;
+  font-weight: 800;
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.spot-date b {
+  padding: 2px 8px 0;
+}
+
+.spot-kicker {
+  border: 2px solid #071c3f;
+  background: #fe66c4;
+  color: #071c3f;
+  box-shadow: 2px 2px 0 #ffffff;
+}
+
+.spot-name {
+  justify-self: start;
+  padding-bottom: 6px;
+  background: linear-gradient(#fe66c4, #fe66c4) left bottom / 56px 4px no-repeat;
+  transition: background-size 0.35s ease;
+}
+
+.spot-card:hover .spot-name,
+.spot-card:focus-visible .spot-name {
+  background-size: 100% 4px;
+}
+
+.spot-figures span:first-child {
+  background: #fe66c4;
+  color: #071c3f;
+}
+
 .spot-credit {
   justify-self: start;
   font-size: 11.5px;

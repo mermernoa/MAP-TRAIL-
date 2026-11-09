@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import type { RaceEvent } from '../data/types';
 import {
   consistencyIssues,
+  tidyDepartment,
   tidyName,
   convertSheet,
   fixPrice,
@@ -181,5 +182,11 @@ describe('noms des événements', () => {
     expect(tidyName('Trail Du Val De Scie')).toBe('Trail du Val de Scie');
     expect(tidyName('Trail de La Turbie')).toBe('Trail de La Turbie');
     expect(tidyName('Des Lacs Et Des Bois')).toBe('Des Lacs et des Bois');
+  });
+
+  it('complète le numéro du département quand la feuille l’oublie', () => {
+    expect(tidyDepartment('Var ()')).toBe('Var (83)');
+    expect(tidyDepartment('Isère (38)')).toBe('Isère (38)');
+    expect(tidyDepartment('')).toBeUndefined();
   });
 });

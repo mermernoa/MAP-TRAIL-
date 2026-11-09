@@ -1,6 +1,6 @@
 # Rapport d’import de la base des courses
 
-Import du 08/11/2026 15:17:49 depuis 4 fichier(s) JSON de l'API Sheets.
+Import du 09/11/2026 09:27:03 depuis 4 fichier(s) JSON de l'API Sheets.
 
 - 3251 lignes lues, 3175 publiées (statuts Validé, Prêt, En ligne), non publiées : 76 « À vérifier ».
 - 1274 événements et 3175 parcours sur le site.

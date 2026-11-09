@@ -195,8 +195,8 @@ function RaceCard({ event, course, spot, kicker }: { event: RaceEvent; course: C
         <span className="spot-shade" aria-hidden="true" />
         <span className="spot-glare" aria-hidden="true" />
         <span className="spot-date" aria-hidden="true">
+          <span className="spot-date-month">{MONTH_SHORT[m - 1]}</span>
           <b>{d}</b>
-          {MONTH_SHORT[m - 1]}
         </span>
         {label && <span className="spot-kicker">{label}</span>}
         <span className="spot-name">{event.name}</span>

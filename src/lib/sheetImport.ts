@@ -184,6 +184,16 @@ export function fixPrice(price: number, distanceKm: number): { value: number; fi
 }
 
 /** Commentaire signalant une date provisoire (« Date à confirmer », « Date estimée… »). */
+/** « Var () » dans la feuille (numéro oublié) devient « Var (83) » ; le reste est gardé tel quel. */
+export function tidyDepartment(raw: string): string | undefined {
+  const value = raw.trim();
+  if (!value) return undefined;
+  if (!/\(\s*\)$/.test(value)) return value;
+  const name = value.replace(/\s*\(\s*\)$/, '');
+  const dep = departementOf({ department: name });
+  return dep ? `${name} (${dep.code})` : name;
+}
+
 export function isTentativeDate(comment: string): boolean {
   return /date a confirmer|date estimee/.test(normalize(comment));
 }
@@ -452,7 +462,7 @@ export function convertSheet(input: string[][], publishedStatuses: string[] = PU
       name,
       country,
       region: pick('Région') || pick('Département') || 'France',
-      department: pick('Département') || undefined,
+      department: tidyDepartment(pick('Département')),
       massif: pick('Massif') || undefined,
       city: courses[0].startPlace ?? pick('Ville de départ'),
       lat: eventLat,
