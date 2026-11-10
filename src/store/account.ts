@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import type { Session, SupabaseClient } from '@supabase/supabase-js';
-import { accountReturnUrl, accountsEnabled, authErrorMessage, emailLinkToken, getSupabase, hasEmailReturn, hasStoredSession } from '../lib/supabase';
+import { accountReturnUrl, accountsEnabled, authErrorMessage, emailLinkToken, getSupabase, hasEmailReturn, hasStoredSession, type OAuthProvider } from '../lib/supabase';
 import { mergeSeasons, sameSeason, type SeasonSnapshot } from '../lib/seasonSync';
 import { useSeasonStore } from './season';
 
@@ -28,6 +28,8 @@ interface AccountState {
   ensure: () => Promise<void>;
   signUp: (email: string, password: string, name: string) => Promise<{ error?: string; confirm?: boolean }>;
   signIn: (email: string, password: string) => Promise<{ error?: string }>;
+  /** Connexion ou création de compte avec Google ou Apple (redirection puis retour sur /compte). */
+  signInWith: (provider: OAuthProvider) => Promise<{ error?: string }>;
   signOut: () => Promise<void>;
   resetPassword: (email: string) => Promise<{ error?: string }>;
   setNewPassword: (password: string) => Promise<{ error?: string }>;
@@ -108,11 +110,38 @@ export const useAccount = create<AccountState>()((set, get) => {
     set({ sync: 'saved', syncedAt: new Date().toISOString() });
   }
 
+  /**
+   * E-mail de bienvenue : envoyé une fois, à la première connexion d'un compte récent
+   * (adresse confirmée ou compte Google / Apple). La fonction serveur vérifie tout à nouveau.
+   */
+  async function welcome(session: Session) {
+    const u = session.user;
+    if (u.app_metadata?.welcome_sent || !u.email_confirmed_at) return;
+    if (Date.now() - new Date(u.created_at).getTime() > 7 * 86_400_000) return;
+    // Un seul appel par compte et par appareil tant qu'il aboutit ; le serveur évite de toute façon les doublons.
+    const key = `ttt-bienvenue-${u.id}`;
+    try {
+      if (localStorage.getItem(key)) return;
+    } catch {
+      /* stockage indisponible */
+    }
+    const sb = await getSupabase();
+    const { data } = await sb.functions.invoke<{ sent?: boolean; reason?: string }>('welcome', { body: {} }).catch(() => ({ data: null }));
+    if (data?.sent || data?.reason === 'already' || data?.reason === 'old') {
+      try {
+        localStorage.setItem(key, '1');
+      } catch {
+        /* stockage indisponible */
+      }
+    }
+  }
+
   function onSession(session: Session | null) {
     const user = toUser(session);
     const wasIn = get().status === 'signedIn';
     set({ user, status: user ? 'signedIn' : 'signedOut' });
     if (user && !wasIn) void pull();
+    if (session && !wasIn) void welcome(session);
     if (!user) {
       lastPushed = null;
       set({ sync: 'idle', syncedAt: null });
@@ -183,6 +212,15 @@ export const useAccount = create<AccountState>()((set, get) => {
     signIn: async (email, password) => {
       const sb = await client();
       const { error } = await sb.auth.signInWithPassword({ email, password });
+      return error ? { error: authErrorMessage(error) } : {};
+    },
+
+    signInWith: async (provider) => {
+      const sb = await client();
+      const { error } = await sb.auth.signInWithOAuth({
+        provider,
+        options: { redirectTo: accountReturnUrl(), ...(provider === 'google' ? { queryParams: { prompt: 'select_account' } } : {}) },
+      });
       return error ? { error: authErrorMessage(error) } : {};
     },
 

@@ -2,8 +2,11 @@ name: Réglages Supabase
 
 # Envoie au projet Supabase les réglages de supabase/config.toml : adresse du site,
 # règles de mot de passe, e-mails en français (supabase/templates/) et, si le secret
-# SMTP_PASSWORD existe, l'envoi depuis taketontrail@gmail.com.
+# SMTP_PASSWORD existe, l'envoi depuis taketontrail@gmail.com et l'e-mail de bienvenue
+# (supabase/functions/welcome). Connexion Google / Apple si leurs secrets existent.
 # Secret requis : SUPABASE_ACCESS_TOKEN (jeton d'accès personnel Supabase).
+# Secrets facultatifs : SMTP_PASSWORD, GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET,
+# APPLE_CLIENT_ID, APPLE_SECRET.
 
 on:
   push:
@@ -11,6 +14,7 @@ on:
     paths:
       - 'supabase/config.toml'
       - 'supabase/templates/**'
+      - 'supabase/functions/**'
       - '.github/workflows/supabase-config.yml'
   workflow_dispatch:
 
@@ -27,6 +31,10 @@ jobs:
     env:
       SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
       SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
+      GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+      GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
+      APPLE_CLIENT_ID: ${{ secrets.APPLE_CLIENT_ID }}
+      APPLE_SECRET: ${{ secrets.APPLE_SECRET }}
       PROJECT_REF: lmlafljyqfmargqlbdsf
     steps:
       - uses: actions/checkout@v4
@@ -57,9 +65,35 @@ jobs:
           admin_email = "taketontrail@gmail.com"
           sender_name = "Take Ton Trail"
           TOML
+      - name: Connexion Google (si GOOGLE_CLIENT_ID et GOOGLE_CLIENT_SECRET existent)
+        if: steps.token.outputs.ok == 'true' && env.GOOGLE_CLIENT_ID != '' && env.GOOGLE_CLIENT_SECRET != ''
+        run: |
+          cat >> supabase/config.toml <<'TOML'
+
+          [auth.external.google]
+          enabled = true
+          client_id = "env(GOOGLE_CLIENT_ID)"
+          secret = "env(GOOGLE_CLIENT_SECRET)"
+          skip_nonce_check = false
+          TOML
+      - name: Connexion Apple (si APPLE_CLIENT_ID et APPLE_SECRET existent)
+        if: steps.token.outputs.ok == 'true' && env.APPLE_CLIENT_ID != '' && env.APPLE_SECRET != ''
+        run: |
+          cat >> supabase/config.toml <<'TOML'
+
+          [auth.external.apple]
+          enabled = true
+          client_id = "env(APPLE_CLIENT_ID)"
+          secret = "env(APPLE_SECRET)"
+          TOML
       - name: Différences avec le projet
         if: steps.token.outputs.ok == 'true'
         run: supabase config diff --project-ref "$PROJECT_REF"
       - name: Envoi des réglages
         if: steps.token.outputs.ok == 'true'
         run: supabase config push --project-ref "$PROJECT_REF" --yes
+      - name: E-mail de bienvenue (fonction + mot de passe d'envoi)
+        if: steps.token.outputs.ok == 'true' && env.SMTP_PASSWORD != ''
+        run: |
+          supabase secrets set --project-ref "$PROJECT_REF" SMTP_PASSWORD="$SMTP_PASSWORD"
+          supabase functions deploy welcome --project-ref "$PROJECT_REF" --use-api

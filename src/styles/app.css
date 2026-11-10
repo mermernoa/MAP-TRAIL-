@@ -4550,3 +4550,80 @@ textarea {
   font: 12px/1.4 ui-monospace, Menlo, Consolas, monospace;
   resize: vertical;
 }
+
+/* Compte : connexion Google / Apple et règles du mot de passe. */
+.account-social {
+  display: grid;
+  gap: 10px;
+}
+
+.account-social-button {
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  border: 2px solid #071c3f;
+  background: #ffffff;
+  color: #071c3f;
+  font-weight: 700;
+}
+
+.account-social-button.is-apple {
+  background: #071c3f;
+  color: #ffffff;
+}
+
+.account-or {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 4px 0 0;
+  color: var(--ink-3, #635c7d);
+  font-size: 13px;
+}
+
+.account-or::before,
+.account-or::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: currentColor;
+  opacity: 0.35;
+}
+
+.password-rules {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 4px 12px;
+  margin: -4px 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: 13px;
+  color: var(--ink-3, #635c7d);
+}
+
+.password-rules li {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.password-rules li.is-ok {
+  color: #071c3f;
+  font-weight: 700;
+}
+
+.password-rule-mark {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 16px;
+  height: 16px;
+  border: 2px solid currentColor;
+  border-radius: 50%;
+}
+
+.password-rules li.is-ok .password-rule-mark {
+  border-color: #071c3f;
+  background: #fe66c4;
+  color: #071c3f;
+}

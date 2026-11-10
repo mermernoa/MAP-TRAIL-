@@ -51,7 +51,7 @@ const MESSAGES: Record<string, string> = {
   invalid_credentials: 'E-mail ou mot de passe incorrect.',
   user_already_exists: 'Un compte existe déjà avec cet e-mail. Connecte-toi.',
   email_exists: 'Un compte existe déjà avec cet e-mail. Connecte-toi.',
-  weak_password: 'Mot de passe trop faible : 8 caractères minimum, avec des lettres et des chiffres.',
+  weak_password: 'Mot de passe trop faible : 8 caractères minimum, avec une majuscule, une minuscule, un chiffre et un caractère spécial.',
   email_not_confirmed: 'Confirme d’abord ton adresse e-mail grâce au lien reçu.',
   over_email_send_rate_limit: 'Trop d’e-mails envoyés. Réessaie dans quelques minutes.',
   over_request_rate_limit: 'Trop de tentatives. Réessaie dans quelques minutes.',
@@ -59,6 +59,9 @@ const MESSAGES: Record<string, string> = {
   email_address_invalid: 'Cette adresse e-mail n’est pas valide.',
   signup_disabled: 'La création de compte est momentanément fermée.',
   validation_failed: 'Vérifie l’e-mail et le mot de passe saisis.',
+  provider_disabled: 'Cette connexion n’est pas encore ouverte. Utilise ton e-mail.',
+  identity_already_exists: 'Ce compte est déjà relié à une autre adresse.',
+  reauthentication_needed: 'Par sécurité, reconnecte-toi avant de changer ton mot de passe.',
 };
 
 /** Message lisible pour une erreur Supabase. */
@@ -91,4 +94,21 @@ export function emailLinkToken(url = window.location.search || window.location.h
 /** Vrai si l'adresse arrive d'un e-mail du compte (code PKCE ou jeton). */
 export function hasEmailReturn(): boolean {
   return /[?&]code=/.test(window.location.search) || emailLinkToken() != null;
+}
+
+export type OAuthProvider = 'google' | 'apple';
+
+let providers: Promise<OAuthProvider[]> | null = null;
+
+/**
+ * Connexions Google / Apple ouvertes sur le projet (réglages publics de Supabase) :
+ * un bouton n'apparaît que si la connexion fonctionne vraiment.
+ */
+export function enabledProviders(): Promise<OAuthProvider[]> {
+  if (!accountsEnabled) return Promise.resolve([]);
+  providers ??= fetch(`${SUPABASE_URL}/auth/v1/settings`, { headers: { apikey: SUPABASE_PUBLISHABLE_KEY } })
+    .then((r) => (r.ok ? r.json() : { external: {} }))
+    .then((s: { external?: Record<string, boolean> }) => (['google', 'apple'] as const).filter((p) => s.external?.[p]))
+    .catch(() => []);
+  return providers;
 }

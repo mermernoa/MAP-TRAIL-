@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { CheckIcon, SparkIcon, UserIcon } from '../components/Icons';
+import { missingRules, PASSWORD_HINT, PASSWORD_RULES } from '../lib/password';
+import { enabledProviders, type OAuthProvider } from '../lib/supabase';
 import { SuggestionList } from '../components/SuggestionList';
 import { resolveEntries } from '../lib/season';
 import { suggestRaces } from '../lib/suggestions';
@@ -101,8 +103,8 @@ function AuthForms({ confirmed }: { confirmed: boolean }) {
     e.preventDefault();
     setError('');
     setInfo('');
-    if (mode !== 'reset' && password.length < 8) {
-      setError('Le mot de passe doit faire au moins 8 caractères.');
+    if (mode === 'signup' && missingRules(password).length) {
+      setError(`Mot de passe trop faible : ${PASSWORD_HINT}`);
       return;
     }
     setBusy(true);
@@ -135,6 +137,7 @@ function AuthForms({ confirmed }: { confirmed: boolean }) {
       )}
       {mode === 'signup' && <Benefits />}
       {mode === 'reset' && <h2 className="account-card-title">Mot de passe oublié</h2>}
+      {mode !== 'reset' && <SocialButtons mode={mode} />}
       <form className="account-form" onSubmit={submit}>
         {mode === 'signup' && (
           <label className="field">
@@ -153,13 +156,15 @@ function AuthForms({ confirmed }: { confirmed: boolean }) {
               type="password"
               autoComplete={mode === 'signup' ? 'new-password' : 'current-password'}
               minLength={8}
-              placeholder={mode === 'signup' ? '8 caractères, lettres et chiffres' : undefined}
+              placeholder={mode === 'signup' ? 'Au moins 8 caractères' : undefined}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              aria-describedby={mode === 'signup' ? 'password-rules' : undefined}
               required
             />
           </label>
         )}
+        {mode === 'signup' && <PasswordChecklist password={password} />}
         {error && (
           <p className="form-error" role="alert">
             {error}
@@ -193,13 +198,93 @@ function AuthForms({ confirmed }: { confirmed: boolean }) {
   );
 }
 
+/** Les règles du mot de passe, cochées en direct pendant la saisie. */
+function PasswordChecklist({ password }: { password: string }) {
+  return (
+    <ul className="password-rules" id="password-rules" aria-label="Règles du mot de passe">
+      {PASSWORD_RULES.map((r) => {
+        const ok = r.test(password);
+        return (
+          <li key={r.id} className={ok ? 'is-ok' : ''}>
+            <span className="password-rule-mark" aria-hidden="true">
+              {ok ? <CheckIcon size={12} /> : null}
+            </span>
+            {r.label}
+            <span className="sr-only">{ok ? ' : respecté' : ' : manquant'}</span>
+          </li>
+        );
+      })}
+    </ul>
+  );
+}
+
+const PROVIDER_LABEL: Record<OAuthProvider, string> = { google: 'Google', apple: 'Apple' };
+
+function ProviderIcon({ provider }: { provider: OAuthProvider }) {
+  if (provider === 'apple')
+    return (
+      <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" fill="currentColor">
+        <path d="M16.37 12.6c-.02-2.2 1.8-3.26 1.88-3.31-1.03-1.5-2.62-1.7-3.18-1.73-1.35-.14-2.64.8-3.33.8-.69 0-1.74-.78-2.87-.76-1.47.02-2.83.86-3.59 2.18-1.53 2.66-.39 6.6 1.1 8.75.73 1.05 1.6 2.24 2.73 2.2 1.1-.05 1.51-.71 2.84-.71 1.32 0 1.7.71 2.86.69 1.18-.02 1.93-1.07 2.65-2.13.84-1.22 1.18-2.4 1.2-2.47-.03-.01-2.3-.88-2.32-3.5ZM14.18 6.15c.6-.73 1.01-1.75.9-2.76-.87.04-1.93.58-2.55 1.31-.56.65-1.05 1.69-.92 2.68.97.08 1.96-.49 2.57-1.23Z" />
+      </svg>
+    );
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
+      <path fill="#4285F4" d="M23.5 12.27c0-.85-.08-1.67-.22-2.45H12v4.63h6.45a5.52 5.52 0 0 1-2.39 3.62v3h3.87c2.26-2.08 3.57-5.15 3.57-8.8Z" />
+      <path fill="#34A853" d="M12 24c3.24 0 5.96-1.07 7.94-2.9l-3.87-3c-1.07.72-2.45 1.15-4.07 1.15-3.13 0-5.78-2.11-6.73-4.95H1.27v3.1A12 12 0 0 0 12 24Z" />
+      <path fill="#FBBC05" d="M5.27 14.3a7.2 7.2 0 0 1 0-4.6V6.6H1.27a12 12 0 0 0 0 10.8l4-3.1Z" />
+      <path fill="#EA4335" d="M12 4.75c1.76 0 3.34.6 4.59 1.8l3.43-3.43A11.5 11.5 0 0 0 12 0 12 12 0 0 0 1.27 6.6l4 3.1C6.22 6.86 8.87 4.75 12 4.75Z" />
+    </svg>
+  );
+}
+
+/** « Continuer avec Google / Apple » : seulement les connexions ouvertes sur le projet. */
+function SocialButtons({ mode }: { mode: 'signup' | 'signin' }) {
+  const [list, setList] = useState<OAuthProvider[]>([]);
+  const [error, setError] = useState('');
+  useEffect(() => {
+    let alive = true;
+    void enabledProviders().then((p) => alive && setList(p));
+    return () => {
+      alive = false;
+    };
+  }, []);
+  if (!list.length) return null;
+  return (
+    <div className="account-social">
+      {list.map((p) => (
+        <button
+          key={p}
+          type="button"
+          className={`button account-social-button is-${p}`}
+          onClick={async () => {
+            setError('');
+            const res = await useAccount.getState().signInWith(p);
+            if (res.error) setError(res.error);
+          }}
+        >
+          <ProviderIcon provider={p} />
+          {mode === 'signup' ? `S’inscrire avec ${PROVIDER_LABEL[p]}` : `Continuer avec ${PROVIDER_LABEL[p]}`}
+        </button>
+      ))}
+      {error && (
+        <p className="form-error" role="alert">
+          {error}
+        </p>
+      )}
+      <p className="account-or">
+        <span>ou avec ton e-mail</span>
+      </p>
+    </div>
+  );
+}
+
 function NewPasswordForm() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (password.length < 8) return setError('Le mot de passe doit faire au moins 8 caractères.');
+    if (missingRules(password).length) return setError(`Mot de passe trop faible : ${PASSWORD_HINT}`);
     setBusy(true);
     const res = await useAccount.getState().setNewPassword(password);
     setBusy(false);
@@ -211,8 +296,9 @@ function NewPasswordForm() {
       <form className="account-form" onSubmit={submit}>
         <label className="field">
           Choisis un mot de passe
-          <input type="password" autoComplete="new-password" minLength={8} value={password} onChange={(e) => setPassword(e.target.value)} required />
+          <input type="password" autoComplete="new-password" minLength={8} value={password} onChange={(e) => setPassword(e.target.value)} aria-describedby="password-rules" required />
         </label>
+        <PasswordChecklist password={password} />
         {error && (
           <p className="form-error" role="alert">
             {error}

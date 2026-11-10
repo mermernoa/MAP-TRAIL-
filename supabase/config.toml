@@ -9,9 +9,10 @@ site_url = "https://taketontrail.fr/"
 additional_redirect_urls = ["https://taketontrail.fr/**", "https://www.taketontrail.fr/**", "https://mermernoa.github.io/MAP-TRAIL-/**", "http://localhost:5173/**"]
 enable_signup = true
 enable_anonymous_sign_ins = false
-# Même règle que le formulaire du site : 8 caractères, des lettres et des chiffres.
+# Même règle que le formulaire du site (src/lib/password.ts) : 8 caractères minimum,
+# une minuscule, une majuscule, un chiffre et un caractère spécial.
 minimum_password_length = 8
-password_requirements = "letters_digits"
+password_requirements = "lower_upper_letters_digits_symbols"
 
 [auth.rate_limit]
 # E-mails envoyés par heure (pris en compte avec un serveur SMTP personnalisé).
@@ -22,7 +23,8 @@ enable_signup = true
 # Confirmation de l'adresse avant la première connexion.
 enable_confirmations = true
 double_confirm_changes = true
-secure_password_change = false
+# Changer de mot de passe demande une connexion récente (moins de 24 h), sinon un code par e-mail.
+secure_password_change = true
 max_frequency = "60s"
 otp_length = 6
 otp_expiry = 3600
@@ -56,3 +58,11 @@ content_path = "./supabase/templates/reauthentication.html"
 # Serveur d'envoi : ajouté par le workflow si le secret SMTP_PASSWORD existe
 # (mot de passe d'application Gmail de taketontrail@gmail.com). Sans lui, Supabase
 # envoie depuis son adresse par défaut, limitée aux membres de l'équipe.
+
+# Connexion Google / Apple : ajoutée par le workflow quand les secrets GitHub existent
+# (GOOGLE_CLIENT_ID + GOOGLE_CLIENT_SECRET, APPLE_CLIENT_ID + APPLE_SECRET).
+# Le site n'affiche un bouton que si la connexion est ouverte sur le projet.
+
+# E-mail de bienvenue (supabase/functions/welcome) : appelée avec la session de l'utilisateur.
+[functions.welcome]
+verify_jwt = true
