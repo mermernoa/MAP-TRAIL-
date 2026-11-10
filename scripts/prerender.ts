@@ -17,6 +17,7 @@ import { courseNearbyLinks } from '../src/lib/cities';
 import { type TrailItem, trailsSite } from '../src/lib/trailPages';
 import { collectionTitle, infoTitle, massifTitle, raceTitle, seasonLabel, TITLES, trailsTitle } from '../src/lib/seoTitles';
 import { coursesWord, eventsWord } from '../src/lib/words';
+import { cardPhoto, isIllustration } from '../src/lib/photos';
 
 const DIST = 'dist';
 const env = Object.fromEntries(
@@ -29,6 +30,49 @@ const env = Object.fromEntries(
 const SITE_URL = (process.env.VITE_SITE_URL ?? env.VITE_SITE_URL ?? '').replace(/\/$/, '');
 if (!SITE_URL) throw new Error('VITE_SITE_URL manquant (.env.production)');
 const OG_IMAGE = `${SITE_URL}/og-image.png`;
+
+/** Image d'une page : aperçu de partage (og:image), vignette Google et photo du contenu pré-rendu. */
+interface PageImage {
+  /** Adresse absolue. */
+  url: string;
+  alt: string;
+  credit?: string;
+  width?: number;
+  height?: number;
+}
+
+/** Largeur × hauteur d'une image WebP fournie avec le site (public/…), pour og:image et <img>. */
+function webpSize(file: string): { width: number; height: number } | undefined {
+  try {
+    const b = readFileSync(file);
+    if (b.toString('ascii', 0, 4) !== 'RIFF' || b.toString('ascii', 8, 12) !== 'WEBP') return undefined;
+    const kind = b.toString('ascii', 12, 16);
+    if (kind === 'VP8X') return { width: 1 + b.readUIntLE(24, 3), height: 1 + b.readUIntLE(27, 3) };
+    if (kind === 'VP8 ') return { width: b.readUInt16LE(26) & 0x3fff, height: b.readUInt16LE(28) & 0x3fff };
+    if (kind === 'VP8L') {
+      const v = b.readUInt32LE(21);
+      return { width: 1 + (v & 0x3fff), height: 1 + ((v >> 14) & 0x3fff) };
+    }
+  } catch {
+    /* fichier absent : pas de dimensions */
+  }
+  return undefined;
+}
+
+/** Image d'une page à partir d'une photo du site (chemin relatif à public/) ou d'une adresse externe. */
+function pageImage(src: string, alt: string, credit?: string): PageImage {
+  if (/^https?:\/\//.test(src)) return { url: src, alt, credit };
+  const path = src.replace(/^\/+/, '');
+  return { url: `${SITE_URL}/${path.split('/').map(encodeURIComponent).join('/')}`, alt, credit, ...(path.endsWith('.webp') ? webpSize(join('public', path)) : {}) };
+}
+
+/** Photo en tête du contenu pré-rendu : Google la voit sans JavaScript et peut en faire la vignette du résultat. */
+const figure = (img: PageImage | undefined) =>
+  img
+    ? `<figure><img src="${esc(img.url)}" alt="${esc(img.alt)}"${img.width && img.height ? ` width="${img.width}" height="${img.height}"` : ''} />${
+        img.credit ? `<figcaption>Photo : ${esc(img.credit)}</figcaption>` : ''
+      }</figure>`
+    : '';
 const today = new Date().toISOString().slice(0, 10);
 
 const template = readFileSync(join(DIST, 'index.html'), 'utf8');
@@ -68,6 +112,8 @@ interface Page {
   lastmod?: string;
   /** Adresse canonique d'une autre page (même course saisie deux fois dans la feuille). */
   canonicalPath?: string;
+  /** Photo de la page (sinon l'image générique du site). */
+  image?: PageImage;
 }
 
 function raceLink(e: RaceEvent) {
@@ -101,16 +147,21 @@ function render(p: Page): string {
     `<title>${esc(p.title)}</title>`,
     `<meta name="description" content="${esc(p.description)}" />`,
     `<link rel="canonical" href="${p.canonicalPath != null ? `${SITE_URL}/${p.canonicalPath}` : url}" />`,
-    p.noindex ? '<meta name="robots" content="noindex" />' : '',
+    // Grandes vignettes autorisées dans les résultats Google (et Discover).
+    p.noindex ? '<meta name="robots" content="noindex" />' : '<meta name="robots" content="max-image-preview:large" />',
     '<meta property="og:site_name" content="Take Ton Trail" />',
     '<meta property="og:locale" content="fr_FR" />',
     `<meta property="og:type" content="${p.path.startsWith('course/') ? 'article' : 'website'}" />`,
     `<meta property="og:title" content="${esc(p.title)}" />`,
     `<meta property="og:description" content="${esc(p.description)}" />`,
     `<meta property="og:url" content="${url}" />`,
-    `<meta property="og:image" content="${OG_IMAGE}" />`,
-    '<meta property="og:image:width" content="1200" />',
-    '<meta property="og:image:height" content="630" />',
+    ...(p.image
+      ? [
+          `<meta property="og:image" content="${esc(p.image.url)}" />`,
+          ...(p.image.width && p.image.height ? [`<meta property="og:image:width" content="${p.image.width}" />`, `<meta property="og:image:height" content="${p.image.height}" />`] : []),
+          `<meta property="og:image:alt" content="${esc(p.image.alt)}" />`,
+        ]
+      : [`<meta property="og:image" content="${OG_IMAGE}" />`, '<meta property="og:image:width" content="1200" />', '<meta property="og:image:height" content="630" />']),
     '<meta name="twitter:card" content="summary_large_image" />',
     ...(p.jsonLd ?? []).map((j) => `<script type="application/ld+json">${JSON.stringify(j).replace(/</g, '\\u003c')}</script>`),
   ]
@@ -242,12 +293,14 @@ for (const p of site.pages) {
           .join('')}</ul>`,
     )
     .join('');
+  const image = p.photo ? pageImage(p.photo, p.h1) : undefined;
   pages.push({
     path: p.path,
     lastmod: DATA_DAY,
     title: trailsTitle(p.title),
     description: p.description,
-    body: `<nav aria-label="Fil d’Ariane">${p.breadcrumb.map((l) => `<a href="${href(l.path)}">${esc(l.label)}</a>`).join(' / ')}</nav><h1>${esc(p.h1)}</h1>${
+    image,
+    body: `<nav aria-label="Fil d’Ariane">${p.breadcrumb.map((l) => `<a href="${href(l.path)}">${esc(l.label)}</a>`).join(' / ')}</nav>${figure(image)}<h1>${esc(p.h1)}</h1>${
       p.subtitle ? `<p>${esc(p.subtitle)}</p>` : ''
     }<p>${esc(p.intro)}</p>${p.items.length ? `<h2>${esc(p.listTitle)}</h2><ul>${p.items.map(itemLink).join('')}</ul>` : ''}${
       p.story ? `<h2>${esc(p.story.title)}</h2>${p.story.paragraphs.map((t) => `<p>${esc(t)}</p>`).join('')}` : ''
@@ -298,6 +351,10 @@ for (const e of events) {
   const when = formatRange(e.dateStart, e.dateEnd);
   const estimated = e.dateStatus === 'estimated';
   const prices = courses.map((c) => c.priceEur).filter((v): v is number => v != null);
+  // Vraie photo de la course, sinon le paysage de son massif : aperçu de partage et vignette Google.
+  // Une image d'illustration (photo générique du département) passe après le paysage du massif.
+  const photo = (isIllustration(e) ? cardPhoto({ ...e, image: undefined }) : null) ?? cardPhoto(e);
+  const image = photo ? pageImage(photo.src, `${e.name} ${year}, trail à ${e.city}`, photo.credit) : undefined;
   const ld: Record<string, unknown> = {
     '@context': 'https://schema.org',
     '@type': 'SportsEvent',
@@ -308,8 +365,8 @@ for (const e of events) {
     eventStatus: 'https://schema.org/EventScheduled',
     eventAttendanceMode: 'https://schema.org/OfflineEventAttendanceMode',
     url: `${SITE_URL}/course/${e.id}`,
-    // La vraie photo de la course quand la base en a une (meilleure chance de résultat enrichi).
-    image: e.image ? [e.image, OG_IMAGE] : [OG_IMAGE],
+    // La vraie photo de la course (sinon le paysage du massif) : meilleure chance de vignette.
+    image: image ? [image.url, OG_IMAGE] : [OG_IMAGE],
     description: clip(`${e.name}, course de trail à ${place(e)}. Parcours : ${dist}.`, 300),
     location: {
       '@type': 'Place',
@@ -332,7 +389,8 @@ for (const e of events) {
     title: raceTitle(e.name, year, e.city),
     description: raceDescription(e, courses, year, when, estimated),
     lastmod: e.updatedAt,
-    body: `<h1>${esc(e.name)}</h1><p>${esc(place(e))}${depLink(e)} · ${estimated ? 'Date prévisionnelle : ' : ''}${esc(when)}${massifLink(e.massif)}</p><h2>Parcours</h2><ul>${courses
+    image,
+    body: `${figure(image)}<h1>${esc(e.name)}</h1><p>${esc(place(e))}${depLink(e)} · ${estimated ? 'Date prévisionnelle : ' : ''}${esc(when)}${massifLink(e.massif)}</p><h2>Parcours</h2><ul>${courses
       .map((c) => `<li>${esc(c.name)} : ${km(c.distanceKm)}${c.elevationGain != null ? `, ${nf.format(c.elevationGain)} m D+` : ''}${c.priceEur != null ? `, ${nf.format(c.priceEur)} €` : ''}</li>`)
       .join('')}</ul>${e.description ? `<p>${esc(e.description)}</p>` : ''}${e.website ? `<p><a href="${esc(e.website)}" rel="nofollow">Site de l’organisation</a></p>` : ''}${nearbyLinks(e)}`,
     // Date pas encore publiée : pas de données d'événement (Google demande une date sûre).
