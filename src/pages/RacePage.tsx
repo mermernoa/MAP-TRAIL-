@@ -105,7 +105,7 @@ function RaceDetail({ event }: { event: RaceEvent }) {
           <img
             className="race-hero-photo"
             src={event.image}
-            alt=""
+            alt={`${event.name}, trail à ${event.city}`}
             referrerPolicy="no-referrer"
             onError={() => setPhotoFailed(true)}
           />

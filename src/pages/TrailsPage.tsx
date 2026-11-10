@@ -177,7 +177,7 @@ function TrailsView({ page }: { page: TrailsPageData }) {
     <article className={`${terrain ? 'massif-page' : 'collection-page'} trails-page`}>
       <header ref={heroRef} className={`race-hero ${terrain ? 'massif-hero' : 'collection-hero'} ${photo ? 'has-photo' : ''}`}>
         {photo ? (
-          <img className="race-hero-photo" src={photo} alt="" onError={() => setPhotoFailed(true)} />
+          <img className="race-hero-photo" src={photo} alt={page.h1} onError={() => setPhotoFailed(true)} />
         ) : page.center ? (
           <TerrainHero lat={page.center.lat} lng={page.center.lng} track={null} />
         ) : (
@@ -254,7 +254,7 @@ function TrailsIndex({ page }: { page: TrailsPageData }) {
     <article className="collection-page trails-page trails-index">
       <header ref={heroRef} className={`race-hero trails-index-hero ${photo ? 'has-photo' : 'collection-hero'}`}>
         {photo ? (
-          <img className="race-hero-photo" src={photo} alt="" onError={() => setPhotoFailed(true)} />
+          <img className="race-hero-photo" src={photo} alt={page.h1} onError={() => setPhotoFailed(true)} />
         ) : (
           <div className="collection-hero-night" aria-hidden="true">
             <RidgeProfile kind="aiguilles" seed={page.seed} className="collection-hero-ridge" />
