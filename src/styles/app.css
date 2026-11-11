@@ -4627,3 +4627,12 @@ textarea {
   background: #fe66c4;
   color: #071c3f;
 }
+
+/* Piège à robots des formulaires : hors de l'écran, ignoré par les lecteurs d'écran. */
+.form-trap {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}

@@ -7,14 +7,43 @@ import { InfoLayout } from './InfoPages';
 
 type Status = 'idle' | 'sending' | SendResult;
 
-/** Envoi d'un formulaire et message de retour. */
+/** Moins de 3 secondes entre l'affichage du formulaire et l'envoi : c'est un robot. */
+const MIN_FILL_MS = 3000;
+
+/**
+ * Envoi d'un formulaire et message de retour, avec un piège à robots invisible :
+ * un champ caché que seuls les robots remplissent, et un délai minimum de saisie.
+ * Un envoi piégé affiche « envoyé » sans rien envoyer (le robot ne voit pas la différence).
+ */
 function useSend() {
   const [status, setStatus] = useState<Status>('idle');
+  const [shownAt, setShownAt] = useState(() => Date.now());
+  const [trapValue, setTrapValue] = useState('');
   const send = async (m: OutgoingMessage) => {
     setStatus('sending');
+    if (trapValue || Date.now() - shownAt < MIN_FILL_MS) {
+      setStatus('sent');
+      return;
+    }
     setStatus(await sendMessage(m));
   };
-  return { status, send, reset: () => setStatus('idle') };
+  const trap = (
+    <div className="form-trap" aria-hidden="true">
+      <label>
+        Site web
+        <input type="text" name="website" tabIndex={-1} autoComplete="off" value={trapValue} onChange={(e) => setTrapValue(e.target.value)} />
+      </label>
+    </div>
+  );
+  return {
+    status,
+    send,
+    trap,
+    reset: () => {
+      setStatus('idle');
+      setShownAt(Date.now());
+    },
+  };
 }
 
 function SendFeedback({ status, onAgain }: { status: Status; onAgain: () => void }) {
@@ -72,7 +101,7 @@ const lines = (pairs: [string, string | undefined][]) =>
 
 export function ContactPage() {
   const id = useId();
-  const { status, send, reset } = useSend();
+  const { status, send, reset, trap } = useSend();
   const [form, setForm] = useState({ name: '', email: '', topic: 'Question', message: '' });
   const set = (patch: Partial<typeof form>) => setForm((f) => ({ ...f, ...patch }));
   return (
@@ -100,6 +129,7 @@ export function ContactPage() {
           }}
         >
           {!messagesEnabled && <NotOpenYet />}
+          {trap}
           <div className="form-row">
             <label htmlFor={`${id}-name`}>Ton nom (facultatif)</label>
             <input id={`${id}-name`} value={form.name} onChange={(e) => set({ name: e.target.value })} autoComplete="name" />
@@ -159,7 +189,7 @@ export function ReportPage() {
   const id = useId();
   const [params] = useSearchParams();
   const event = useRace(params.get('course') ?? undefined);
-  const { status, send, reset } = useSend();
+  const { status, send, reset, trap } = useSend();
   const [form, setForm] = useState({
     race: '',
     topic: params.get('sujet') === 'photo' ? 'Photo : crédit ou retrait' : 'Date',
@@ -197,6 +227,7 @@ export function ReportPage() {
           }}
         >
           {!messagesEnabled && <NotOpenYet />}
+          {trap}
           <div className="form-row">
             <label htmlFor={`${id}-race`}>Course concernée</label>
             {event ? (
@@ -241,7 +272,7 @@ export function ReportPage() {
 
 export function ProposePage() {
   const id = useId();
-  const { status, send, reset } = useSend();
+  const { status, send, reset, trap } = useSend();
   const [form, setForm] = useState({ name: '', city: '', date: '', distances: '', website: '', organizer: 'non', email: '', comment: '' });
   const set = (patch: Partial<typeof form>) => setForm((f) => ({ ...f, ...patch }));
   return (
@@ -273,6 +304,7 @@ export function ProposePage() {
           }}
         >
           {!messagesEnabled && <NotOpenYet />}
+          {trap}
           <div className="form-row">
             <label htmlFor={`${id}-name`}>Nom de la course</label>
             <input id={`${id}-name`} required value={form.name} onChange={(e) => set({ name: e.target.value })} />
