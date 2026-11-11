@@ -92,8 +92,9 @@ jobs:
       - name: Envoi des réglages
         if: steps.token.outputs.ok == 'true'
         run: supabase config push --project-ref "$PROJECT_REF" --yes
-      - name: E-mail de bienvenue (fonction + mot de passe d'envoi)
+      - name: E-mails (bienvenue, alerte des messages) et mot de passe d'envoi
         if: steps.token.outputs.ok == 'true' && env.SMTP_PASSWORD != ''
         run: |
           supabase secrets set --project-ref "$PROJECT_REF" SMTP_PASSWORD="$SMTP_PASSWORD"
           supabase functions deploy welcome --project-ref "$PROJECT_REF" --use-api
+          supabase functions deploy notify-message --project-ref "$PROJECT_REF" --use-api

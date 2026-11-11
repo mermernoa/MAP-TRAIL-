@@ -66,3 +66,8 @@ content_path = "./supabase/templates/reauthentication.html"
 # E-mail de bienvenue (supabase/functions/welcome) : appelée avec la session de l'utilisateur.
 [functions.welcome]
 verify_jwt = true
+
+# Alerte e-mail des messages des formulaires (supabase/functions/notify-message) :
+# appelée par les visiteurs, même sans compte ; elle ne fait que relire un message récent.
+[functions.notify-message]
+verify_jwt = false

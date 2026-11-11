@@ -34,7 +34,10 @@ export async function sendMessage(m: OutgoingMessage): Promise<SendResult> {
   if (accountsEnabled) {
     try {
       const sb = await getSupabase();
+      // Identifiant choisi ici : la fonction d'alerte relit ce message en base pour l'envoyer par e-mail.
+      const id = crypto.randomUUID();
       const { error } = await sb.from('messages').insert({
+        id,
         kind: m.kind,
         subject: m.subject.slice(0, 200),
         body: m.body.slice(0, 5000),
@@ -42,7 +45,11 @@ export async function sendMessage(m: OutgoingMessage): Promise<SendResult> {
         course_id: m.courseId ?? null,
         page: window.location.href.slice(0, 500),
       });
-      if (!error) return 'sent';
+      if (!error) {
+        // Copie par e-mail à taketontrail@gmail.com ; le message reste dans l'espace admin même si elle échoue.
+        void sb.functions.invoke('notify-message', { body: { id } }).catch(() => undefined);
+        return 'sent';
+      }
     } catch {
       // Base injoignable : on tente la messagerie.
     }
