@@ -71,3 +71,7 @@ verify_jwt = true
 # appelée par les visiteurs, même sans compte ; elle ne fait que relire un message récent.
 [functions.notify-message]
 verify_jwt = false
+
+# Santé du site dans l'espace admin (supabase/functions/admin-health) : comptes admins seulement.
+[functions.admin-health]
+verify_jwt = true

@@ -3679,3 +3679,84 @@ button.list-more {
     border-left-width: 6px;
   }
 }
+
+/* Espace admin : aide sous les onglets, état du site, titres de groupes. */
+.admin-tab-help {
+  margin: -6px 0 4px;
+  color: var(--ink-3, #635c7d);
+  font-size: 14px;
+}
+
+.admin-group-title {
+  margin: 10px 0 -6px;
+  font-family: var(--font-display);
+  font-size: 22px;
+  color: #071c3f;
+}
+
+.admin-health ul {
+  display: grid;
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.admin-check {
+  display: grid;
+  grid-template-columns: 16px 1fr;
+  gap: 12px;
+  padding: 12px 14px;
+  border: 2px solid #071c3f;
+  border-radius: 12px;
+  background: #ffffff;
+}
+
+.admin-check p {
+  margin: 4px 0 0;
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.admin-check-dot {
+  width: 14px;
+  height: 14px;
+  margin-top: 4px;
+  border: 2px solid #071c3f;
+  border-radius: 50%;
+  background: #cfc9d8;
+}
+
+.admin-check.is-ok .admin-check-dot {
+  background: #3fb97a;
+}
+
+.admin-check.is-warn .admin-check-dot {
+  background: #f5b335;
+}
+
+.admin-check.is-bad {
+  border-color: #c2185b;
+  background: #fff0f6;
+}
+
+.admin-check.is-bad .admin-check-dot {
+  background: #e0245e;
+}
+
+.admin-check-action {
+  margin-top: 8px;
+  padding: 6px 12px;
+  font-size: 13px;
+}
+
+.admin-grid > .admin-health,
+.admin-grid > .admin-group-title,
+.admin-grid > .admin-tiles {
+  grid-column: 1 / -1;
+}
+
+.admin-health ul {
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  align-items: start;
+}

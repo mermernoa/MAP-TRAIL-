@@ -59,12 +59,12 @@ interface Message {
 }
 
 const TABS = [
-  { id: 'bord', label: 'Tableau de bord' },
-  { id: 'messages', label: 'Messages' },
-  { id: 'gpx', label: 'Tracés GPX' },
-  { id: 'comptes', label: 'Comptes' },
-  { id: 'site', label: 'Site' },
-  { id: 'liens', label: 'Outils' },
+  { id: 'bord', label: 'Tableau de bord', help: 'L’état du site, ce qu’il reste à faire et les chiffres du mois.' },
+  { id: 'messages', label: 'Messages', help: 'Ce que les visiteurs t’envoient par les formulaires : contact, erreur sur une course, course à ajouter. Tu les reçois aussi par e-mail. Coche « Traité » une fois la réponse faite.' },
+  { id: 'gpx', label: 'Tracés GPX', help: 'Les tracés envoyés par les coureurs. « Mettre en ligne » les affiche sur la fiche de la course ; « Refuser » les écarte.' },
+  { id: 'comptes', label: 'Comptes', help: 'Les personnes inscrites : quand, si leur adresse est confirmée, et combien de courses elles ont dans leur saison.' },
+  { id: 'site', label: 'Réglages', help: 'Ce qui change sur le site sans toucher au code : bandeau d’annonce, coups de cœur de l’accueil, courses masquées, photos des massifs.' },
+  { id: 'liens', label: 'Outils', help: 'Les raccourcis vers la feuille des courses, Supabase et les mises en ligne.' },
 ] as const;
 type Tab = (typeof TABS)[number]['id'];
 
@@ -187,7 +187,7 @@ function Dashboard() {
     <div className="admin-page">
       <header className="admin-head">
         <h1>Espace admin</h1>
-        <p>Statistiques, messages, comptes et réglages du site, sans passer par le code.</p>
+        <p>Tout le site en un coup d’œil : ce qui va, ce qu’il reste à faire, et les chiffres.</p>
       </header>
       <nav className="admin-tabs" role="tablist" aria-label="Rubriques">
         {TABS.map((t) => (
@@ -197,13 +197,14 @@ function Dashboard() {
           </button>
         ))}
       </nav>
+      <p className="admin-tab-help">{TABS.find((t) => t.id === tab)?.help}</p>
       {error && (
         <p className="form-error" role="alert">
           {error}
         </p>
       )}
       <div className="admin-panel" role="tabpanel">
-        {tab === 'bord' && <Overview stats={stats} />}
+        {tab === 'bord' && <Overview stats={stats} goTo={setTab} />}
         {tab === 'messages' && <Messages onChange={loadStats} />}
         {tab === 'gpx' && <GpxReview />}
         {tab === 'comptes' && <Users />}
@@ -216,7 +217,74 @@ function Dashboard() {
 
 // ---------- Tableau de bord
 
-function Overview({ stats }: { stats: Stats | null }) {
+type Check = { state: 'ok' | 'warn' | 'bad' | 'wait'; title: string; text: string; action?: { label: string; tab?: Tab; href?: string } };
+
+/** Santé du site : un voyant par point important, avec quoi faire quand il est rouge. */
+function Health({ stats, goTo }: { stats: Stats; goTo: (t: Tab) => void }) {
+  const [mail, setMail] = useState<'wait' | 'ok' | 'refused' | 'missing' | 'error'>('wait');
+  const [gpx, setGpx] = useState<number | null>(null);
+  useEffect(() => {
+    void getSupabase().then(async (sb) => {
+      const { data } = await sb.functions.invoke<{ mail: 'ok' | 'refused' | 'missing' | 'error' }>('admin-health', { body: {} }).catch(() => ({ data: null }));
+      setMail(data?.mail ?? 'error');
+      const { data: list } = await sb.rpc('admin_gpx_submissions');
+      setGpx(((list as { status: string }[] | null) ?? []).filter((g) => g.status === 'pending').length);
+    });
+  }, []);
+  const checks: Check[] = [
+    mail === 'wait'
+      ? { state: 'wait', title: 'Envoi des e-mails', text: 'Vérification en cours…' }
+      : mail === 'ok'
+        ? { state: 'ok', title: 'Envoi des e-mails', text: 'Les e-mails de confirmation, de bienvenue et d’alerte partent bien de taketontrail@gmail.com. Les inscriptions fonctionnent.' }
+        : {
+            state: 'bad',
+            title: 'Envoi des e-mails : bloqué',
+            text:
+              mail === 'refused'
+                ? 'Gmail refuse le mot de passe d’application de taketontrail@gmail.com. Conséquence : personne ne peut créer de compte (l’e-mail de confirmation ne part pas). À faire : créer un nouveau mot de passe d’application Google, le coller dans le secret GitHub SMTP_PASSWORD, puis relancer « Réglages Supabase ».'
+                : mail === 'missing'
+                  ? 'Aucun mot de passe d’envoi n’est enregistré (secret GitHub SMTP_PASSWORD). Les inscriptions ne peuvent pas recevoir leur e-mail de confirmation.'
+                  : 'Impossible de vérifier l’envoi pour l’instant. Réessaie dans quelques minutes.',
+            action: { label: 'Créer un mot de passe d’application', href: 'https://myaccount.google.com/apppasswords' },
+          },
+    stats.messages_open > 0
+      ? { state: 'warn', title: `${stats.messages_open} message${stats.messages_open > 1 ? 's' : ''} à traiter`, text: 'Des visiteurs attendent une réponse ou une correction.', action: { label: 'Voir les messages', tab: 'messages' } }
+      : { state: 'ok', title: 'Messages', text: 'Aucun message en attente.' },
+    gpx == null
+      ? { state: 'wait', title: 'Tracés GPX', text: 'Vérification en cours…' }
+      : gpx > 0
+        ? { state: 'warn', title: `${gpx} tracé${gpx > 1 ? 's' : ''} GPX à vérifier`, text: 'Des coureurs ont envoyé un tracé : mets-le en ligne ou refuse-le.', action: { label: 'Voir les tracés', tab: 'gpx' } }
+        : { state: 'ok', title: 'Tracés GPX', text: 'Aucun tracé en attente.' },
+  ];
+  return (
+    <section className="panel admin-health" aria-labelledby="admin-health-title">
+      <h2 id="admin-health-title">État du site</h2>
+      <ul>
+        {checks.map((c) => (
+          <li key={c.title} className={`admin-check is-${c.state}`}>
+            <span className="admin-check-dot" aria-hidden="true" />
+            <div>
+              <strong>{c.title}</strong>
+              <p>{c.text}</p>
+              {c.action &&
+                (c.action.href ? (
+                  <a className="button admin-check-action" href={c.action.href} target="_blank" rel="noreferrer">
+                    {c.action.label}
+                  </a>
+                ) : (
+                  <button type="button" className="button admin-check-action" onClick={() => goTo(c.action!.tab!)}>
+                    {c.action.label}
+                  </button>
+                ))}
+            </div>
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}
+
+function Overview({ stats, goTo }: { stats: Stats | null; goTo: (t: Tab) => void }) {
   const all = useCatalog((s) => s.allEvents);
   const byId = useMemo(() => new Map(all.map((e) => [e.id, e])), [all]);
   if (!stats) return <p className="muted">Chargement des chiffres…</p>;
@@ -230,15 +298,23 @@ function Overview({ stats }: { stats: Stats | null }) {
   };
   return (
     <div className="admin-grid">
-      <section className="admin-tiles" aria-label="Chiffres clés">
-        <Tile label="Visites aujourd’hui" value={stats.views_today} />
-        <Tile label="Visites sur 7 jours" value={stats.views_7d} />
-        <Tile label="Visites sur 30 jours" value={stats.views_30d} />
-        <Tile label="Comptes" value={stats.users} hint={`${stats.users_7d} cette semaine`} />
-        <Tile label="Actifs sur 30 jours" value={stats.active_30d} hint={`${stats.users_confirmed} adresses confirmées`} />
-        <Tile label="Saisons remplies" value={stats.seasons} hint={`${stats.season_entries} courses ajoutées`} />
-        <Tile label="Messages à traiter" value={stats.messages_open} hint={`${stats.messages_total} reçus`} />
-        <Tile label="Courses en ligne" value={useCatalog.getState().events.length} />
+      <Health stats={stats} goTo={goTo} />
+      <h2 className="admin-group-title">Fréquentation</h2>
+      <section className="admin-tiles" aria-label="Fréquentation">
+        <Tile label="Pages vues aujourd’hui" value={stats.views_today} hint="Chaque page ouverte compte une fois" />
+        <Tile label="Pages vues sur 7 jours" value={stats.views_7d} />
+        <Tile label="Pages vues sur 30 jours" value={stats.views_30d} />
+      </section>
+      <h2 className="admin-group-title">Comptes et saisons</h2>
+      <section className="admin-tiles" aria-label="Comptes et saisons">
+        <Tile label="Comptes créés" value={stats.users} hint={`dont ${stats.users_7d} cette semaine`} />
+        <Tile label="Venus ces 30 jours" value={stats.active_30d} hint="Se sont connectés au moins une fois" />
+        <Tile label="Saisons commencées" value={stats.seasons} hint={`${stats.season_entries} courses ajoutées en tout`} />
+      </section>
+      <h2 className="admin-group-title">Contenu</h2>
+      <section className="admin-tiles" aria-label="Contenu">
+        <Tile label="Événements en ligne" value={useCatalog.getState().events.length} hint="Courses à venir sur le site" />
+        <Tile label="Messages à traiter" value={stats.messages_open} hint={`${stats.messages_total} reçus depuis le début`} />
       </section>
       <DayBars title="Pages vues par jour" data={stats.views_by_day} unit="vue" since="(le compteur tourne depuis le 13 octobre 2026)" />
       <DayBars title="Inscriptions par jour" data={stats.signups_by_day} unit="inscription" since="sur la période" />

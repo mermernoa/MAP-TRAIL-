@@ -68,6 +68,10 @@ const MESSAGES: Record<string, string> = {
 export function authErrorMessage(error: unknown): string {
   const e = error as { code?: string; message?: string; status?: number; name?: string } | null;
   if (e?.code && MESSAGES[e.code]) return MESSAGES[e.code];
+  // L'e-mail de confirmation n'a pas pu partir (serveur d'envoi refusé) : le compte n'est pas créé.
+  if (/sending (confirmation|recovery|magic link)? ?e-?mail|confirmation email|smtp/i.test(e?.message ?? '')) {
+    return 'Le compte n’a pas pu être créé : l’e-mail de confirmation ne part pas pour le moment. On règle ça au plus vite, réessaie un peu plus tard.';
+  }
   if (e?.name === 'AuthRetryableFetchError' || e?.status === 0 || /fetch|network/i.test(e?.message ?? '')) {
     return 'Connexion impossible. Vérifie ton réseau puis réessaie.';
   }

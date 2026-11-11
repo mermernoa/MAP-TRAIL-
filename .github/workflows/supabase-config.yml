@@ -98,3 +98,4 @@ jobs:
           supabase secrets set --project-ref "$PROJECT_REF" SMTP_PASSWORD="$SMTP_PASSWORD"
           supabase functions deploy welcome --project-ref "$PROJECT_REF" --use-api
           supabase functions deploy notify-message --project-ref "$PROJECT_REF" --use-api
+          supabase functions deploy admin-health --project-ref "$PROJECT_REF" --use-api
