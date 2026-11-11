@@ -1896,7 +1896,7 @@ button.list-more {
 
 .admin-tabs button.is-on {
   background: var(--ink);
-  color: #ffffff;
+  color: var(--paper);
 }
 
 .admin-badge {
@@ -1928,7 +1928,7 @@ button.list-more {
   padding: 16px 18px;
   border: 2px solid var(--ink);
   border-radius: 14px;
-  background: #ffffff;
+  background: var(--surface);
   box-shadow: 3px 4px 0 var(--ink);
 }
 
@@ -2133,8 +2133,8 @@ button.list-more {
   margin-left: 6px;
   padding: 2px 8px;
   border-radius: 999px;
-  background: #f3eaf4;
-  color: #472f61;
+  background: var(--surface-2);
+  color: var(--ink-2);
   font-size: 12px;
   font-weight: 700;
 }
@@ -2157,16 +2157,16 @@ button.list-more {
 }
 
 .gpx-pending {
-  background: #ffe1f2;
+  background: var(--accent-soft);
 }
 
 .gpx-approved {
-  background: #e3f5e9;
-  color: #1d5b34;
+  background: var(--good-soft);
+  color: var(--good);
 }
 
 .admin-danger {
-  color: #a1124f;
+  color: var(--danger, #c2185b);
 }
 
 .admin-users-head {
@@ -2245,7 +2245,7 @@ button.list-more {
   padding: 8px 10px;
   border: 1px solid var(--line-strong);
   border-radius: 8px;
-  background: #ffffff;
+  background: var(--surface);
   text-align: left;
   font-size: 14px;
 }
@@ -3683,7 +3683,7 @@ button.list-more {
 /* Espace admin : aide sous les onglets, état du site, titres de groupes. */
 .admin-tab-help {
   margin: -6px 0 4px;
-  color: var(--ink-3, #635c7d);
+  color: var(--ink-3);
   font-size: 14px;
 }
 
@@ -3691,7 +3691,7 @@ button.list-more {
   margin: 10px 0 -6px;
   font-family: var(--font-display);
   font-size: 22px;
-  color: #071c3f;
+  color: var(--ink);
 }
 
 .admin-health ul {
@@ -3707,9 +3707,9 @@ button.list-more {
   grid-template-columns: 16px 1fr;
   gap: 12px;
   padding: 12px 14px;
-  border: 2px solid #071c3f;
+  border: 2px solid var(--ink);
   border-radius: 12px;
-  background: #ffffff;
+  background: var(--surface);
 }
 
 .admin-check p {
@@ -3722,7 +3722,7 @@ button.list-more {
   width: 14px;
   height: 14px;
   margin-top: 4px;
-  border: 2px solid #071c3f;
+  border: 2px solid var(--ink);
   border-radius: 50%;
   background: #cfc9d8;
 }
@@ -3737,7 +3737,7 @@ button.list-more {
 
 .admin-check.is-bad {
   border-color: #c2185b;
-  background: #fff0f6;
+  background: var(--accent-soft);
 }
 
 .admin-check.is-bad .admin-check-dot {

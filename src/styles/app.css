@@ -4577,7 +4577,7 @@ textarea {
   align-items: center;
   gap: 10px;
   margin: 4px 0 0;
-  color: var(--ink-3, #635c7d);
+  color: var(--ink-3);
   font-size: 13px;
 }
 
@@ -4598,7 +4598,7 @@ textarea {
   padding: 0;
   list-style: none;
   font-size: 13px;
-  color: var(--ink-3, #635c7d);
+  color: var(--ink-3);
 }
 
 .password-rules li {
@@ -4608,7 +4608,7 @@ textarea {
 }
 
 .password-rules li.is-ok {
-  color: #071c3f;
+  color: var(--ink);
   font-weight: 700;
 }
 
