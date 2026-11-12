@@ -534,6 +534,8 @@
 .door-medal {
   width: auto;
   height: 66px;
+  aspect-ratio: 356 / 520;
+  object-fit: contain;
   justify-self: start;
   transform: rotate(8deg);
   transform-origin: top center;
@@ -718,11 +720,10 @@
 
 .poster-credit {
   padding: 0 4px;
-  overflow: hidden;
   font-size: 11px;
+  line-height: 1.35;
   color: var(--ink-3);
-  white-space: nowrap;
-  text-overflow: ellipsis;
+  overflow-wrap: anywhere;
 }
 
 /* Silhouettes : trait rose, aplat qui se remplit au survol. */
@@ -945,6 +946,8 @@
 .home-season-medal {
   width: 130px;
   height: auto;
+  aspect-ratio: 356 / 520;
+  object-fit: contain;
   transform: rotate(-8deg);
 }
 

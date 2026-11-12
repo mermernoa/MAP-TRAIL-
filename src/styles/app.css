@@ -4636,3 +4636,122 @@ textarea {
   height: 1px;
   overflow: hidden;
 }
+
+/* ——— Mobile d'abord : corrections relevées par l'audit des pages à 320, 375 et 390 px ——— */
+
+/* Logo de l'en-tête : jamais écrasé par le menu, toujours à ses proportions. */
+.brand {
+  flex: none;
+}
+
+.brand-wordmark {
+  flex: none;
+  max-width: none;
+  aspect-ratio: 370 / 240;
+  object-fit: contain;
+}
+
+@media (max-width: 380px) {
+  .brand-wordmark {
+    height: 40px;
+  }
+}
+
+/* Pages en grille : une colonne qui ne s'élargit jamais au-delà de l'écran. */
+.calendar-page,
+.season-page,
+.massif-intro-text,
+.massif-body,
+.collection-body {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.calendar-page > *,
+.season-page > *,
+.massif-intro-text > * {
+  min-width: 0;
+}
+
+@media (max-width: 700px) {
+  /* Le lieu d'une course passe à la ligne plutôt que d'être coupé. */
+  .race-item-place {
+    white-space: normal;
+    overflow: visible;
+  }
+
+  .calendar-toolbar {
+    gap: 10px;
+  }
+
+  .calendar-toolbar .segmented button {
+    padding: 0 10px;
+  }
+}
+
+.filter-bar,
+.calendar-filters {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.search {
+  min-width: 0;
+}
+
+.search input {
+  min-width: 0;
+  width: 100%;
+}
+
+/* Très petits écrans (320 px) : logo, menu et compte tiennent sur une ligne. */
+@media (max-width: 360px) {
+  .app-header {
+    gap: 6px;
+    padding: 0 8px 0 10px;
+  }
+
+  .brand-wordmark {
+    height: 34px;
+  }
+
+  .app-nav {
+    gap: 0;
+  }
+
+  .app-nav a {
+    padding: 0 5px;
+    font-size: 13px;
+  }
+
+  .app-nav a.active::after {
+    left: 5px;
+    right: 5px;
+  }
+
+  .app-nav .badge {
+    margin-left: 3px;
+  }
+}
+
+/* Boutons à libellé long (« Voir les courses près de Lyon sur la carte ») : passent à la ligne. */
+.button {
+  max-width: 100%;
+}
+
+@media (max-width: 480px) {
+  .button {
+    white-space: normal;
+    text-align: center;
+    height: auto;
+    min-height: 40px;
+    line-height: 1.25;
+  }
+
+  .empty-large {
+    margin: 24px 0;
+    padding: 28px 16px;
+  }
+
+  .empty-large .button-row {
+    flex-wrap: wrap;
+  }
+}
