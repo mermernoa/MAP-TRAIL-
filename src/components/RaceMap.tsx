@@ -379,12 +379,15 @@ export function RaceMap({ matches, selectedId, hoveredId, focusNonce, onSelect, 
   // Fond de carte.
   const firstStyle = useRef(true);
   useEffect(() => {
-    const map = mapRef.current;
-    if (!map) return;
+    // Premier passage (montage) : le fond est déjà celui de la création de la carte. La carte
+    // est créée après le premier affichage : on marque ce passage même si elle n'existe pas encore,
+    // sinon le premier changement de fond serait ignoré.
     if (firstStyle.current) {
       firstStyle.current = false;
       return;
     }
+    const map = mapRef.current;
+    if (!map) return;
     // Rechargement complet : « style.load » remet le relief 3D et les courses sur le nouveau fond.
     map.setStyle(basemapStyle(basemap), { diff: false });
   }, [basemap]);
